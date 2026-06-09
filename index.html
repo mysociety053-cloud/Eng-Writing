@@ -796,8 +796,12 @@ function dashboardList(){
 async function dashboardClass(classId){
   const c=DB.classes.find(x=>x.id===classId); if(!c){ dashboardList(); return; }
   app.innerHTML = `<button class="back" onclick="dashboardList()">← 학급 고르기</button>
-    <div class="card"><h2 style="margin-top:4px">🏫 ${esc(c.name)}</h2><p class="muted">과제를 눌러 학생별 완료 여부를 확인하세요.</p></div>
+    <div class="card"><div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap">
+      <h2 style="margin:4px 0; flex:1">🏫 ${esc(c.name)}</h2>
+      <button class="btn ghost sm" id="refreshC">🔄 새로고침</button></div>
+      <p class="muted">과제를 눌러 학생별 완료 여부를 확인하세요. 최신 진행은 새로고침을 눌러요.</p></div>
     <div id="dlist" class="empty"><span class="em">⏳</span>불러오는 중...</div>`;
+  const rc=$('refreshC'); if(rc) rc.onclick=()=>{ toast('최신 진행을 불러왔어요'); dashboardClass(classId); };
   const asgs=DB.assignments.filter(a=>a.classId===classId).sort((a,b)=>b.createdAt-a.createdAt);
   if(!asgs.length){ $('dlist').outerHTML='<div class="card empty"><span class="em">📭</span>이 학급에 부여된 과제가 없어요.</div>'; return; }
   const cards=[];
@@ -831,9 +835,12 @@ async function dashboardClass(classId){
 async function dashboardDetail(aid){
   const a=DB.assignments.find(x=>x.id===aid); const c=DB.classes.find(x=>x.id===a.classId);
   app.innerHTML = `<button class="back" onclick="dashboardClass('${a.classId}')">← ${esc(c?c.name:'학급')}</button>
-    <div class="card"><h2 style="margin-top:4px">📝 ${esc(a.title)}</h2>
+    <div class="card"><div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap">
+      <h2 style="margin:4px 0; flex:1">📝 ${esc(a.title)}</h2>
+      <button class="btn ghost sm" id="refreshD">🔄 새로고침</button></div>
     <p class="muted">${esc(c?c.name:'')} · ${[a.grade,a.unit,a.lesson].filter(Boolean).join(' / ')} · ${a.items.length}개 항목 · ${a.repeat}번씩</p></div>
     <div id="rosterArea" class="empty"><span class="em">⏳</span>불러오는 중...</div>`;
+  const rd=$('refreshD'); if(rd) rd.onclick=()=>{ toast('최신 진행을 불러왔어요'); dashboardDetail(aid); };
   if(!c){ $('rosterArea').outerHTML='<div class="card empty">학급이 삭제되었어요.</div>'; return; }
   const totalUnits = a.items.length * a.repeat;
   const doneStus=[], notStus=[];
