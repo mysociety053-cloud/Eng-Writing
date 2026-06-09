@@ -200,6 +200,10 @@ async function sSet(key, val){
   mem[key]=val; return true;
 }
 const progKey = (aid,sid)=> `v1:prog:${aid}:${sid}`;
+async function sDel(key){
+  if(fbReady && window.__store){ try{ const {col,id}=keyRef(key); await window.__store.del(col,id); return true; }catch(e){ console.warn('sDel',key,e); return false; } }
+  delete mem[key]; return true;
+}
 function setupLiveSync(){
   if(!(fbReady && window.__store)) return;
   const c=colName('app');
@@ -396,12 +400,19 @@ async function teacherLogin(){
       <p class="center" style="margin-top:12px">
         <button class="back" id="toggleMode" style="font-size:.88rem">${mode==='in'?'처음이신가요? 계정 만들기':'이미 계정이 있어요 → 로그인'}</button>
       </p>
+      ${mode==='in'? '<p class="center" style="margin-top:-4px"><button class="back" id="resetPw" style="font-size:.82rem; color:var(--ink-soft)">비밀번호를 잊으셨나요? 재설정 메일 보내기</button></p>':''}
       <p class="muted" style="font-size:.78rem">※ 학급·과제를 만들고 고칠 수 있는 권한은 <b>선생님 계정</b>에만 있어요. 학생은 로그인 없이 사용합니다.</p>
     </div>`;
     $('tEmail').focus();
     $('toggleMode').onclick=()=>{ mode = (mode==='in'?'up':'in'); draw(); };
     $('doAuth').onclick=doAuth;
     $('tPw').addEventListener('keydown',e=>{ if(e.key==='Enter') doAuth(); });
+    const rp=$('resetPw'); if(rp) rp.onclick=async ()=>{
+      const email=$('tEmail').value.trim();
+      if(!email){ toast('재설정 메일을 받을 이메일을 먼저 입력하세요'); $('tEmail').focus(); return; }
+      try{ await window.__auth.resetPassword(email); toast('재설정 메일을 보냈어요! 메일함을 확인하세요 📧'); }
+      catch(e){ const m=(e&&e.code)||''; toast(m.includes('user-not-found')?'그 이메일로 만든 계정이 없어요':'메일 전송 실패: '+((e&&e.message)||m)); }
+    };
   };
   const doAuth=async ()=>{
     const email=$('tEmail').value.trim(), pw=$('tPw').value;
@@ -793,21 +804,28 @@ async function dashboardClass(classId){
   for(const a of asgs){
     const total=c.students.length; let done=0;
     for(const s of c.students){ const p=await sGet(progKey(a.id,s.id),null); if(p&&p.done) done++; }
-    cards.push(`<div class="card" style="cursor:pointer; margin-bottom:14px" data-asg="${a.id}">
+    cards.push(`<div class="card" style="margin-bottom:14px">
       <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap">
-        <h3 style="margin:0; flex:1">📝 ${esc(a.title)}</h3>
-        <button class="del" data-dela="${a.id}" title="과제 삭제">🗑️</button>
+        <h3 style="margin:0; flex:1; cursor:pointer" data-asg="${a.id}">📝 ${esc(a.title)}</h3>
+        <button class="btn ghost sm" data-dela="${a.id}" style="color:var(--coral-d)">🗑️ 배부 삭제</button>
       </div>
-      <p class="muted" style="margin:6px 0 10px">${[a.grade,a.unit,a.lesson].filter(Boolean).join(' / ')||'학년 미지정'} · 항목 ${a.items.length}개 · ${a.repeat}번 쓰기</p>
-      <div class="progress"><div style="width:${total?Math.round(done/total*100):0}%"></div></div>
-      <p class="muted" style="margin-top:8px">완료 <b style="color:var(--green-d)">${done}</b> / 전체 ${total}명</p>
+      <p class="muted" style="margin:6px 0 10px; cursor:pointer" data-asg="${a.id}">${[a.grade,a.unit,a.lesson].filter(Boolean).join(' / ')||'학년 미지정'} · 항목 ${a.items.length}개 · ${a.repeat}번 쓰기</p>
+      <div class="progress" data-asg="${a.id}" style="cursor:pointer"><div style="width:${total?Math.round(done/total*100):0}%"></div></div>
+      <p class="muted" style="margin-top:8px">완료 <b style="color:var(--green-d)">${done}</b> / 전체 ${total}명 · <span style="color:var(--green-d)">학생별 보기 →</span></p>
     </div>`);
   }
   $('dlist').outerHTML = `<div>${cards.join('')}</div>`;
-  app.querySelectorAll('[data-asg]').forEach(el=> el.onclick=(e)=>{ if(e.target.dataset.dela) return; dashboardDetail(el.dataset.asg); });
+  app.querySelectorAll('[data-asg]').forEach(el=> el.onclick=()=> dashboardDetail(el.dataset.asg));
   app.querySelectorAll('[data-dela]').forEach(b=> b.onclick=async (e)=>{ e.stopPropagation();
-    if(!confirm('이 과제를 삭제할까요?')) return;
-    DB.assignments=DB.assignments.filter(x=>x.id!==b.dataset.dela); await sSet(KEYS.assignments,DB.assignments); dashboardClass(classId);
+    const a=DB.assignments.find(x=>x.id===b.dataset.dela); if(!a) return;
+    if(!confirm(`'${a.title}' 과제를 이 학급에서 삭제할까요?\n학생들이 더 이상 볼 수 없고, 이 과제의 진행 기록도 함께 지워져요. (다른 학급에 같은 과제를 배부한 건 그대로 남아요)`)) return;
+    b.disabled=true; b.textContent='삭제 중...';
+    // 학생 진행 기록 정리
+    for(const s of c.students){ await sDel(progKey(a.id, s.id)); }
+    DB.assignments=DB.assignments.filter(x=>x.id!==a.id);
+    await sSet(KEYS.assignments, DB.assignments);
+    toast('과제 배부를 삭제했어요');
+    dashboardClass(classId);
   });
 }
 async function dashboardDetail(aid){
@@ -1152,7 +1170,7 @@ window.addEventListener('resize', ()=>{ /* canvases keep their pixel state; resi
 /* ============================ START ============================ */
 window.boot = boot;
 // 모듈 로드가 실패해도 화면은 뜨도록 안전장치 (4초)
-setTimeout(()=>{ if(!window.__booted) boot(); }, 7000);
+setTimeout(()=>{ if(!window.__booted) boot(); }, 10000);
 </script>
 
 <!-- Firebase (모듈 SDK) : 전용 Firestore DB + 인증(선생님 로그인 / 학생 익명) -->
@@ -1162,9 +1180,14 @@ setTimeout(()=>{ if(!window.__booted) boot(); }, 7000);
   const finish = ()=>{ if(window.boot) window.boot(); };
   if(!cfg.ready){ window.__backend = { ready:false }; return finish(); }
   try{
-    const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js");
-    const { getFirestore, doc, getDoc, setDoc, onSnapshot } = await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js");
-    const { getAuth, onAuthStateChanged, signInAnonymously, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } = await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js");
+    const imp = async (urls)=>{ let err; for(const u of urls){ try{ return await import(u); }catch(e){ err=e; } } throw err; };
+    const V="10.12.5";
+    const appMod = await imp([`https://cdn.jsdelivr.net/npm/firebase@${V}/app/+esm`, `https://www.gstatic.com/firebasejs/${V}/firebase-app.js`]);
+    const fsMod  = await imp([`https://cdn.jsdelivr.net/npm/firebase@${V}/firestore/+esm`, `https://www.gstatic.com/firebasejs/${V}/firebase-firestore.js`]);
+    const auMod  = await imp([`https://cdn.jsdelivr.net/npm/firebase@${V}/auth/+esm`, `https://www.gstatic.com/firebasejs/${V}/firebase-auth.js`]);
+    const { initializeApp } = appMod;
+    const { getFirestore, doc, getDoc, setDoc, deleteDoc, onSnapshot } = fsMod;
+    const { getAuth, onAuthStateChanged, signInAnonymously, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail } = auMod;
     const appFb = initializeApp(cfg.config);
     const db = cfg.dbId ? getFirestore(appFb, cfg.dbId) : getFirestore(appFb);
     const auth = getAuth(appFb);
@@ -1180,6 +1203,7 @@ setTimeout(()=>{ if(!window.__booted) boot(); }, 7000);
     window.__store = {
       async get(col, id){ const s = await getDoc(doc(db, col, id)); return s.exists() ? s.data().value : undefined; },
       async set(col, id, value){ await setDoc(doc(db, col, id), { value }); },
+      async del(col, id){ await deleteDoc(doc(db, col, id)); },
       watch(col, id, cb){ onSnapshot(doc(db, col, id), s=>{ if(s.exists()) cb(s.data().value); }); }
     };
     window.__auth = {
@@ -1188,6 +1212,7 @@ setTimeout(()=>{ if(!window.__booted) boot(); }, 7000);
       email:()=> { const u=auth.currentUser; return (u && u.email) || ''; },
       async signIn(email,pw){ await signInWithEmailAndPassword(auth, email, pw); },
       async signUp(email,pw){ await createUserWithEmailAndPassword(auth, email, pw); },
+      async resetPassword(email){ await sendPasswordResetEmail(auth, email); },
       async signOutToAnon(){ try{ await signOut(auth); }catch(e){} try{ await signInAnonymously(auth); }catch(e){} }
     };
     window.__backend = { ready:true };
