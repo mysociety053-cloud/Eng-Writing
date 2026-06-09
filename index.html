@@ -365,12 +365,29 @@ const SPEAK_GOAL = 5;
 let speakRec = null;
 let studentMode = 'write';   // 'write' | 'speak'
 function assignmentHasMode(a, m){ const md=a.mode||'write'; return m==='speak' ? (md==='speak'||md==='both') : (md==='write'||md==='both'); }
-function speakStop(){ if(speakRec){ try{ speakRec.stop(); }catch(e){} speakRec=null; } try{ speechSynthesis.cancel(); }catch(e){} }
-function speak(text){
+const TTS_VOICE='en-US-Neural2-F';   // 고품질 원어민 음성 이름 (en-US-* 중에서 바꿀 수 있어요)
+const ttsUrlCache=new Map();         // 같은 텍스트는 한 세션에서 URL 재사용 (함수 호출 0)
+let ttsAudio=null;
+function fallbackSpeak(text){        // 클라우드 음성이 없거나 실패하면 기기 내장 음성으로
   try{ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(text); u.lang='en-US'; u.rate=0.9;
     const vs=speechSynthesis.getVoices(); const v=vs.find(x=>/^en[-_]/i.test(x.lang)); if(v) u.voice=v;
     speechSynthesis.speak(u);
   }catch(e){}
+}
+function speakStop(){ if(speakRec){ try{ speakRec.stop(); }catch(e){} speakRec=null; }
+  if(ttsAudio){ try{ ttsAudio.pause(); }catch(e){} ttsAudio=null; }
+  try{ speechSynthesis.cancel(); }catch(e){} }
+async function speak(text){
+  try{ speechSynthesis.cancel(); }catch(e){}
+  if(ttsAudio){ try{ ttsAudio.pause(); }catch(e){} ttsAudio=null; }
+  if(window.__tts){
+    try{
+      let url=ttsUrlCache.get(text);
+      if(!url){ url=await window.__tts(text, TTS_VOICE); if(url) ttsUrlCache.set(text, url); }
+      if(url){ const au=new Audio(url); ttsAudio=au; await au.play(); return; }
+    }catch(e){ /* 아래 폴백으로 */ }
+  }
+  fallbackSpeak(text);
 }
 function spNorm(s){ return String(s||'').toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim(); }
 function spLev(a,b){ const m=a.length,n=b.length; if(!m)return n; if(!n)return m; const d=[]; for(let j=0;j<=n;j++)d[j]=j;
@@ -678,14 +695,16 @@ function createAssignment(){
       const preview=l.items.slice(0,8).map(i=>esc(i.text)).join(', ')+(l.items.length>8?' …':'');
       const tag=[l.grade,l.unit,l.lesson].filter(Boolean).join(' / ');
       const givenClassIds=[...new Set(DB.assignments.filter(a=>a.listId===l.id).map(a=>a.classId))];
-      const givenNames=givenClassIds.map(cid=>{ const c=DB.classes.find(x=>x.id===cid); return c?c.name:null; }).filter(Boolean);
+      const givenChips=givenClassIds.map(cid=>{ const c=DB.classes.find(x=>x.id===cid); if(!c) return '';
+        return `<span class="chip">${esc(c.name)} <button class="del" data-revoke="${l.id}|${cid}" title="이 학급에서 배부 취소" style="font-size:1rem; padding:0 2px">×</button></span>`; }).filter(Boolean).join('');
       return `<div class="card" style="margin-bottom:12px">
         <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap">
           <h3 style="margin:0; flex:1">📄 ${esc(l.name)}</h3><span class="muted">${l.items.length}개</span>
         </div>
         <p class="muted" style="margin:5px 0 6px">${tag||'학년 미지정'}</p>
         <p style="font-family:'Andika'; font-size:.95rem; margin:0 0 8px; color:var(--ink-soft)">${preview}</p>
-        <p class="muted" style="font-size:.82rem; margin:0 0 10px">${givenNames.length? '✅ 부여한 학급: '+givenNames.map(esc).join(', ') : '아직 부여한 학급 없음'}</p>
+        <p class="muted" style="font-size:.82rem; margin:0 0 4px">${givenChips? '✅ 부여한 학급 <span style="font-size:.78rem">(×로 배부 취소)</span>' : '아직 부여한 학급 없음'}</p>
+        ${givenChips? `<div style="margin:0 0 10px">${givenChips}</div>` : ''}
         <div style="display:flex; gap:8px; flex-wrap:wrap">
           <button class="btn sm" data-load="${l.id}">이 과제 부여 / 편집</button>
           <button class="btn ghost sm" data-rename="${l.id}">이름 변경</button>
@@ -698,6 +717,19 @@ function createAssignment(){
       const nn=prompt('새 이름을 입력하세요', l.name); if(nn==null) return; l.name=(nn.trim()||l.name); l.updatedAt=Date.now(); await sSet(KEYS.lists,DB.lists); render(); });
     el.querySelectorAll('[data-dellist]').forEach(b=> b.onclick=async ()=>{ if(!confirm('이 과제 목록을 삭제할까요? (이미 학급에 부여된 과제는 그대로 남아요)')) return;
       DB.lists=DB.lists.filter(x=>x.id!==b.dataset.dellist); await sSet(KEYS.lists,DB.lists); render(); });
+    el.querySelectorAll('[data-revoke]').forEach(b=> b.onclick=async ()=>{
+      const [lid,cid]=b.dataset.revoke.split('|');
+      const c=DB.classes.find(x=>x.id===cid);
+      const targets=DB.assignments.filter(a=>a.listId===lid && a.classId===cid);
+      if(!targets.length) return;
+      if(!confirm(`'${c?c.name:'이 학급'}'에서 이 과제 배부를 취소할까요?\n학생들이 더 이상 볼 수 없고, 진행 기록도 함께 지워져요. (보관함 목록은 그대로 남아요)`)) return;
+      b.disabled=true; b.textContent='…';
+      if(c){ for(const a of targets){ for(const s of c.students){ await sDel(progKey(a.id, s.id)); } } }
+      const ids=new Set(targets.map(a=>a.id));
+      DB.assignments=DB.assignments.filter(a=>!ids.has(a.id));
+      await sSet(KEYS.assignments, DB.assignments);
+      toast('배부를 취소했어요'); render();
+    });
   };
   const s=$('libSearch'); if(s) s.addEventListener('input',e=>{ curQ=e.target.value.trim(); render(); });
   app.querySelectorAll('.lib-g').forEach(ch=> ch.onclick=()=>{ curGrade=ch.dataset.g; curQ=''; const sb=$('libSearch'); if(sb) sb.value='';
@@ -803,13 +835,6 @@ function assignmentForm(){
     <button class="back" onclick="createAssignment()">← 과제 만들기</button>
     <div class="card">
       <h2 style="margin-top:4px">① 과제 정보</h2>
-      <label style="margin-bottom:6px">과제 유형</label>
-      <div class="seg" id="modeType">
-        <button data-mt="write" class="${draft.mode==='write'?'on':''}">✏️ 쓰기</button>
-        <button data-mt="speak" class="${draft.mode==='speak'?'on':''}">🗣️ 말하기</button>
-        <button data-mt="both" class="${draft.mode==='both'?'on':''}">✏️+🗣️ 둘 다</button>
-      </div>
-      <p class="muted" style="font-size:.82rem; margin:-4px 0 12px 2px" id="modeHint"></p>
       <div class="row">
         <div><label>학년</label><input type="text" id="aGrade" placeholder="예) 4학년"></div>
         <div><label>단원</label><input type="text" id="aUnit" placeholder="예) 5단원"></div>
@@ -839,8 +864,17 @@ function assignmentForm(){
     </div>
 
     <div class="card">
-      <h3 style="margin-top:0">쓰기 횟수</h3>
-      <p class="muted">각 낱말·문장을 몇 번 따라 쓰게 할까요?</p>
+      <h2 style="margin-top:4px">③ 과제 유형과 횟수</h2>
+      <label style="margin-bottom:6px">고른 항목으로 어떤 과제를 낼까요?</label>
+      <div class="seg" id="modeType">
+        <button data-mt="write" class="${draft.mode==='write'?'on':''}">✏️ 쓰기</button>
+        <button data-mt="speak" class="${draft.mode==='speak'?'on':''}">🗣️ 말하기</button>
+        <button data-mt="both" class="${draft.mode==='both'?'on':''}">✏️+🗣️ 둘 다</button>
+      </div>
+      <p class="muted" style="font-size:.82rem; margin:-4px 0 12px 2px" id="modeHint"></p>
+      <div class="hr"></div>
+      <h3 id="cntTitle" style="margin-top:0">쓰기 횟수</h3>
+      <p class="muted" id="cntDesc">각 낱말·문장을 몇 번 따라 쓰게 할까요?</p>
       <div class="count-ctrl">
         <button id="cMinus">−</button>
         <span class="n" id="cNum">${draft.repeat}</span>
@@ -850,7 +884,7 @@ function assignmentForm(){
     </div>
 
     <div class="card">
-      <h2 style="margin-top:4px">③ 배부할 학급 고르기</h2>
+      <h2 style="margin-top:4px">④ 배부할 학급 고르기</h2>
       <p class="muted">이 과제를 수행할 학급을 클릭하세요. (여러 학급 선택 가능)</p>
       <p class="muted" id="clsNote" style="font-size:.83rem; color:var(--green-d); margin:2px 0 0 2px"></p>
       <div class="grid-cards" id="clsPick" style="margin-top:8px"></div>
@@ -871,10 +905,12 @@ function assignmentForm(){
   renderClassPick();
   if($('aGrade')) $('aGrade').addEventListener('input', renderClassPick);
   const modeHints={ write:'학생이 흐린 글자 위에 따라 써요.', speak:'학생이 듣고 마이크로 따라 말해요(자동 채점).', both:'쓰기 과제와 말하기 과제가 각각 하나씩 배부돼요.' };
-  const setModeHint=()=>{ const h=$('modeHint'); if(h) h.textContent=modeHints[draft.mode]||''; };
-  setModeHint();
+  const cntText={ write:['쓰기 횟수','각 낱말·문장을 몇 번 따라 쓰게 할까요?'], speak:['말하기 횟수','각 낱말·문장을 몇 번 따라 말하게 할까요?'], both:['연습 횟수','각 낱말·문장을 쓰기·말하기 각각 몇 번씩 연습하게 할까요?'] };
+  const updateModeUI=()=>{ const h=$('modeHint'); if(h) h.textContent=modeHints[draft.mode]||'';
+    const t=cntText[draft.mode]||cntText.write; const ct=$('cntTitle'); if(ct) ct.textContent=t[0]; const cd=$('cntDesc'); if(cd) cd.textContent=t[1]; };
+  updateModeUI();
   app.querySelectorAll('#modeType button').forEach(b=> b.onclick=()=>{ draft.mode=b.dataset.mt;
-    app.querySelectorAll('#modeType button').forEach(x=>x.classList.toggle('on',x.dataset.mt===draft.mode)); setModeHint(); });
+    app.querySelectorAll('#modeType button').forEach(x=>x.classList.toggle('on',x.dataset.mt===draft.mode)); updateModeUI(); });
   app.querySelectorAll('#modeSeg button').forEach(b=> b.onclick=()=>{ draft.inputMode=b.dataset.mode;
     app.querySelectorAll('#modeSeg button').forEach(x=>x.classList.toggle('on',x.dataset.mode===draft.inputMode)); renderInputArea(); });
   $('selAll').onclick=()=>{ draft.items.forEach(i=>i.sel=true); renderItemList(); };
@@ -1497,6 +1533,14 @@ setTimeout(()=>{ if(!window.__booted) boot(); }, 10000);
       async resetPassword(email){ await sendPasswordResetEmail(auth, email); },
       async signOutToAnon(){ try{ await signOut(auth); }catch(e){} try{ await signInAnonymously(auth); }catch(e){} }
     };
+    // 고품질 TTS 콜러블 함수 연결 (실패해도 앱 본체/저장은 그대로 동작)
+    try{
+      const fnMod = await imp([`https://cdn.jsdelivr.net/npm/firebase@${V}/functions/+esm`, `https://www.gstatic.com/firebasejs/${V}/firebase-functions.js`]);
+      const { getFunctions, httpsCallable } = fnMod;
+      const functions = getFunctions(appFb, 'asia-northeast3');
+      const ttsCallable = httpsCallable(functions, 'ttsSpeak');
+      window.__tts = async (text, voice)=>{ const r = await ttsCallable({ text, voice }); return r && r.data && r.data.url; };
+    }catch(e){ console.warn('tts init failed', e); }
     window.__backend = { ready:true };
   }catch(e){
     window.__backend = { ready:false, error:(e && e.message) || String(e) };
