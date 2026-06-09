@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>또박또박 영어쓰기</title>
+<title>또박또박 영어 — 쓰기와 말하기</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=Andika:wght@400;700&display=swap" rel="stylesheet">
@@ -134,12 +134,36 @@
   .trace-cell .ink{position:absolute; inset:0;}
   .trace-cell .badge{top:4px; right:6px; font-size:.85rem; padding:1px 8px;}
   @media(max-width:520px){ .wrap{padding:12px 10px 80px;} .card{padding:15px;} .logo{font-size:1.2rem;} }
+  /* speaking practice */
+  .speak-hero{border-radius:22px; padding:26px 20px; text-align:center; color:#fff;
+    background:linear-gradient(135deg,#3b6fd4,#6a4bd8); box-shadow:0 10px 0 rgba(60,40,120,.25);}
+  .speak-hero .tag{display:inline-block; font-family:'Jua'; font-size:.72rem; letter-spacing:.5px;
+    background:rgba(255,255,255,.22); padding:4px 12px; border-radius:999px; margin-bottom:12px;}
+  .speak-hero .word{font-family:'Andika'; font-weight:700; font-size:2.8rem; line-height:1.1;}
+  .speak-hero .mean{font-size:1.05rem; opacity:.95; margin-top:4px;}
+  .speak-hero .listen{margin-top:16px; background:rgba(255,255,255,.95); color:#3b3a86;
+    font-family:'Jua'; padding:11px 20px; border-radius:14px; box-shadow:0 4px 0 rgba(0,0,0,.15);}
+  .speak-hero .listen:active{transform:translateY(3px); box-shadow:0 1px 0 rgba(0,0,0,.15);}
+  .chal-dots{display:flex; gap:8px; justify-content:flex-end; flex-wrap:wrap;}
+  .chal-dots .d{width:30px; height:30px; border-radius:999px; border:2px solid var(--border);
+    display:flex; align-items:center; justify-content:center; font-family:'Jua'; font-size:.85rem; color:var(--ink-soft); background:#fff;}
+  .chal-dots .d.on{background:var(--green); border-color:var(--green); color:#fff;}
+  .mic-zone{border:2px dashed var(--border); border-radius:16px; padding:22px 16px; text-align:center; background:#FBFAF6;}
+  .mic-btn{width:84px; height:84px; border-radius:999px; background:var(--coral); color:#fff; font-size:2rem;
+    box-shadow:0 6px 0 var(--coral-d); margin-bottom:6px;}
+  .mic-btn:active{transform:translateY(3px); box-shadow:0 3px 0 var(--coral-d);}
+  .mic-btn.rec{background:#d83a3a; box-shadow:0 6px 0 #a82a2a; animation:pulse 1s infinite;}
+  @keyframes pulse{0%,100%{transform:scale(1);} 50%{transform:scale(1.07);}}
+  .heard{font-family:'Andika'; font-size:1.15rem; min-height:1.4em;}
+  .score-big{font-family:'Jua'; font-size:2rem;}
+  .score-row{display:flex; gap:12px; margin-top:12px;}
+  .score-row>div{flex:1; background:#fff; border:2px solid var(--border); border-radius:14px; padding:12px;}
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="topbar">
-    <div class="logo">✏️ 또박또박 <span class="pen">영어쓰기</span></div>
+    <div class="logo">✏️🗣️ 또박또박 <span class="pen">영어</span></div>
     <div class="spacer"></div>
     <div class="who" id="who"></div>
     <button class="btn ghost sm" id="logoutBtn" style="display:none">처음으로</button>
@@ -309,16 +333,163 @@ function renderHome(){
   app.innerHTML = `
     <div class="card center">
       <h2 style="margin-top:4px">누구인가요?</h2>
-      <p class="muted">선생님은 학급·과제를 만들고, 학생은 과제를 따라 써요.</p>
+      <p class="muted">선생님은 학급·과제를 관리하고, 학생은 쓰기·말하기 연습을 해요.</p>
       <div class="grid-cards" style="max-width:420px; margin:18px auto 4px">
         <div class="tile" id="goTeacher"><span class="emoji">👩‍🏫</span><div class="t">선생님</div><div class="s">학급·과제 관리</div></div>
-        <div class="tile" id="goStudent"><span class="emoji">🧒</span><div class="t">학생</div><div class="s">과제 따라쓰기</div></div>
+        <div class="tile" id="goStudent"><span class="emoji">🧒</span><div class="t">학생</div><div class="s">쓰기·말하기 연습</div></div>
       </div>
       <p class="center" style="margin:16px 0 0"><button class="back" id="goDiag" style="font-size:.85rem">🔧 연결 상태 확인</button></p>
     </div>`;
   $('goTeacher').onclick = teacherLogin;
-  $('goStudent').onclick = studentPickClass;
+  $('goStudent').onclick = studentMenu;
   $('goDiag').onclick = diagnosticsScreen;
+}
+
+function studentMenu(){
+  app.innerHTML = `
+    <button class="back" onclick="renderHome()">← 처음으로</button>
+    <div class="card center">
+      <h2 style="margin-top:4px">무엇을 연습할까요?</h2>
+      <p class="muted">하고 싶은 연습을 골라요.</p>
+      <div class="grid-cards" style="max-width:420px; margin:18px auto 4px">
+        <div class="tile" id="goWrite"><span class="emoji">✏️</span><div class="t">또박또박 영어 쓰기</div><div class="s">흐린 글자 따라쓰기</div></div>
+        <div class="tile" id="goSpeak"><span class="emoji">🗣️</span><div class="t">또박또박 영어 말하기</div><div class="s">듣고 따라 말하기</div></div>
+      </div>
+    </div>`;
+  $('goWrite').onclick = ()=>{ studentMode='write'; studentPickClass(); };
+  $('goSpeak').onclick = ()=>{ studentMode='speak'; studentPickClass(); };
+}
+
+/* ============================ SPEAKING PRACTICE ============================ */
+const SPEAK_GOAL = 5;
+let speakRec = null;
+let studentMode = 'write';   // 'write' | 'speak'
+function assignmentHasMode(a, m){ const md=a.mode||'write'; return m==='speak' ? (md==='speak'||md==='both') : (md==='write'||md==='both'); }
+function speakStop(){ if(speakRec){ try{ speakRec.stop(); }catch(e){} speakRec=null; } try{ speechSynthesis.cancel(); }catch(e){} }
+function speak(text){
+  try{ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(text); u.lang='en-US'; u.rate=0.9;
+    const vs=speechSynthesis.getVoices(); const v=vs.find(x=>/^en[-_]/i.test(x.lang)); if(v) u.voice=v;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+function spNorm(s){ return String(s||'').toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim(); }
+function spLev(a,b){ const m=a.length,n=b.length; if(!m)return n; if(!n)return m; const d=[]; for(let j=0;j<=n;j++)d[j]=j;
+  for(let i=1;i<=m;i++){ let prev=d[0]; d[0]=i; for(let j=1;j<=n;j++){ const tmp=d[j]; d[j]=Math.min(d[j]+1,d[j-1]+1,prev+(a[i-1]===b[j-1]?0:1)); prev=tmp; } } return d[n]; }
+function scoreSpeech(target, alts){
+  const t=spNorm(target); let best=0, bestHeard='';
+  (alts||[]).forEach(raw=>{ const h=spNorm(raw); if(!h) return;
+    const ml=Math.max(t.length,h.length)||1; let sc=Math.round((1-spLev(t,h)/ml)*100);
+    if(t.includes(' ')){ const tw=t.split(' '), hw=new Set(h.split(' ')); const hit=tw.filter(w=>hw.has(w)).length;
+      sc=Math.max(sc, Math.round((sc + Math.round(hit/tw.length*100))/2)); }
+    if(sc>best){ best=sc; bestHeard=raw; }
+  });
+  return { score:Math.max(0,Math.min(100,best)), heard:bestHeard };
+}
+
+function speakHome(){
+  speakStop();
+  const grades=[...new Set(DB.lists.map(l=>(l.grade||'').trim()).filter(Boolean))].sort();
+  app.innerHTML = `
+    <button class="back" onclick="studentMenu()">← 뒤로</button>
+    <div class="card">
+      <h2 style="margin-top:4px">🗣️ 말하기 연습</h2>
+      <p class="muted">선생님이 만든 단어·문장으로 듣고 따라 말해요. 학년을 골라 주세요.</p>
+      ${DB.lists.length? `<div id="gradeChips" style="margin-top:8px">${grades.map(g=>`<span class="chip lib-g" data-g="${esc(g)}">${esc(g)}</span>`).join('')}${DB.lists.some(l=>!(l.grade||'').trim())?'<span class="chip lib-g" data-g="__none__">기타</span>':''}</div>`:''}
+    </div>
+    <div id="spList"></div>`;
+  if(!DB.lists.length){ $('spList').innerHTML='<div class="card empty"><span class="em">🌱</span>아직 단어 목록이 없어요.<br>선생님이 과제를 만들면 여기서 연습할 수 있어요.</div>'; return; }
+  let cur=null;
+  const render=()=>{
+    const el=$('spList');
+    if(cur==null){ el.innerHTML='<div class="card empty"><span class="em">👆</span>위에서 학년을 선택하세요.</div>'; return; }
+    let rows=DB.lists.filter(l=> cur==='__none__'? !(l.grade||'').trim() : (l.grade||'').trim()===cur);
+    rows.sort((a,b)=> (a.unit||'').localeCompare(b.unit||'') || (b.updatedAt-a.updatedAt));
+    if(!rows.length){ el.innerHTML='<div class="card empty">이 학년 목록이 없어요.</div>'; return; }
+    el.innerHTML=rows.map(l=>{ const tag=[l.grade,l.unit,l.lesson].filter(Boolean).join(' / ');
+      return `<div class="card" style="cursor:pointer; margin-bottom:12px" data-sp="${l.id}">
+        <h3 style="margin:0 0 4px">📄 ${esc(l.name)}</h3>
+        <p class="muted" style="margin:0">${tag||''} · 단어 ${l.items.length}개</p></div>`; }).join('');
+    el.querySelectorAll('[data-sp]').forEach(c=> c.onclick=()=> speakList(c.dataset.sp));
+  };
+  app.querySelectorAll('.lib-g').forEach(ch=> ch.onclick=()=>{ cur=ch.dataset.g;
+    app.querySelectorAll('.lib-g').forEach(x=>x.classList.toggle('on',x===ch)); render(); });
+  render();
+}
+
+function speakList(listId){
+  speakStop();
+  const l=DB.lists.find(x=>x.id===listId); if(!l){ speakHome(); return; }
+  app.innerHTML=`<button class="back" onclick="speakHome()">← 목록 고르기</button>
+    <div class="card"><div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap">
+      <h2 style="margin:4px 0; flex:1">📄 ${esc(l.name)}</h2>
+      <button class="btn sm" id="allPractice">▶ 처음부터</button></div>
+      <p class="muted">단어를 누르면 듣고 따라 말하기를 시작해요.</p></div>
+    <div>${l.items.map((it,i)=>`<div class="item-row" data-idx="${i}" style="cursor:pointer">
+      <span class="txt"><b style="font-family:'Andika'">${esc(it.text)}</b>${it.meaning?` <span class="muted">— ${esc(it.meaning)}</span>`:''}</span>
+      <span class="muted">🗣️</span></div>`).join('')}</div>`;
+  $('allPractice').onclick=()=> speakPractice(listId,0);
+  app.querySelectorAll('[data-idx]').forEach(r=> r.onclick=()=> speakPractice(listId, +r.dataset.idx));
+}
+
+function speakPractice(listId, idx){
+  speakStop();
+  const l=DB.lists.find(x=>x.id===listId); if(!l){ speakHome(); return; }
+  idx=Math.max(0, Math.min(idx, l.items.length-1));
+  const it=l.items[idx];
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const supported=!!SR;
+  let count=0;
+  app.innerHTML=`<button class="back" id="spBack">← ${esc(l.name)}</button>
+    <div class="speak-hero">
+      <div class="tag">${esc([l.grade,l.unit].filter(Boolean).join(' • ')||'SPEAKING')}</div>
+      <div class="word">${esc(it.text)}</div>
+      ${it.meaning?`<div class="mean">${esc(it.meaning)}</div>`:''}
+      <button class="listen" id="btnListen">🔊 원어민 발음 듣기</button>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <div style="display:flex; align-items:center; gap:10px">
+        <h3 style="margin:0; flex:1">🎯 ${SPEAK_GOAL}회 따라 말하기</h3>
+        <span class="muted" id="chalText">진행: 0 / ${SPEAK_GOAL}</span>
+      </div>
+      <div class="chal-dots" id="dots" style="margin-top:10px">${Array.from({length:SPEAK_GOAL},(_,i)=>`<span class="d" data-d="${i}">${i+1}</span>`).join('')}</div>
+      <div class="mic-zone" style="margin-top:14px">
+        <button class="mic-btn" id="mic">🎤</button>
+        <div id="micMsg" class="muted">${supported?'버튼을 누르고 또박또박 말해요':'이 브라우저는 음성 인식이 안 돼요. 크롬에서 열어 주세요.'}</div>
+      </div>
+      <div class="score-row">
+        <div><div class="muted" style="font-size:.8rem">인식된 발음</div><div class="heard" id="heard">대기 중…</div></div>
+        <div><div class="muted" style="font-size:.8rem">발음 점수</div><div class="score-big" id="score">-- <span style="font-size:.9rem; color:var(--ink-soft)">/100</span></div></div>
+      </div>
+    </div>
+    <div style="display:flex; gap:8px">
+      <button class="btn ghost" id="prev" ${idx<=0?'disabled':''}>← 이전</button>
+      <button class="btn" id="next" style="flex:1" ${idx>=l.items.length-1?'disabled':''}>다음 단어 →</button>
+    </div>`;
+  $('spBack').onclick=()=>{ speakStop(); speakList(listId); };
+  $('btnListen').onclick=()=> speak(it.text);
+  $('prev').onclick=()=>{ speakStop(); speakPractice(listId, idx-1); };
+  $('next').onclick=()=>{ speakStop(); speakPractice(listId, idx+1); };
+  const setDots=()=>{ app.querySelectorAll('#dots .d').forEach((d,i)=> d.classList.toggle('on', i<count)); $('chalText').textContent=`진행: ${count} / ${SPEAK_GOAL}`; };
+  if(!supported){ $('mic').disabled=true; return; }
+  const mic=$('mic');
+  mic.onclick=()=>{
+    if(speakRec){ speakStop(); mic.classList.remove('rec'); $('micMsg').textContent='버튼을 누르고 또박또박 말해요'; return; }
+    const r=new SR(); speakRec=r; r.lang='en-US'; r.interimResults=false; r.maxAlternatives=4;
+    mic.classList.add('rec'); $('micMsg').textContent='듣고 있어요… 지금 말해보세요 🎙️';
+    r.onresult=(e)=>{
+      const alts=[...e.results[0]].map(a=>a.transcript);
+      const {score, heard}=scoreSpeech(it.text, alts);
+      $('heard').textContent=heard||'(못 알아들었어요)';
+      $('score').innerHTML=`${score} <span style="font-size:.9rem; color:var(--ink-soft)">/100</span>`;
+      $('score').style.color = score>=80?'var(--green-d)': score>=60?'#caa12e':'var(--coral-d)';
+      if(score>=60){ if(count<SPEAK_GOAL) count++; setDots();
+        $('micMsg').textContent = count>=SPEAK_GOAL ? '완료! 아주 잘했어요 🎉 다음 단어로 가볼까요?' : (score>=80?'아주 좋아요! 한 번 더 💯':'좋아요! 계속 말해봐요');
+      } else { $('micMsg').textContent='다시 또박또박 말해볼까요? 🔊 발음을 한 번 더 들어봐도 좋아요'; }
+    };
+    r.onerror=(e)=>{ $('micMsg').textContent = e.error==='not-allowed'||e.error==='service-not-allowed' ? '마이크 권한을 허용해 주세요' : '잘 안 들렸어요. 다시 눌러 주세요'; mic.classList.remove('rec'); speakRec=null; };
+    r.onend=()=>{ mic.classList.remove('rec'); if(speakRec===r) speakRec=null; };
+    try{ r.start(); }catch(e){ $('micMsg').textContent='마이크를 시작할 수 없어요'; mic.classList.remove('rec'); speakRec=null; }
+  };
 }
 
 /* ============================ DIAGNOSTICS ============================ */
@@ -625,12 +796,20 @@ function renderClassPick(){
     else { draft.classIds.push(id); t.classList.add('on'); } });
 }
 function assignmentForm(){
-  draft = draft || { items:[], repeat:3, inputMode:'bulk', classIds:[] };
+  draft = draft || { items:[], repeat:3, inputMode:'bulk', classIds:[], mode:'write' };
   if(!draft.classIds) draft.classIds=[];
+  if(!draft.mode) draft.mode='write';
   app.innerHTML = `
     <button class="back" onclick="createAssignment()">← 과제 만들기</button>
     <div class="card">
       <h2 style="margin-top:4px">① 과제 정보</h2>
+      <label style="margin-bottom:6px">과제 유형</label>
+      <div class="seg" id="modeType">
+        <button data-mt="write" class="${draft.mode==='write'?'on':''}">✏️ 쓰기</button>
+        <button data-mt="speak" class="${draft.mode==='speak'?'on':''}">🗣️ 말하기</button>
+        <button data-mt="both" class="${draft.mode==='both'?'on':''}">✏️+🗣️ 둘 다</button>
+      </div>
+      <p class="muted" style="font-size:.82rem; margin:-4px 0 12px 2px" id="modeHint"></p>
       <div class="row">
         <div><label>학년</label><input type="text" id="aGrade" placeholder="예) 4학년"></div>
         <div><label>단원</label><input type="text" id="aUnit" placeholder="예) 5단원"></div>
@@ -691,6 +870,11 @@ function assignmentForm(){
   }
   renderClassPick();
   if($('aGrade')) $('aGrade').addEventListener('input', renderClassPick);
+  const modeHints={ write:'학생이 흐린 글자 위에 따라 써요.', speak:'학생이 듣고 마이크로 따라 말해요(자동 채점).', both:'쓰기 과제와 말하기 과제가 각각 하나씩 배부돼요.' };
+  const setModeHint=()=>{ const h=$('modeHint'); if(h) h.textContent=modeHints[draft.mode]||''; };
+  setModeHint();
+  app.querySelectorAll('#modeType button').forEach(b=> b.onclick=()=>{ draft.mode=b.dataset.mt;
+    app.querySelectorAll('#modeType button').forEach(x=>x.classList.toggle('on',x.dataset.mt===draft.mode)); setModeHint(); });
   app.querySelectorAll('#modeSeg button').forEach(b=> b.onclick=()=>{ draft.inputMode=b.dataset.mode;
     app.querySelectorAll('#modeSeg button').forEach(x=>x.classList.toggle('on',x.dataset.mode===draft.inputMode)); renderInputArea(); });
   $('selAll').onclick=()=>{ draft.items.forEach(i=>i.sel=true); renderItemList(); };
@@ -763,17 +947,19 @@ function renderItemList(){
   list.querySelectorAll('[data-deli]').forEach(b=> b.onclick=()=>{ draft.items=draft.items.filter(x=>x.id!==b.dataset.deli); renderItemList(); });
 }
 async function saveAssignment(){
-  const title=$('aTitle').value.trim() || '영어쓰기 과제';
+  const title=$('aTitle').value.trim() || '영어 과제';
   const chosen = draft.items.filter(i=>i.sel).map(i=>({id:i.id,text:i.text,meaning:i.meaning||'',type:i.type}));
   if(!chosen.length){ toast('제시할 항목을 1개 이상 선택하세요'); return; }
   if(!draft.classIds.length){ toast('배부할 학급을 1개 이상 선택하세요'); return; }
   const grade=$('aGrade').value.trim(), unit=$('aUnit').value.trim(), lesson=$('aLesson').value.trim();
-  // 만든 과제 목록을 저장(같은 학년·단원·제목이면 갱신)하고 그 id를 과제에 연결
   const listId = await saveListToLibrary({ grade, unit, lesson, title, sourceListId:draft.sourceListId }, draft.items, {silent:true});
-  const now=Date.now();
-  draft.classIds.forEach((classId,i)=>{
-    DB.assignments.push({ id:uid(), classId, listId, title, grade, unit, lesson,
-      items:chosen.map(c=>({...c})), repeat:draft.repeat, createdAt:now+i });
+  const modes = draft.mode==='both' ? ['write','speak'] : [draft.mode||'write'];
+  const now=Date.now(); let k=0;
+  draft.classIds.forEach((classId)=>{
+    modes.forEach((md)=>{
+      DB.assignments.push({ id:uid(), classId, listId, title, grade, unit, lesson, mode:md,
+        items:chosen.map(c=>({...c})), repeat:draft.repeat, createdAt:now + (k++) });
+    });
   });
   await sSet(KEYS.assignments, DB.assignments);
   const n=draft.classIds.length;
@@ -810,7 +996,7 @@ async function dashboardClass(classId){
     for(const s of c.students){ const p=await sGet(progKey(a.id,s.id),null); if(p&&p.done) done++; }
     cards.push(`<div class="card" style="margin-bottom:14px">
       <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap">
-        <h3 style="margin:0; flex:1; cursor:pointer" data-asg="${a.id}">📝 ${esc(a.title)}</h3>
+        <h3 style="margin:0; flex:1; cursor:pointer" data-asg="${a.id}">${a.mode==='speak'?'🗣️':'✏️'} ${esc(a.title)}</h3>
         <button class="btn ghost sm" data-dela="${a.id}" style="color:var(--coral-d)">🗑️ 배부 삭제</button>
       </div>
       <p class="muted" style="margin:6px 0 10px; cursor:pointer" data-asg="${a.id}">${[a.grade,a.unit,a.lesson].filter(Boolean).join(' / ')||'학년 미지정'} · 항목 ${a.items.length}개 · ${a.repeat}번 쓰기</p>
@@ -836,7 +1022,7 @@ async function dashboardDetail(aid){
   const a=DB.assignments.find(x=>x.id===aid); const c=DB.classes.find(x=>x.id===a.classId);
   app.innerHTML = `<button class="back" onclick="dashboardClass('${a.classId}')">← ${esc(c?c.name:'학급')}</button>
     <div class="card"><div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap">
-      <h2 style="margin:4px 0; flex:1">📝 ${esc(a.title)}</h2>
+      <h2 style="margin:4px 0; flex:1">${a.mode==='speak'?'🗣️':'✏️'} ${esc(a.title)}</h2>
       <button class="btn ghost sm" id="refreshD">🔄 새로고침</button></div>
     <p class="muted">${esc(c?c.name:'')} · ${[a.grade,a.unit,a.lesson].filter(Boolean).join(' / ')} · ${a.items.length}개 항목 · ${a.repeat}번씩</p></div>
     <div id="rosterArea" class="empty"><span class="em">⏳</span>불러오는 중...</div>`;
@@ -866,9 +1052,9 @@ async function dashboardDetail(aid){
 
 /* ============================ STUDENT FLOW ============================ */
 function studentPickClass(){
-  if(!DB.classes.length){ app.innerHTML=`<button class="back" onclick="renderHome()">← 처음으로</button>
+  if(!DB.classes.length){ app.innerHTML=`<button class="back" onclick="studentMenu()">← 뒤로</button>
     <div class="card empty"><span class="em">🏫</span>아직 만들어진 학급이 없어요.<br>선생님께 학급 등록을 부탁해요.</div>`; return; }
-  app.innerHTML=`<button class="back" onclick="renderHome()">← 처음으로</button>
+  app.innerHTML=`<button class="back" onclick="studentMenu()">← 뒤로</button>
     <div class="card"><h2 style="margin-top:4px">우리 반을 골라요</h2>
     <div class="grid-cards">${DB.classes.map(c=>`<div class="tile" data-c="${c.id}"><span class="emoji">🏫</span><div class="t">${esc(c.name)}</div><div class="s">${c.students.length}명</div></div>`).join('')}</div></div>`;
   app.querySelectorAll('[data-c]').forEach(el=> el.onclick=()=> studentPickName(el.dataset.c));
@@ -885,9 +1071,11 @@ function studentPickName(cid){
 }
 async function studentAssignments(){
   session.role='student'; refreshWho();
-  const asgs=DB.assignments.filter(a=>a.classId===session.classId).sort((a,b)=>b.createdAt-a.createdAt);
+  const isSpeak = studentMode==='speak';
+  const verb = isSpeak ? '말해요' : '써요';
+  const asgs=DB.assignments.filter(a=>a.classId===session.classId && assignmentHasMode(a, studentMode)).sort((a,b)=>b.createdAt-a.createdAt);
   app.innerHTML=`<button class="back" onclick="studentPickName('${session.classId}')">← 이름 다시 고르기</button>
-    <div class="card"><h2 style="margin-top:4px">${esc(session.name)}의 과제</h2><p class="muted">과제를 눌러 또박또박 따라 써요!</p></div>
+    <div class="card"><h2 style="margin-top:4px">${esc(session.name)}의 ${isSpeak?'🗣️ 말하기':'✏️ 쓰기'} 과제</h2><p class="muted">과제를 눌러 또박또박 따라 ${verb}!</p></div>
     <div id="salist" class="empty"><span class="em">⏳</span>불러오는 중...</div>`;
   if(!asgs.length){ $('salist').outerHTML='<div class="card empty"><span class="em">🌱</span>아직 받은 과제가 없어요.</div>'; return; }
   const cards=[];
@@ -897,9 +1085,9 @@ async function studentAssignments(){
     if(p&&p.counts){ for(const it of a.items) cnt+=Math.min(a.repeat,p.counts[it.id]||0); }
     const pct= total? Math.round(cnt/total*100):0; const done=!!(p&&p.done);
     cards.push(`<div class="card" style="cursor:pointer; margin-bottom:14px" data-go="${a.id}">
-      <div style="display:flex; align-items:center; gap:10px"><h3 style="margin:0; flex:1">📝 ${esc(a.title)}</h3>
+      <div style="display:flex; align-items:center; gap:10px"><h3 style="margin:0; flex:1">${isSpeak?'🗣️':'📝'} ${esc(a.title)}</h3>
       <span class="pill ${done?'done':'not'}">${done?'완료 ✓':pct+'%'}</span></div>
-      <p class="muted" style="margin:6px 0 10px">${[a.grade,a.unit,a.lesson].filter(Boolean).join(' / ')||''} · 항목 ${a.items.length}개 · ${a.repeat}번 쓰기</p>
+      <p class="muted" style="margin:6px 0 10px">${[a.grade,a.unit,a.lesson].filter(Boolean).join(' / ')||''} · 항목 ${a.items.length}개 · ${a.repeat}번 ${isSpeak?'말하기':'쓰기'}</p>
       <div class="progress"><div style="width:${pct}%"></div></div></div>`);
   }
   $('salist').outerHTML=`<div>${cards.join('')}</div>`;
@@ -912,6 +1100,7 @@ let engineState = null;
 
 async function doAssignment(aid){
   const a=DB.assignments.find(x=>x.id===aid);
+  if(a && a.mode==='speak'){ return doSpeakAssignment(aid); }
   let prog = await sGet(progKey(aid,session.studentId), null);
   if(!prog) prog={ aid, sid:session.studentId, sname:session.name, counts:{}, done:false, updatedAt:Date.now() };
   engineState={ a, prog };
@@ -928,6 +1117,92 @@ async function doAssignment(aid){
   a.items.forEach((it,idx)=> area.appendChild(buildItemCard(it,idx)));
   // init canvases after layout
   requestAnimationFrame(()=> { a.items.forEach((it,idx)=> initItemCanvases(it,idx)); updateOverall(); });
+}
+
+async function doSpeakAssignment(aid){
+  const a=DB.assignments.find(x=>x.id===aid);
+  let prog=await sGet(progKey(aid,session.studentId),null);
+  if(!prog) prog={ aid, sid:session.studentId, sname:session.name, counts:{}, done:false, updatedAt:Date.now() };
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  const supported=!!SR;
+  const total=a.items.length*a.repeat;
+  const overall=()=>{ let c=0; for(const it of a.items) c+=Math.min(a.repeat, prog.counts[it.id]||0); return c; };
+  const persist=async ()=>{ prog.updatedAt=Date.now(); await sSet(progKey(aid,session.studentId), prog); };
+  const firstIncomplete=()=>{ for(let i=0;i<a.items.length;i++){ const it=a.items[i]; if((prog.counts[it.id]||0)<a.repeat) return i; } return -1; };
+
+  speakStop();
+  app.innerHTML=`<button class="back" id="spaBack">← 과제 목록</button>
+    <div class="card"><h2 style="margin-top:4px">🗣️ ${esc(a.title)}</h2>
+    <p class="muted">${[a.grade,a.unit,a.lesson].filter(Boolean).join(' / ')||''} · 각 항목 ${a.repeat}번씩 말해요</p>
+    <div class="progress" style="margin-top:8px"><div id="spaProg"></div></div>
+    <p class="muted" id="spaText" style="margin-top:8px"></p></div>
+    <div id="spaItem"></div>`;
+  $('spaBack').onclick=()=>{ speakStop(); studentAssignments(); };
+  const updateBar=()=>{ const c=overall(); const pct=total?Math.round(c/total*100):0;
+    const b=$('spaProg'); if(b) b.style.width=pct+'%'; const t=$('spaText'); if(t) t.textContent=`${c} / ${total} 번 완료 (${pct}%)`; };
+
+  const renderItem=(idx)=>{
+    speakStop();
+    const it=a.items[idx];
+    const area=$('spaItem'); if(!area) return;
+    const done=Math.min(a.repeat, prog.counts[it.id]||0);
+    area.innerHTML=`
+      <div class="speak-hero">
+        <div class="tag">${esc([a.grade,a.unit].filter(Boolean).join(' • ')||'SPEAKING')} · ${idx+1}/${a.items.length}</div>
+        <div class="word">${esc(it.text)}</div>
+        ${it.meaning?`<div class="mean">${esc(it.meaning)}</div>`:''}
+        <button class="listen" id="btnListen">🔊 원어민 발음 듣기</button>
+      </div>
+      <div class="card" style="margin-top:16px">
+        <div style="display:flex; align-items:center; gap:10px">
+          <h3 style="margin:0; flex:1">🎯 ${a.repeat}회 따라 말하기</h3>
+          <span class="muted" id="chalText">진행: ${done} / ${a.repeat}</span>
+        </div>
+        <div class="chal-dots" id="dots" style="margin-top:10px">${Array.from({length:a.repeat},(_,i)=>`<span class="d ${i<done?'on':''}" data-d="${i}">${i+1}</span>`).join('')}</div>
+        <div class="mic-zone" style="margin-top:14px">
+          <button class="mic-btn" id="mic">🎤</button>
+          <div id="micMsg" class="muted">${supported?'마이크를 켜고 말하면, 말이 끝나면 자동으로 확인해요':'이 브라우저는 음성 인식이 안 돼요. 크롬에서 열어 주세요.'}</div>
+        </div>
+        <div class="score-row">
+          <div><div class="muted" style="font-size:.8rem">인식된 발음</div><div class="heard" id="heard">대기 중…</div></div>
+          <div><div class="muted" style="font-size:.8rem">발음 점수</div><div class="score-big" id="score">-- <span style="font-size:.9rem; color:var(--ink-soft)">/100</span></div></div>
+        </div>
+      </div>`;
+    $('btnListen').onclick=()=> speak(it.text);
+    updateBar();
+    if(!supported){ $('mic').disabled=true; return; }
+    const mic=$('mic');
+    const setDots=()=>{ const d=Math.min(a.repeat, prog.counts[it.id]||0); app.querySelectorAll('#dots .d').forEach((el,i)=>el.classList.toggle('on',i<d)); $('chalText').textContent=`진행: ${d} / ${a.repeat}`; };
+    mic.onclick=()=>{
+      if(speakRec){ speakStop(); mic.classList.remove('rec'); return; }
+      const r=new SR(); speakRec=r; r.lang='en-US'; r.interimResults=false; r.maxAlternatives=4;
+      mic.classList.add('rec'); $('micMsg').textContent='듣고 있어요… 지금 말해보세요 🎙️';
+      r.onresult=async (e)=>{
+        const alts=[...e.results[0]].map(x=>x.transcript);
+        const {score,heard}=scoreSpeech(it.text, alts);
+        const hd=$('heard'); if(hd) hd.textContent=heard||'(못 알아들었어요)';
+        const sc=$('score'); if(sc){ sc.innerHTML=`${score} <span style="font-size:.9rem; color:var(--ink-soft)">/100</span>`; sc.style.color=score>=80?'var(--green-d)':score>=60?'#caa12e':'var(--coral-d)'; }
+        if(score>=60){
+          const cur=prog.counts[it.id]||0;
+          if(cur<a.repeat){ prog.counts[it.id]=cur+1; await persist(); setDots(); updateBar(); }
+          if((prog.counts[it.id]||0)>=a.repeat){
+            const msg=$('micMsg'); if(msg) msg.textContent='이 단어 완료! 🎉 다음으로 넘어가요';
+            const nx=firstIncomplete();
+            if(nx<0){ if(!prog.done){ prog.done=true; await persist(); } setTimeout(()=> showCeleb(), 700); }
+            else setTimeout(()=> renderItem(nx), 900);
+          } else { const msg=$('micMsg'); if(msg) msg.textContent= score>=80?'아주 좋아요! 한 번 더 💯':'좋아요! 계속 말해봐요'; }
+        } else { const msg=$('micMsg'); if(msg) msg.textContent='다시 또박또박 말해볼까요? 🔊 발음을 들어봐도 좋아요'; }
+      };
+      r.onerror=(e)=>{ const msg=$('micMsg'); if(msg) msg.textContent=(e.error==='not-allowed'||e.error==='service-not-allowed')?'마이크 권한을 허용해 주세요':'잘 안 들렸어요. 다시 눌러 주세요'; mic.classList.remove('rec'); speakRec=null; };
+      r.onend=()=>{ mic.classList.remove('rec'); if(speakRec===r) speakRec=null; };
+      try{ r.start(); }catch(e){ const msg=$('micMsg'); if(msg) msg.textContent='마이크를 시작할 수 없어요'; mic.classList.remove('rec'); speakRec=null; }
+    };
+  };
+
+  updateBar();
+  const start=firstIncomplete();
+  if(start<0){ showCeleb(); return; }
+  renderItem(start);
 }
 
 function copiesPerLine(it){
