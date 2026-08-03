@@ -158,6 +158,102 @@
   .score-big{font-family:'Jua'; font-size:2rem;}
   .score-row{display:flex; gap:12px; margin-top:12px;}
   .score-row>div{flex:1; background:#fff; border:2px solid var(--border); border-radius:14px; padding:12px;}
+  /* ===== 듣기 빙고 ===== */
+  .card.noanim{animation:none;}   /* 자주 다시 그리는 화면 — 매번 나타나는 효과가 반복되면 눈이 아프다 */
+  .bg-stage{border-radius:22px; padding:22px 18px; text-align:center; color:#fff; min-height:230px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
+    background:linear-gradient(135deg,#1f5f8b,#2F8F77); box-shadow:0 10px 0 rgba(20,60,60,.25);}
+  .bg-stage .em{font-size:5.5rem; line-height:1;}
+  .bg-stage .tx{font-family:'Andika'; font-weight:700; font-size:2.1rem; line-height:1.2;}
+  .bg-stage .mn{font-size:1.05rem; opacity:.9;}
+  .bg-stage .hint{font-family:'Jua'; font-size:1rem; opacity:.85;}
+  .bg-stage .ear{font-size:5rem; animation:bgear 1.1s ease-in-out infinite;}
+  /* 단계마다 화면 색이 확 달라져야 멀리서도 지금이 들을 때인지 누를 때인지 안다 */
+  .bg-stage.jingle{background:linear-gradient(135deg,#6a4bd8,#3b6fd4); box-shadow:0 10px 0 rgba(60,40,120,.25);}
+  .bg-bounce{animation:bgbounce .5s ease-in-out infinite alternate;}
+  @keyframes bgbounce{from{transform:translateY(6px) rotate(-7deg);} to{transform:translateY(-8px) rotate(7deg);}}
+  .bg-stage.whistle{background:linear-gradient(135deg,#D8543A,#F4C95D); box-shadow:0 10px 0 rgba(120,50,20,.25);}
+  .bg-stage.whistle .em{animation:bgpop .5s ease both;}
+  @keyframes bgpop{0%{transform:scale(.4); opacity:0;} 60%{transform:scale(1.15);} 100%{transform:scale(1); opacity:1;}}
+  .bg-stage.think{background:linear-gradient(135deg,#2F8F77,#6FB98F); box-shadow:0 10px 0 rgba(20,80,60,.25);}
+  @keyframes bgear{0%,100%{opacity:.5; transform:scale(.94);} 50%{opacity:1; transform:scale(1.06);}}
+  .bg-hist{display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin-top:6px;}
+  .bg-hist span{background:rgba(255,255,255,.18); border-radius:10px; padding:3px 8px; font-size:1.2rem;}
+  .bg-board{display:grid; gap:6px; margin:12px 0;}
+  /* 칸 글씨는 화면이 아니라 '칸 크기'에 맞춰 커진다 — 7×7도 태블릿에서 깨지지 않도록 */
+  .bg-cell{aspect-ratio:1; border:2px solid var(--border); border-radius:12px; background:#fff;
+    display:flex; align-items:center; justify-content:center; position:relative; padding:2px;
+    container-type:inline-size; overflow:hidden; transition:transform .08s;}
+  .bg-cell .e{font-size:58cqw; line-height:1;}
+  .bg-cell .w{font-family:'Gowun Dodum'; font-size:min(19cqw,17px); line-height:1.2;
+    word-break:keep-all; text-align:center;}
+  .bg-cell:active{transform:scale(.93);}
+  .bg-cell.mk{background:#FCE6DF; border-color:var(--coral);}
+  .bg-cell.mk::after{content:''; position:absolute; inset:10%; border:3px solid var(--coral);
+    border-radius:50%; opacity:.8; transform:rotate(-8deg);}
+  .bg-cell.lit{background:#FCF2D8; border-color:var(--gold);}
+  .bg-cell.lit::after{border-color:#D9A324;}
+  .bg-cell.dis{opacity:.9;}
+  .bg-cell.shake{animation:bgshake .34s;}
+  @keyframes bgshake{0%,100%{transform:translateX(0);} 20%{transform:translateX(-7px);} 40%{transform:translateX(7px);} 60%{transform:translateX(-5px);} 80%{transform:translateX(5px);}}
+  .bg-foot{text-align:center; font-family:'Jua'; padding:8px 0; min-height:2.2em;}
+  .bg-foot.hit{color:var(--green-d);} .bg-foot.miss{color:var(--coral-d);}
+  .bg-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(104px,1fr)); gap:8px;}
+  .bg-stu{border:2px solid var(--border); border-radius:12px; background:#fff; padding:8px 10px;}
+  .bg-stu .nm{font-family:'Jua'; font-size:.95rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .bg-stu .st{font-size:.78rem; color:var(--ink-soft);}
+  .bg-stu.near{background:#FCF7E6; border-color:var(--gold);}
+  .bg-stu.win{background:#FDF0D2; border-color:var(--gold); box-shadow:0 3px 0 #E8CC8A;}
+  /* 게임 전 연습 — 그림·문장 맞추기 */
+  .pr-ask{background:#FFFCF4; border:2px dashed var(--green); border-radius:16px; padding:18px 14px;
+    text-align:center; margin-bottom:14px;}
+  .pr-ask .tx{font-family:'Andika'; font-weight:700; font-size:1.5rem; line-height:1.25;}
+  .pr-ask .mn{color:var(--ink-soft); margin-top:4px;}
+  .pr-ask .pr-big{font-size:4.5rem; line-height:1.1;}
+  .pr-opts{display:grid; gap:10px;}
+  .pr-opts.pic{grid-template-columns:repeat(auto-fit,minmax(110px,1fr));}
+  .pr-opts.txt{grid-template-columns:1fr;}
+  .pr-opt{background:#fff; border:2px solid var(--border); border-radius:16px; box-shadow:0 4px 0 var(--shadow);
+    padding:12px; transition:transform .08s; text-align:center;}
+  .pr-opt:active{transform:translateY(3px); box-shadow:0 1px 0 var(--shadow);}
+  .pr-opt.pic{aspect-ratio:1; display:flex; align-items:center; justify-content:center; container-type:inline-size;}
+  .pr-opt.pic .e{font-size:52cqw; line-height:1;}
+  .pr-opt.pic .w{font-family:'Gowun Dodum'; font-size:min(17cqw,17px); line-height:1.2; word-break:keep-all;}
+  .pr-opt.txt{display:flex; flex-direction:column; gap:2px; align-items:flex-start; text-align:left;}
+  .pr-opt.txt b{font-family:'Andika'; font-size:1.15rem;}
+  .pr-opt.txt .muted{font-size:.85rem;}
+  .pr-opt.ok{background:#E3F3ED; border-color:var(--green); box-shadow:0 4px 0 var(--green);}
+  .pr-opt.no{background:#FCE6DF; border-color:var(--coral); animation:bgshake .34s;}
+  .bg-review{display:flex; flex-wrap:wrap; gap:6px;}
+  .bg-review span{background:#fff; border:2px solid var(--border); border-radius:10px;
+    padding:5px 10px; font-size:.9rem; font-family:'Andika';}
+  .bg-review b{font-family:'Jua'; color:var(--ink-soft); margin-right:4px; font-size:.82rem;}
+  .bg-auto{display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap;
+    margin-top:12px; padding:9px 12px; background:#F6F1E4; border:2px solid var(--border); border-radius:14px;}
+  .bg-auto .ivbox{display:inline-flex; align-items:center; gap:8px; font-family:'Jua';}
+  .bg-auto .ivbox b{min-width:66px; text-align:center;}
+  .bg-auto .ivbox .btn{width:34px; padding:5px 0; text-align:center;}
+  .bg-auto .tick{font-family:'Jua'; color:var(--green-d); min-width:118px; text-align:center; font-size:.92rem;}
+  .bg-stat{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:12px 0;}
+  .bg-stat div{background:#fff; border:2px solid var(--border); border-radius:14px; padding:10px; text-align:center;}
+  .bg-stat b{display:block; font-family:'Jua'; font-size:1.5rem; color:var(--green-d);}
+  .bg-stat span{font-size:.78rem; color:var(--ink-soft);}
+  .bg-emo{width:52px; height:44px; font-size:1.5rem; text-align:center; background:#fff;
+    border:2px solid var(--border); border-radius:12px; flex:0 0 auto; box-shadow:none; padding:0;}
+  /* 종이 빙고판 인쇄 */
+  #printArea{display:none;}
+  @media print{
+    body{background:#fff!important;}
+    .wrap,.topbar,.toast,.celebrate{display:none!important;}
+    #printArea{display:block!important;}
+    .pb{page-break-after:always; padding:10mm 8mm;}
+    .pb:last-child{page-break-after:auto;}
+    .pb h3{font-family:'Jua'; margin:0 0 4mm; font-size:16pt;}
+    .pb .pbgrid{display:grid; gap:2mm;}
+    .pb .pbc{aspect-ratio:1; border:1.5pt solid #333; border-radius:3mm; display:flex;
+      align-items:center; justify-content:center; font-size:20pt; overflow:hidden; text-align:center; padding:1mm;}
+    .pb .pbc .w{font-size:9pt; word-break:keep-all;}
+  }
 </style>
 </head>
 <body>
@@ -170,6 +266,7 @@
   </div>
   <div id="app"></div>
 </div>
+<div id="printArea"></div>
 <div class="toast" id="toast"></div>
 <div class="celebrate" id="celebrate"><div class="box">
   <div class="big">🎉</div>
@@ -234,6 +331,7 @@ function setupLiveSync(){
   window.__store.watch(c,'classes', v=> DB.classes=v||[]);
   window.__store.watch(c,'assignments', v=> DB.assignments=v||[]);
   window.__store.watch(c,'lists', v=> DB.lists=v||[]);
+  window.__store.watch(c,'settings', v=>{ if(v) applyVoiceSetting(v); });
 }
 
 /* ============================ APP STATE ============================ */
@@ -251,6 +349,7 @@ async function boot(){
     DB.classes = await sGet(KEYS.classes, []);
     DB.assignments = await sGet(KEYS.assignments, []);
     DB.lists = await sGet(KEYS.lists, []);
+    await loadVoiceSetting();     // 선생님이 정한 목소리·속도를 학생 기기도 그대로 쓴다
     setupLiveSync();
   }
   await document.fonts.ready.catch(()=>{});
@@ -317,6 +416,7 @@ function refreshWho(){
   else { $('who').textContent=''; $('logoutBtn').style.display='none'; }
 }
 function logout(){
+  bingoLeave();
   const wasTeacher = session.role==='teacher';
   session={role:null,name:null,classId:null,studentId:null};
   if(wasTeacher && window.__auth) window.__auth.signOutToAnon();
@@ -329,6 +429,7 @@ function esc(s){ return (s==null?'':String(s)).replace(/[&<>"']/g,c=>({'&':'&amp
 
 /* ============================ HOME / ROLE ============================ */
 function renderHome(){
+  bingoLeave();
   session.role=null; refreshWho();
   app.innerHTML = `
     <div class="card center">
@@ -346,18 +447,21 @@ function renderHome(){
 }
 
 function studentMenu(){
+  bingoLeave();
   app.innerHTML = `
     <button class="back" onclick="renderHome()">← 처음으로</button>
     <div class="card center">
       <h2 style="margin-top:4px">무엇을 연습할까요?</h2>
       <p class="muted">하고 싶은 연습을 골라요.</p>
-      <div class="grid-cards" style="max-width:420px; margin:18px auto 4px">
+      <div class="grid-cards" style="max-width:640px; margin:18px auto 4px">
         <div class="tile" id="goWrite"><span class="emoji">✏️</span><div class="t">또박또박 영어 쓰기</div><div class="s">흐린 글자 따라쓰기</div></div>
         <div class="tile" id="goSpeak"><span class="emoji">🗣️</span><div class="t">또박또박 영어 말하기</div><div class="s">듣고 따라 말하기</div></div>
+        <div class="tile" id="goBingo"><span class="emoji">👂</span><div class="t">듣고 빙고</div><div class="s">선생님과 함께 하는 놀이</div></div>
       </div>
     </div>`;
   $('goWrite').onclick = ()=>{ studentMode='write'; studentPickClass(); };
   $('goSpeak').onclick = ()=>{ studentMode='speak'; studentPickClass(); };
+  $('goBingo').onclick = ()=>{ studentMode='bingo'; studentPickClass(); };
 }
 
 /* ============================ SPEAKING PRACTICE ============================ */
@@ -365,12 +469,52 @@ const SPEAK_GOAL = 5;
 let speakRec = null;
 let studentMode = 'write';   // 'write' | 'speak'
 function assignmentHasMode(a, m){ const md=a.mode||'write'; return m==='speak' ? (md==='speak'||md==='both') : (md==='write'||md==='both'); }
-const TTS_VOICE='en-US-Neural2-F';   // 고품질 원어민 음성 이름 (en-US-* 중에서 바꿀 수 있어요)
-const ttsUrlCache=new Map();         // 같은 텍스트는 한 세션에서 URL 재사용 (함수 호출 0)
+/* ===== 목소리·속도 설정 =====
+   목소리 이름만 바꾸면 되고 클라우드 함수는 손댈 필요가 없다(함수가 voice를 그대로 받는다).
+   속도는 오디오를 느리게 재생해서 맞춘다 — 음높이는 그대로 유지되고, 이미 만들어 둔 mp3를
+   그대로 쓰므로 속도를 바꿔도 TTS를 다시 만들지 않는다(요금 0). */
+const TTS_VOICES=[
+  { id:'en-US-Neural2-H', g:'f', label:'여자 1', note:'밝고 높은 편' },
+  { id:'en-US-Neural2-G', g:'f', label:'여자 2', note:'또렷함' },
+  { id:'en-US-Neural2-F', g:'f', label:'여자 3', note:'차분함' },
+  { id:'en-US-Neural2-E', g:'f', label:'여자 4', note:'부드러움' },
+  { id:'en-US-Neural2-J', g:'m', label:'남자 1', note:'밝은 편' },
+  { id:'en-US-Neural2-I', g:'m', label:'남자 2', note:'또렷함' },
+  { id:'en-US-Neural2-A', g:'m', label:'남자 3', note:'보통' },
+  { id:'en-US-Neural2-D', g:'m', label:'남자 4', note:'낮음' }
+];
+const TTS_SPEEDS=[
+  { v:0.70, label:'아주 느리게', note:'3~4학년 처음 듣기' },
+  { v:0.82, label:'느리게', note:'따라 말하기' },
+  { v:0.92, label:'조금 느리게' },
+  { v:1.00, label:'보통' },
+  { v:1.10, label:'빠르게', note:'익숙해진 뒤' }
+];
+let VOICE={ id:'en-US-Neural2-H', rate:0.82 };      // 기본값: 밝은 목소리 + 느리게
+let ttsMode='', ttsError='';                        // 지금 무슨 음성으로 나가는지 (클라우드/기기) — 조용히 실패하면 알 수가 없다
+const ttsUrlCache=new Map();         // 같은 (목소리|문장)은 한 세션에서 URL 재사용 (함수 호출 0)
 let ttsAudio=null;
+function voiceInfo(id){ return TTS_VOICES.find(v=>v.id===(id||VOICE.id)) || TTS_VOICES[0]; }
+function speedLabel(r){ const s=TTS_SPEEDS.find(x=>Math.abs(x.v-r)<0.001); return s? s.label : Math.round(r*100)+'%'; }
+let SETTINGS={};
+function applyVoiceSetting(v){
+  SETTINGS = v || {};
+  if(SETTINGS.tts) VOICE={ id:SETTINGS.tts.id||VOICE.id, rate:+SETTINGS.tts.rate||VOICE.rate };
+}
+async function loadVoiceSetting(){ applyVoiceSetting(await sGet(KEYS.settings, {})); }
+/* 읽기와 쓰기 사이에 await를 두지 않는다 — 빠르게 여러 번 누르면 앞선 저장이 덮여 날아간다 */
+async function saveVoiceSetting(){
+  SETTINGS.tts={ id:VOICE.id, rate:VOICE.rate };
+  return sSet(KEYS.settings, SETTINGS);
+}
 function fallbackSpeak(text){        // 클라우드 음성이 없거나 실패하면 기기 내장 음성으로
-  try{ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(text); u.lang='en-US'; u.rate=0.9;
-    const vs=speechSynthesis.getVoices(); const v=vs.find(x=>/^en[-_]/i.test(x.lang)); if(v) u.voice=v;
+  try{ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(text); u.lang='en-US';
+    u.rate=Math.max(0.4, Math.min(1.2, VOICE.rate*0.92));   // 클라우드와 비슷한 빠르기로 맞춘다
+    const vs=speechSynthesis.getVoices().filter(x=>/^en[-_]/i.test(x.lang));
+    const want=voiceInfo().g;                                 // 남/여만이라도 비슷하게 고른다
+    const v=vs.find(x=> want==='f' ? /female|zira|samantha|aria|jenny|여/i.test(x.name)
+                                   : /male|david|daniel|guy|남/i.test(x.name) && !/female/i.test(x.name)) || vs[0];
+    if(v) u.voice=v;
     speechSynthesis.speak(u);
   }catch(e){}
 }
@@ -392,11 +536,19 @@ async function speak(text){
   if(ttsAudio){ try{ ttsAudio.pause(); }catch(e){} ttsAudio=null; }
   if(window.__tts){
     try{
-      let url=ttsUrlCache.get(text);
-      if(!url){ url=await window.__tts(text, TTS_VOICE); if(url) ttsUrlCache.set(text, url); }
-      if(url){ const au=new Audio(url); ttsAudio=au; await au.play(); return; }
-    }catch(e){ /* 아래 폴백으로 */ }
-  }
+      const key=VOICE.id+'|'+text;            // 목소리를 바꾸면 다른 음성 파일이어야 한다
+      let url=ttsUrlCache.get(key);
+      if(!url){ url=await window.__tts(text, VOICE.id); if(url) ttsUrlCache.set(key, url); }
+      if(url){
+        const au=new Audio(url);
+        au.preservesPitch=true; au.mozPreservesPitch=true; au.webkitPreservesPitch=true;  // 느리게 해도 목소리가 굵어지지 않게
+        au.playbackRate=VOICE.rate;
+        ttsAudio=au; await au.play();
+        ttsMode='cloud'; ttsError=''; return;
+      }
+    }catch(e){ ttsError=(e&&(e.code||e.message))||String(e); }   /* 아래 폴백으로 */
+  } else ttsError=ttsError||'클라우드 음성에 연결되지 않았어요';
+  ttsMode='device';
   fallbackSpeak(text);
 }
 function spNorm(s){ return String(s||'').toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim(); }
@@ -663,6 +815,7 @@ async function teacherLogin(){
 
 /* ============================ TEACHER HOME ============================ */
 function teacherHome(){
+  bingoLeave();
   session.role='teacher'; refreshWho();
   app.innerHTML = `
     <div class="card">
@@ -671,11 +824,63 @@ function teacherHome(){
         <div class="tile" id="mClass"><span class="emoji">🏫</span><div class="t">학급·학생</div><div class="s">${DB.classes.length}개 학급</div></div>
         <div class="tile" id="mNew"><span class="emoji">📝</span><div class="t">과제 만들기</div><div class="s">새로 만들기·다시 부여</div></div>
         <div class="tile" id="mDash"><span class="emoji">📊</span><div class="t">진행 현황</div><div class="s">학급별 완료 확인</div></div>
+        <div class="tile" id="mBingo"><span class="emoji">👂</span><div class="t">듣기 빙고</div><div class="s">TV로 들려주는 놀이</div></div>
+        <div class="tile" id="mVoice"><span class="emoji">🔊</span><div class="t">소리 설정</div><div class="s">${esc(voiceInfo().label)} · ${esc(speedLabel(VOICE.rate))}</div></div>
       </div>
     </div>`;
   $('mClass').onclick = manageClasses;
   $('mNew').onclick = ()=> createAssignment();
   $('mDash').onclick = dashboardList;
+  $('mBingo').onclick = bingoSetup;
+  $('mVoice').onclick = voiceSettings;
+}
+
+/* ============================ 목소리·속도 설정 ============================ */
+const VOICE_SAMPLES=["Let's go swimming.", "How much is it?", "What time is it now?"];
+function voiceSettings(){
+  speakStop();
+  let sample=VOICE_SAMPLES[0];
+  const draw=()=>{
+    app.innerHTML=`<button class="back" onclick="teacherHome()">← 선생님 메뉴</button>
+      <div class="card">
+        <h2 style="margin-top:4px">🔊 소리 설정</h2>
+        <p class="muted">여기서 정한 목소리와 빠르기는 <b>말하기 연습과 듣기 빙고 모두</b>에 쓰이고,
+          학생 태블릿에도 똑같이 적용돼요.</p>
+        <div style="background:${ttsMode==='cloud'?'#E3F3ED':'#FBF3E0'}; border:2px solid ${ttsMode==='cloud'?'var(--green)':'var(--gold)'};
+          border-radius:12px; padding:10px 13px; margin-top:10px">
+          ${!ttsMode? '🔎 아래에서 한 번 들어보면 지금 어떤 음성으로 나가는지 여기에 표시됩니다.'
+            : ttsMode==='cloud'? '✅ <b>클라우드 원어민 음성</b>으로 나가고 있어요. 아래 목소리 선택이 그대로 적용됩니다.'
+            : `⚠️ 지금은 <b>기기 내장 음성</b>으로 나가고 있어요. 이 경우 아래 목소리는 <b>남자·여자 구분만</b> 반영되고,
+               기기마다 소리가 다릅니다.${ttsError?`<br><span class="muted" style="font-size:.82rem">사유: ${esc(ttsError)}</span>`:''}`}
+        </div>
+        <div class="hr"></div>
+        <label>미리 들을 문장</label>
+        <div class="seg" id="bgSample">${VOICE_SAMPLES.map(s=>`<button class="${s===sample?'on':''}" data-s="${esc(s)}">${esc(s)}</button>`).join('')}</div>
+
+        <h3 style="margin:14px 0 4px">말하기 빠르기</h3>
+        <p class="muted" style="margin:0 0 8px">누르면 바로 들어볼 수 있어요. 초등에서는 <b>느리게</b>가 기본입니다.</p>
+        <div class="seg">${TTS_SPEEDS.map(s=>`<button class="${Math.abs(s.v-VOICE.rate)<0.001?'on':''}" data-rate="${s.v}">${s.label}</button>`).join('')}</div>
+
+        <h3 style="margin:16px 0 4px">목소리</h3>
+        <p class="muted" style="margin:0 0 10px">눌러서 들어보고 마음에 드는 목소리를 고르세요.</p>
+        <div class="grid-cards">${TTS_VOICES.map(v=>`
+          <div class="tile ${v.id===VOICE.id?'on':''}" data-v="${v.id}">
+            <span class="emoji">${v.g==='f'?'👧':'👦'}</span>
+            <div class="t">${v.label}</div>
+            <div class="s">${v.note||''}</div>
+          </div>`).join('')}</div>
+        <p class="muted" style="margin-top:14px">※ 구글 영어 음성에는 <b>진짜 어린이 목소리가 없습니다.</b>
+          위 목록은 그중 밝고 높은 순서로 골라 둔 것이라, 들어 보시고 가장 아이 목소리에 가까운 것을 고르시면 됩니다.<br>
+          ※ 목소리를 바꾸면 그 목소리의 음성을 새로 만들어요. 같은 문장을 처음 들을 때만 잠깐 느립니다.<br>
+          ※ 빠르기는 만들어 둔 음성을 천천히 재생하는 방식이라, 바꿔도 음성을 다시 만들지 않고 <b>목소리 높이도 변하지 않습니다.</b></p>
+      </div>`;
+    app.querySelectorAll('#bgSample [data-s]').forEach(b=> b.onclick=()=>{ sample=b.dataset.s; draw(); speak(sample); });
+    app.querySelectorAll('[data-rate]').forEach(b=> b.onclick=async ()=>{
+      VOICE.rate=+b.dataset.rate; draw(); speak(sample); await saveVoiceSetting(); });
+    app.querySelectorAll('[data-v]').forEach(t=> t.onclick=async ()=>{
+      VOICE.id=t.dataset.v; draw(); speak(sample); await saveVoiceSetting(); });
+  };
+  draw();
 }
 
 /* ============================ WRITING LIST LIBRARY ============================ */
@@ -1141,7 +1346,8 @@ function studentPickName(cid){
     <div class="card"><h2 style="margin-top:4px">${esc(c.name)} — 내 이름 찾기</h2>
     <div class="grid-cards">${c.students.map(s=>`<div class="tile" data-s="${s.id}"><span class="emoji">🧒</span><div class="t">${esc(s.name)}</div></div>`).join('')}</div></div>`;
   app.querySelectorAll('[data-s]').forEach(el=> el.onclick=()=>{ const s=c.students.find(x=>x.id===el.dataset.s);
-    session={role:'student', name:s.name, classId:cid, studentId:s.id}; studentAssignments(); });
+    session={role:'student', name:s.name, classId:cid, studentId:s.id};
+    if(studentMode==='bingo') bingoStudent(); else studentAssignments(); });
 }
 async function studentAssignments(){
   session.role='student'; refreshWho();
@@ -1518,10 +1724,800 @@ function updateOverall(){
 async function persistProgress(){
   await sSet(progKey(engineState.a.id, session.studentId), engineState.prog);
 }
-function showCeleb(){ $('celebrate').classList.add('show'); }
-function closeCeleb(){ $('celebrate').classList.remove('show'); studentAssignments(); }
+function showCeleb(msg){
+  $('celebMsg').textContent = msg || '모든 낱말과 문장을 또박또박 다 썼어요!';
+  $('celebrate').classList.add('show');
+}
+function closeCeleb(){
+  $('celebrate').classList.remove('show');
+  if(BG && BG.role==='student'){ bingoStudentDraw(); return; }   /* 빙고 중이면 판으로 돌아간다 */
+  studentAssignments();
+}
 
 window.addEventListener('resize', ()=>{ /* canvases keep their pixel state; resize re-init only on revisit for simplicity */ });
+
+/* ============================ LISTENING BINGO ============================ */
+/* 저장 위치
+   · 세션(선생님만 씀)  : v1:bingo:<학급id>          → eng_app/bingo_<학급id>
+   · 학생 판(학생이 씀) : v1:prog:bingo:<학급id>:<학생id> → eng_progress/bingo__<학급id>__<학생id>
+   기존 보안 규칙(eng_app=선생님만 쓰기 / eng_progress=인증되면 쓰기)을 그대로 쓴다. 규칙 수정 불필요.
+   Firestore에 타이머를 쓰지 않는다. 호출 시각 하나만 저장하고 카운트다운은 각 기기가 로컬 계산. */
+const bingoKey  = (cid)=> `v1:bingo:${cid}`;
+const bingoPKey = (cid,sid)=> `v1:prog:bingo:${cid}:${sid}`;
+
+/* 그림 사전 — [이모지, 영어 키워드(| 구분)] : 여러 낱말 키워드가 한 낱말보다 우선 */
+const BINGO_EMO=[
+['🏊','swim|swimming'],['🛒','go shopping|shopping|shop'],['🎬','go to the movies|movie|movies|cinema'],
+['📓','do homework|homework'],['📚','comic book|comic books|comic'],['📖','read|reading|book'],
+['🎲','board game|board games'],['⚽','soccer|football'],['⚾','baseball'],['🏀','basketball'],
+['🏐','volleyball'],['🏸','badminton'],['🎾','tennis'],['🏓','table tennis|ping pong'],
+['🎿','ski|skiing'],['⛸️','skate|skating'],['🚲','ride a bike|bike|bicycle'],['🏃','run|running|jog'],
+['🚶','take a walk|walk'],['💃','dance|dancing'],['🎤','sing|singing|song'],['🎹','play the piano|piano'],
+['🎸','play the guitar|guitar'],['🎻','violin'],['🥁','drum|drums'],['🎵','listen to music|music'],
+['🎨','draw|drawing|paint|painting'],['📷','take a picture|take pictures|photo|camera'],
+['🍳','cook|cooking|kitchen'],['🧹','clean the room|clean|cleaning'],['🧼','wash my face|wash'],
+['🪥','brush my teeth|brush'],['🚿','take a shower|shower'],['🛁','take a bath|bath'],
+['🛌','go to bed|sleep|sleeping'],['⏰','get up|wake up'],['📺','watch tv|television'],
+['💻','computer'],['📱','phone|smartphone|call'],['✍️','write|writing'],['🎧','listen|listening'],
+['🗣️','speak|talk'],['📝','study|studying'],['🍽️','do the dishes|dishes|breakfast|lunch|dinner|meal'],
+['🧺','laundry|wash the clothes'],['🏕️','camp|camping'],['🥾','hike|hiking|climb|climbing'],
+['🎣','fish|fishing'],['🧳','travel|trip'],['🎁','gift|present'],['🎉','party'],
+['⛄','make a snowman|snowman'],['🪁','fly a kite|kite'],['🤝','help|helping'],['💤','take a rest|rest'],
+['🎮','video game|computer game'],['🧩','puzzle'],
+['🍎','apple'],['🍌','banana'],['🍊','orange'],['🍇','grape|grapes'],['🍉','watermelon'],
+['🍓','strawberry|strawberries'],['🍑','peach'],['🍐','pear'],['🍍','pineapple'],['🍕','pizza'],
+['🍔','hamburger|burger'],['🍗','chicken'],['🍞','bread'],['🍚','rice'],['🥛','milk'],['💧','water'],
+['🧃','juice'],['🥚','egg|eggs'],['🎂','cake'],['🍦','ice cream'],['🍬','candy'],['🍪','cookie|cookies'],
+['🥗','salad'],['🍲','soup|stew'],['🍜','noodle|noodles|ramen'],['🥪','sandwich'],['🍝','spaghetti|pasta'],
+['🥩','meat|beef'],['🥕','carrot'],['🥔','potato'],['🍅','tomato'],['🧅','onion'],['🌽','corn'],
+['🧀','cheese'],['🍵','tea'],['☕','coffee'],['🍫','chocolate'],['🍿','popcorn'],['🥤','soda|cola'],
+['🐶','dog|puppy'],['🐱','cat'],['🐦','bird'],['🐰','rabbit'],['🐯','tiger'],['🦁','lion'],
+['🐘','elephant'],['🐵','monkey'],['🐻','bear'],['🐷','pig'],['🐮','cow'],['🐴','horse'],['🐑','sheep'],
+['🦆','duck'],['🐔','hen'],['🐸','frog'],['🐍','snake'],['🦊','fox'],['🐭','mouse|mice'],['🐼','panda'],
+['🦒','giraffe'],['🦓','zebra'],['🐧','penguin'],['🐬','dolphin'],['🐳','whale'],['🦈','shark'],
+['🐢','turtle'],['🦋','butterfly'],['🐝','bee'],['🐜','ant'],['🕷️','spider'],['🐟','fish'],
+['☀️','sunny|sun'],['🌧️','rainy|rain'],['☁️','cloudy|cloud'],['❄️','snowy|snow'],['💨','windy|wind'],
+['🥵','hot'],['🥶','cold'],['🌈','rainbow'],['⭐','star|favorite'],['🌙','moon'],['🌊','sea|ocean'],
+['⛰️','mountain'],['🏞️','river'],['🌳','tree'],['🌸','flower'],['🍁','fall|autumn'],['🌱','spring'],
+['🌞','summer'],['☃️','winter'],['🔥','fire'],['🌍','earth|world'],
+['🏫','school'],['🏠','home|house'],['🌲','park'],['🏛️','library'],['🖼️','museum'],['🏥','hospital'],
+['🏦','bank'],['🏪','store|market|supermarket'],['🍴','restaurant'],['🐾','zoo'],['🏖️','beach'],
+['🛫','airport'],['🚉','station'],['🏤','post office'],['🥐','bakery'],['⛪','church'],['🛝','playground'],
+['🚻','bathroom|restroom'],['🛏️','bedroom'],['🚜','farm'],['🏢','building'],['🎡','amusement park'],
+['✏️','pencil'],['🖊️','pen'],['🧽','eraser'],['📏','ruler'],['📔','notebook'],['🎒','bag|backpack'],
+['✂️','scissors'],['🖍️','crayon'],['🕐','what time|o clock|clock'],['⌚','watch'],['🪑','chair'],
+['🗄️','desk|table'],['🚪','door'],['🪟','window'],['🔑','key'],['☂️','umbrella'],['🥎','ball'],
+['🧸','doll|teddy bear'],['🤖','robot'],['🚗','car'],['🚌','bus'],['🚂','train'],['🛩️','plane|airplane'],
+['🚢','ship|boat'],['🚕','taxi'],['🚇','subway'],['👕','shirt|clothes|t shirt'],['👖','pants|jeans'],
+['👗','dress|skirt'],['🧢','cap|hat'],['👟','shoes|sneakers'],['🧤','gloves'],['🧣','scarf'],
+['💰','how much|money|price'],['🎫','ticket'],['🪞','mirror'],['🛋️','sofa'],
+['😀','happy|glad'],['😢','sad'],['😠','angry|mad'],['😪','tired|sleepy'],['😋','hungry'],
+['🫗','thirsty'],['🤒','sick'],['🤩','excited'],['😐','bored'],['😱','scared|afraid'],
+['🙇','sorry|busy|i m busy'],['👍','sounds good|good idea|great|sure|okay|nice'],
+['👋','hello|hi|bye|goodbye'],['🙏','thank|thanks|please'],['🧠','head'],['✋','hand'],['🦶','foot|feet'],
+['👁️','eye|eyes'],['👂','ear|ears'],['👃','nose'],['👄','mouth'],['🦷','tooth|teeth'],['💇','hair'],
+['💪','arm|strong'],['🦵','leg'],['📐','tall|short'],['🎈','birthday'],
+['👩‍🏫','teacher'],['👨‍⚕️','doctor'],['👩‍⚕️','nurse'],['👮','police officer|police'],
+['🧑‍🚒','firefighter'],['🧑‍🍳','chef|cook'],['🧑‍🎤','singer'],['🕺','dancer'],['🧑‍✈️','pilot'],
+['🧑‍🌾','farmer'],['🧑‍🔬','scientist'],['🧑‍🎨','artist'],['🖋️','writer'],['👩','mother|mom|mommy'],
+['👨','father|dad|daddy'],['👧','sister'],['👦','brother'],['👵','grandmother|grandma'],
+['👴','grandfather|grandpa'],['👶','baby'],['🧑‍🤝‍🧑','friend'],['👪','family'],['🧑‍🎓','student'],
+['🌅','morning'],['🌤️','afternoon'],['🌆','evening'],['🌃','night'],['📅','today|tomorrow|yesterday'],
+['🎄','christmas'],['🏝️','vacation|holiday'],['📆','weekend|week|month'],['🔢','how many|number'],
+['🔴','red'],['🔵','blue'],['🟡','yellow'],['🟢','green'],['⚫','black'],['⚪','white'],['🩷','pink'],
+['🟣','purple'],['🟤','brown'],['❓','what|who|where|when|why|how']
+];
+function bingoStem(w){
+  if(w.length>5&&w.endsWith('ing')){ let s=w.slice(0,-3); if(s.length>2&&s[s.length-1]===s[s.length-2]) s=s.slice(0,-1); return s; }
+  if(w.length>4&&w.endsWith('ies')) return w.slice(0,-3)+'y';
+  if(w.length>3&&w.endsWith('es')) return w.slice(0,-2);
+  if(w.length>3&&w.endsWith('s')&&!w.endsWith('ss')) return w.slice(0,-1);
+  if(w.length>4&&w.endsWith('ed')) return w.slice(0,-2);
+  return w;
+}
+/* 표현에서 어울리는 그림 후보를 찾는다. 긴 키워드(여러 낱말)가 항상 우선 */
+function bingoSuggest(text, limit){
+  const clean=String(text||'').toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+  if(!clean) return [];
+  const ws=clean.split(' ');
+  const bags=[' '+ws.join(' ')+' ', ' '+ws.map(bingoStem).join(' ')+' '];
+  const out=[];
+  BINGO_EMO.forEach(d=>{
+    let best=0;
+    d[1].split('|').forEach(k=>{ if(bags.some(b=>b.includes(' '+k+' '))){ const w=k.split(' ').length*1000+k.length; if(w>best) best=w; } });
+    if(best) out.push({e:d[0], s:best});
+  });
+  out.sort((a,b)=>b.s-a.s);
+  const seen=new Set();
+  return out.filter(o=>!seen.has(o.e)&&seen.add(o.e)).slice(0, limit||4).map(o=>o.e);
+}
+
+/* 같은 학생은 새로고침해도 같은 판 — 씨앗(세션id+학생id)에서 판을 다시 만든다 */
+function bingoRng(seed){
+  let h=1779033703^seed.length;
+  for(let i=0;i<seed.length;i++){ h=Math.imul(h^seed.charCodeAt(i),3432918353); h=h<<13|h>>>19; }
+  return ()=>{ h=Math.imul(h^h>>>16,2246822507); h=Math.imul(h^h>>>13,3266489909); h^=h>>>16; return (h>>>0)/4294967296; };
+}
+function bingoBoard(seed,n,k){
+  const r=bingoRng(seed), c=[];
+  for(let i=0;c.length<n*n;i++) c.push(i%k);           /* 표현이 골고루 반복되게 채우고 */
+  for(let i=c.length-1;i>0;i--){ const j=Math.floor(r()*(i+1)); const t=c[i]; c[i]=c[j]; c[j]=t; }  /* 섞기 */
+  return c;
+}
+function bingoLinesOf(n){
+  const L=[];
+  for(let r=0;r<n;r++) L.push([...Array(n)].map((_,c)=>r*n+c));
+  for(let c=0;c<n;c++) L.push([...Array(n)].map((_,r)=>r*n+c));
+  L.push([...Array(n)].map((_,i)=>i*n+i));
+  L.push([...Array(n)].map((_,i)=>i*n+(n-1-i)));
+  return L;
+}
+function bingoDoneLines(marks,n){ return bingoLinesOf(n).filter(l=>l.every(i=>marks[i])); }
+function bgShuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); const t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+function bgFace(it){ return it.e? `<span class="e">${it.e}</span>` : `<span class="w">${esc(it.m||it.t)}</span>`; }
+
+/* ---------- 한 번의 호출은 세 단계로 흐른다 ----------
+   ① 호루라기(집중)  ② 문장 1회 듣기  ③ 생각하며 빙고판 누르기
+   단계는 Firestore에 쓰지 않는다. "몇 번째 표현인지"만 공유하고, 각 기기가 그 표현을
+   받은 순간부터 스스로 시간을 잰다(기기 시계가 서로 몇 초씩 달라도 안전하다). */
+const BG_JINGLE_MS=3450;                       // ① 경쾌한 음악 (실제 연주 길이와 맞춰야 겹치지 않는다)
+const BG_WHISTLE_MS=1100;                      // ② 삑~ (호루라기 0.72초 + 문장 전 잠깐의 여백)
+const BG_INTRO_MS=BG_JINGLE_MS+BG_WHISTLE_MS;  // 여기까지 지나면 문장이 나온다
+let bgAudioCtx=null;
+/* 소리를 파일 없이 그 자리에서 만들어 낸다 — 학교망이 외부 파일을 막아도 울리고 받을 것도 없다 */
+function bgCtx(){
+  try{
+    bgAudioCtx = bgAudioCtx || new (window.AudioContext||window.webkitAudioContext)();
+    if(bgAudioCtx.state==='suspended') bgAudioCtx.resume();
+    return bgAudioCtx;
+  }catch(e){ return null; }
+}
+/* 경쾌한 시작 음악 — 다장조 3.4초. 멜로디 + 베이스 + 박을 짚어주는 하이햇.
+   음원 파일이 아니라 그 자리에서 연주한다. */
+function bgNote(ctx, f, t, dur, amp, types){
+  const g=ctx.createGain();
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(Math.max(0.0002, amp), t+0.015);
+  g.gain.exponentialRampToValueAtTime(0.0001, t+dur);
+  g.connect(ctx.destination);
+  types.forEach(([type, mix])=>{
+    const o=ctx.createOscillator(); o.type=type; o.frequency.value=f;
+    const og=ctx.createGain(); og.gain.value=mix;
+    o.connect(og); og.connect(g);
+    o.start(t); o.stop(t+dur+0.03);
+  });
+}
+function bgHat(ctx, t, amp){          // 짧은 잡음 한 방 = 하이햇
+  const len=Math.floor(ctx.sampleRate*0.04);
+  const buf=ctx.createBuffer(1, len, ctx.sampleRate);
+  const d=buf.getChannelData(0);
+  for(let i=0;i<len;i++) d[i]=(Math.random()*2-1)*(1-i/len);
+  const src=ctx.createBufferSource(); src.buffer=buf;
+  const hp=ctx.createBiquadFilter(); hp.type='highpass'; hp.frequency.value=7000;
+  const g=ctx.createGain(); g.gain.value=amp;
+  src.connect(hp); hp.connect(g); g.connect(ctx.destination);
+  src.start(t);
+}
+function bingoJingle(){
+  const ctx=bgCtx(); if(!ctx) return;
+  const t0=ctx.currentTime+0.04;
+  const C5=523.25,E5=659.25,F5=698.46,G5=783.99,A5=880,C6=1046.5,
+        C3=130.81,F3=174.61,G3=196.00;
+  /* [음, 시작(초), 길이(초), 세기] — 8분음표 0.2초, 총 3.35초 */
+  const melody=[
+    [G5,0.00,.17,.15],[G5,0.20,.17,.13],[C6,0.40,.34,.16],
+    [A5,0.80,.17,.13],[G5,1.00,.17,.13],[E5,1.20,.34,.15],
+    [F5,1.60,.17,.13],[G5,1.80,.17,.13],[A5,2.00,.34,.16],
+    [G5,2.40,.17,.13],[E5,2.60,.17,.13],[C6,2.80,.55,.17]
+  ];
+  const bass=[[C3,0,.32],[C3,.4,.32],[F3,.8,.32],[C3,1.2,.32],
+              [F3,1.6,.32],[G3,2.0,.32],[G3,2.4,.32],[C3,2.8,.50]];
+  melody.forEach(([f,dt,dur,amp])=> bgNote(ctx,f,t0+dt,dur,amp,[['triangle',1],['square',.22]]));
+  bass.forEach(([f,dt,dur])=> bgNote(ctx,f,t0+dt,dur,.13,[['triangle',1]]));
+  for(let i=0;i<17;i++) bgHat(ctx, t0+i*0.2, i%2? .035 : .06);   // 박마다 톡톡
+}
+/* 호루라기 "삑~" — 음악이 끝나면 길게 한 번 불어 준다 */
+function bingoWhistle(){
+  const ctx=bgCtx(); if(!ctx) return;
+  const t0=ctx.currentTime, dur=0.72;
+  const g=ctx.createGain();
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(0.22, t0+0.05);
+  g.gain.setValueAtTime(0.22, t0+dur-0.14);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0+dur);
+  g.connect(ctx.destination);
+  const vib=ctx.createOscillator(); vib.frequency.value=28;       // 호루라기 특유의 떨림
+  const vibAmt=ctx.createGain(); vibAmt.gain.value=95;
+  vib.connect(vibAmt);
+  [2150, 2680].forEach((f,i)=>{
+    const o=ctx.createOscillator(); o.type='sine'; o.frequency.value=f;
+    vibAmt.connect(o.frequency);
+    const og=ctx.createGain(); og.gain.value=i? 0.45 : 1;
+    o.connect(og); og.connect(g);
+    o.start(t0); o.stop(t0+dur);
+  });
+  vib.start(t0); vib.stop(t0+dur);
+}
+/* 이 기기가 지금 표현을 받은 뒤 얼마나 지났는지로 단계를 정한다 */
+function bingoPhase(){
+  if(!BG || !BG.callAt) return 'think';        // 도중에 들어온 기기는 바로 누를 수 있게
+  const el=Date.now()-BG.callAt;
+  if(el < BG_JINGLE_MS) return 'jingle';
+  if(el < BG_INTRO_MS) return 'whistle';
+  if(el < BG_INTRO_MS + (BG.sayMs||1500)) return 'listen';
+  return 'think';
+}
+/* 단계가 바뀌는 순간에 맞춰 화면을 다시 그린다 (표현을 받은 시각 기준) */
+function bingoPhaseTimers(redraw){
+  clearTimeout(BG.phaseT1); clearTimeout(BG.phaseT2); clearTimeout(BG.phaseT3);
+  const el=Date.now()-(BG.callAt||0);
+  const ts=[BG_JINGLE_MS-el, BG_INTRO_MS-el, BG_INTRO_MS+(BG.sayMs||1500)-el];
+  ts.forEach((t,i)=>{ if(t>0) BG['phaseT'+(i+1)]=setTimeout(redraw, t+40); });
+}
+
+/* 화면을 떠날 때 구독·타이머·소리를 정리한다 (안 하면 요금이 계속 샌다) */
+let BG=null;
+function bingoLeave(){
+  if(!BG) return;
+  (BG.unsubs||[]).forEach(u=>{ try{ u(); }catch(e){} });
+  clearTimeout(BG.repeatT); clearTimeout(BG.autoT);
+  clearTimeout(BG.sayT); clearTimeout(BG.whistleT);
+  clearTimeout(BG.phaseT1); clearTimeout(BG.phaseT2); clearTimeout(BG.phaseT3);
+  clearInterval(BG.tickT);
+  BG=null;
+  speakStop();
+}
+/* 한 번 읽어주고, 끝나면 한 번 더 (초등에서는 두 번 들려주는 게 기본) */
+async function bingoSay(text, twice){
+  await speak(text);
+  if(!twice) return;
+  const au=ttsAudio;
+  if(au && au.addEventListener) au.addEventListener('ended', ()=>{ if(ttsAudio===au) speak(text); }, {once:true});
+  else if(BG) BG.repeatT=setTimeout(()=>speak(text), 2300);
+}
+
+/* ---------- 선생님: 준비 ---------- */
+function bingoSetup(){
+  bingoLeave();
+  if(!DB.classes.length){ app.innerHTML=`<button class="back" onclick="teacherHome()">← 선생님 메뉴</button>
+    <div class="card empty"><span class="em">🏫</span>먼저 <b>학급·학생</b>에서 학급을 만들어 주세요.</div>`; return; }
+  app.innerHTML=`<button class="back" onclick="teacherHome()">← 선생님 메뉴</button>
+    <div class="card"><h2 style="margin-top:4px">👂 듣기 빙고 — 어느 반인가요?</h2>
+      <p class="muted">한 반에 한 게임이 열려요. 학생들은 <b>학생 → 듣고 빙고</b>로 들어옵니다.</p>
+      <div class="grid-cards" style="margin-top:14px">${DB.classes.map(c=>`
+        <div class="tile" data-c="${c.id}"><span class="emoji">🏫</span><div class="t">${esc(c.name)}</div>
+        <div class="s">${c.students.length}명</div></div>`).join('')}</div></div>`;
+  app.querySelectorAll('[data-c]').forEach(el=> el.onclick=()=> bingoOpenClass(el.dataset.c));
+}
+/* 하던 게임이 있으면 이어서 진행할 수 있게 한다 (선생님이 새로고침해도 안 끊기도록) */
+async function bingoOpenClass(cid){
+  const cls=DB.classes.find(x=>x.id===cid);
+  const old=await sGet(bingoKey(cid), null);
+  if(!old || old.status==='done') return bingoPickList(cid);
+  app.innerHTML=`<button class="back" onclick="bingoSetup()">← 반 다시 고르기</button>
+    <div class="card center">
+      <h2 style="margin-top:4px">${esc(cls?cls.name:'')}에 하던 게임이 있어요</h2>
+      <p class="muted">📄 ${esc(old.title)} · ${old.n}×${old.n} · ${old.target}빙고 · ${old.calls.length}번 들려줌</p>
+      <div style="margin-top:16px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap">
+        <button class="btn lg" id="bgResume">이어서 진행하기 ▶</button>
+        <button class="btn ghost" id="bgFresh">새로 만들기</button>
+      </div>
+    </div>`;
+  $('bgResume').onclick=()=> bingoRun(old);
+  $('bgFresh').onclick=()=> bingoPickList(cid);
+}
+function bingoPickList(cid){
+  const grades=[...new Set(DB.lists.map(l=>(l.grade||'').trim()).filter(Boolean))].sort();
+  app.innerHTML=`<button class="back" onclick="bingoSetup()">← 반 다시 고르기</button>
+    <div class="card"><h2 style="margin-top:4px">어떤 표현으로 놀까요?</h2>
+      <p class="muted">보관함에 있는 낱말·문장 목록을 그대로 씁니다. 표현이 <b>3개 이상</b>이면 돼요.</p>
+      ${DB.lists.length?`<div id="gradeChips" style="margin-top:8px">${grades.map(g=>`<span class="chip lib-g" data-g="${esc(g)}">${esc(g)}</span>`).join('')}${DB.lists.some(l=>!(l.grade||'').trim())?'<span class="chip lib-g" data-g="__none__">미지정</span>':''}</div>`:''}
+    </div>
+    <div id="bgList"></div>`;
+  if(!DB.lists.length){ $('bgList').innerHTML='<div class="card empty"><span class="em">🌱</span>보관함이 비었어요.<br>「과제 만들기」로 목록을 먼저 만들어 주세요.</div>'; return; }
+  let cur=null;
+  const draw=()=>{
+    const el=$('bgList');
+    if(cur==null){ el.innerHTML='<div class="card empty"><span class="em">👆</span>위에서 학년을 선택하세요.</div>'; return; }
+    const rows=DB.lists.filter(l=> cur==='__none__'? !(l.grade||'').trim() : (l.grade||'').trim()===cur)
+      .sort((a,b)=>(a.unit||'').localeCompare(b.unit||'')||(b.updatedAt-a.updatedAt));
+    if(!rows.length){ el.innerHTML='<div class="card empty">이 학년 목록이 없어요.</div>'; return; }
+    el.innerHTML=rows.map(l=>{ const tag=[l.grade,l.unit,l.lesson].filter(Boolean).join(' / ');
+      const few=l.items.length<3;
+      return `<div class="card" style="margin-bottom:12px; ${few?'opacity:.5':'cursor:pointer'}" ${few?'':`data-l="${l.id}"`}>
+        <h3 style="margin:0 0 4px">📄 ${esc(l.name)}</h3>
+        <p class="muted" style="margin:0">${tag||''} · 표현 ${l.items.length}개${few?' — 3개 이상 필요해요':''}</p></div>`;}).join('');
+    el.querySelectorAll('[data-l]').forEach(c=> c.onclick=()=> bingoConfig(cid, c.dataset.l));
+  };
+  app.querySelectorAll('.lib-g').forEach(ch=> ch.onclick=()=>{ cur=ch.dataset.g;
+    app.querySelectorAll('.lib-g').forEach(x=>x.classList.toggle('on',x===ch)); draw(); });
+  draw();
+}
+let bingoDraft=null;
+function bingoConfig(cid, listId){
+  const l=DB.lists.find(x=>x.id===listId); if(!l) return bingoPickList(cid);
+  bingoDraft={ cid, listId, title:l.name,
+    items:l.items.slice(0,24).map(i=>{ const cands=bingoSuggest(i.text,4);
+      return { t:i.text, m:i.meaning||'', cands, ci:cands.length?0:-1, sel:true }; }) };
+  bingoConfigDraw();
+}
+function bingoConfigDraw(){
+  const d=bingoDraft, cls=DB.classes.find(x=>x.id===d.cid);
+  const n=d.n||5, target=d.target||3, iv=(d.iv==null?14:d.iv);
+  app.innerHTML=`<button class="back" onclick="bingoPickList('${d.cid}')">← 목록 다시 고르기</button>
+    <div class="card">
+      <h2 style="margin-top:4px">👂 ${esc(d.title)}</h2>
+      <p class="muted">${esc(cls?cls.name:'')} · 쓸 표현을 고르고, 칸에 보일 그림을 눌러 바꿀 수 있어요.<br>
+        그림이 없으면 <b>뜻(한글)</b>이 글자로 나와요.</p>
+      <div class="hr"></div>
+      <div id="bgItems"></div>
+      <p class="muted" id="bgCount" style="margin:6px 2px 0"></p>
+    </div>
+    <div class="card">
+      <h3 style="margin:0 0 10px">게임 설정</h3>
+      <div class="row">
+        <div><label>빙고판 크기</label><select id="bgN">
+          ${[3,4,5,7].map(v=>`<option value="${v}" ${v===n?'selected':''}>${v} × ${v}${v===7?' (학습지)':''}</option>`).join('')}
+        </select></div>
+        <div><label>빙고 목표</label><select id="bgT">
+          ${[1,2,3,4].map(v=>`<option value="${v}" ${v===target?'selected':''}>${v}빙고</option>`).join('')}
+        </select></div>
+        <div><label>자동 진행</label><select id="bgI">
+          <option value="0" ${iv===0?'selected':''}>수동 (선생님이 누름)</option>
+          ${[8,10,12,14,16,20,24].map(v=>`<option value="${v}" ${v===iv?'selected':''}>${v}초마다 자동</option>`).join('')}
+        </select></div>
+      </div>
+      <p class="muted" style="margin-top:10px">※ 표현 8개 · 5×5면 같은 그림이 3번쯤 나와요. 한 번 들려줄 때 <b>한 칸만</b> 체크할 수 있습니다.<br>
+        ※ 자동 진행을 켜면 시작만 누르고 계속 놀 수 있어요. 진행 중에도 <b>간격을 늘리거나 줄이고, 잠깐 멈출 수</b> 있습니다.<br>
+        ※ 게임 중에는 <b>정답(그림·문장)을 어디에도 띄우지 않습니다.</b> 오직 소리로만 판단해요. 들려준 표현은 게임을 끝낸 뒤 확인할 수 있어요.</p>
+      <div class="center" style="margin-top:14px"><button class="btn lg" id="bgGo">게임 만들기 ▶</button></div>
+    </div>`;
+  const drawItems=()=>{
+    $('bgItems').innerHTML=d.items.map((it,i)=>`
+      <div class="item-row">
+        <input type="checkbox" ${it.sel?'checked':''} data-sel="${i}">
+        <button class="bg-emo" data-emo="${i}" title="눌러서 그림 바꾸기">${it.ci>=0?it.cands[it.ci]:'글자'}</button>
+        <span class="txt">${esc(it.t)}${it.m?`<span class="muted" style="font-size:.85rem"> — ${esc(it.m)}</span>`:''}</span>
+      </div>`).join('');
+    const sel=d.items.filter(x=>x.sel).length;
+    $('bgCount').innerHTML= sel<3 ? '⚠️ 표현을 <b>3개 이상</b> 골라 주세요.'
+      : `고른 표현 ${sel}개 · ${sel>16?'너무 많으면 판에 한 번씩만 나와요. 6~12개를 권해요.':'좋아요!'}`;
+    $('bgItems').querySelectorAll('[data-sel]').forEach(cb=> cb.onchange=()=>{ d.items[+cb.dataset.sel].sel=cb.checked; drawItems(); });
+    $('bgItems').querySelectorAll('[data-emo]').forEach(b=> b.onclick=()=>{ const it=d.items[+b.dataset.emo];
+      it.ci = it.ci+1 >= it.cands.length ? -1 : it.ci+1;   /* 후보를 돌다가 마지막엔 '글자' */
+      drawItems(); });
+  };
+  drawItems();
+  $('bgGo').onclick=async ()=>{
+    d.n=+$('bgN').value; d.target=+$('bgT').value; d.iv=+$('bgI').value;
+    const items=d.items.filter(x=>x.sel).map(x=>({ t:x.t, m:x.m, e:x.ci>=0?x.cands[x.ci]:'' }));
+    if(items.length<3) return toast('표현을 3개 이상 골라 주세요');
+    if(d.target>d.n) return toast(`${d.n}×${d.n} 판에서는 ${d.n}빙고까지 가능해요`);
+    const sess={ id:'bg'+uid(), classId:d.cid, className:cls?cls.name:'', listId:d.listId, title:d.title,
+      n:d.n, target:d.target, iv:d.iv, items, calls:[], at:Date.now(), status:'ready', updatedAt:Date.now() };
+    const ok=await sSet(bingoKey(d.cid), sess);
+    if(!ok) return;
+    bingoRun(sess);
+  };
+}
+
+/* ---------- 선생님: 진행 ---------- */
+function bingoRun(sess){
+  bingoLeave();
+  if(sess.iv==null) sess.iv=0;                       /* 자동 진행이 없던 예전 게임은 수동으로 */
+  BG={ role:'teacher', sess, players:[], unsubs:[], repeatT:0,
+       autoT:0, tickT:0, paused:false, nextAt:0 };
+  const cls=DB.classes.find(x=>x.id===sess.classId);
+  BG.roster = cls? cls.students : [];
+  if(fbReady && window.__store){
+    BG.unsubs.push(window.__store.watchWhere(colName('progress'), 'value.sess', sess.id, (rows)=>{
+      BG.players=rows; bingoRunDraw();
+    }));
+  }
+  BG.tickT=setInterval(bingoAutoTick, 250);          /* 남은 시간만 갱신 — 화면을 통째로 다시 그리지 않는다 */
+  bingoRunDraw();
+}
+/* ---------- 자동 진행 (선생님 기기에서만 돈다) ---------- */
+/* 읽어주는 데 걸리는 시간 어림값 — 느린 목소리로 바꾸면 그만큼 길어진다.
+   앞뒤 여백까지 넉넉히 잡는다. 선생님 기기와 학생 태블릿이 같은 계산을 써야 단계가 어긋나지 않으므로,
+   실제 음성 길이로 보정하지 않고 이 어림값 하나만 쓴다. */
+function bingoSayMs(text, twice){
+  const words=String(text||'').trim().split(/\s+/).length;
+  const one=Math.max(1200, words*380/Math.max(0.5, VOICE.rate) + 700);
+  return twice? one*2+700 : one;
+}
+function bingoAutoSchedule(){
+  if(!BG || BG.role!=='teacher') return;
+  clearTimeout(BG.autoT); BG.autoT=0;
+  const s=BG.sess;
+  if(!(s.iv>0) || s.status!=='playing' || BG.paused){ BG.nextAt=0; return; }
+  /* 음악·호루라기·문장을 다 들려주고도 생각할 틈은 남아야 한다 — 그보다 짧게는 넘기지 않는다 */
+  const wait=Math.max(s.iv*1000, BG_INTRO_MS+(BG.sayMs||0)+3000);   /* 생각할 시간 최소 3초 */
+  BG.nextAt=Date.now()+wait;
+  BG.autoT=setTimeout(()=>{ if(BG && BG.role==='teacher') bingoNext(); }, wait);
+}
+function bingoAutoTick(){
+  if(!BG || BG.role!=='teacher') return;
+  const el=$('bgTick'); if(!el) return;
+  const s=BG.sess;
+  if(!(s.iv>0) || s.status!=='playing'){ el.textContent=''; return; }
+  if(BG.paused){ el.textContent='⏸ 잠깐 멈춤'; return; }
+  if(!BG.nextAt){ el.textContent=''; return; }
+  el.textContent=`${Math.max(0,Math.ceil((BG.nextAt-Date.now())/1000))}초 뒤 다음 표현`;
+}
+function bingoAutoPause(){
+  BG.paused=!BG.paused;
+  if(BG.paused){ clearTimeout(BG.autoT); BG.autoT=0; BG.nextAt=0; }
+  else bingoAutoSchedule();
+  bingoRunDraw();
+}
+/* 간격 조절 — 수업 분위기를 보고 바로 늘리거나 줄일 수 있어야 한다 */
+function bingoAutoSet(v){
+  v=Math.max(4, Math.min(30, v|0));
+  BG.paused=false;
+  bingoTeacherSave({iv:v});          /* 새로고침해도 유지되도록 세션에 같이 저장 */
+  bingoAutoSchedule();
+}
+function bingoAutoOff(){
+  clearTimeout(BG.autoT); BG.autoT=0; BG.nextAt=0; BG.paused=false;
+  bingoTeacherSave({iv:0});
+}
+function bingoTeacherSave(patch){
+  Object.assign(BG.sess, patch, {updatedAt:Date.now()});
+  sSet(bingoKey(BG.sess.classId), BG.sess);   /* 판정·저장은 선생님 기기 한 대만 한다 */
+  bingoRunDraw();
+}
+function bingoNext(){
+  const s=BG.sess;
+  const unseen=s.items.map((_,i)=>i).filter(i=>!s.calls.includes(i));
+  const pool=unseen.length?unseen:s.items.map((_,i)=>i);       /* 다 들려줬으면 처음부터 다시 */
+  const pick=pool[Math.floor(Math.random()*pool.length)];
+  clearTimeout(BG.repeatT); clearTimeout(BG.sayT); clearTimeout(BG.whistleT);
+  const text=s.items[pick].t;
+  BG.callAt=Date.now();
+  BG.sayMs=bingoSayMs(text, false);                 /* 문장은 한 번만 들려준다 */
+  bingoJingle();                                    /* ① 경쾌한 음악 */
+  BG.whistleT=setTimeout(()=>{ if(BG && BG.role==='teacher') bingoWhistle(); }, BG_JINGLE_MS);      /* ② 삑~ */
+  BG.sayT=setTimeout(()=>{ if(BG && BG.role==='teacher') bingoSay(text, false); }, BG_INTRO_MS);    /* ③ 듣기 */
+  bingoTeacherSave({ calls:[...s.calls, pick], at:Date.now(), status:'playing' });
+  bingoPhaseTimers(bingoRunDraw);                   /* ④ 생각·터치 */
+  bingoAutoSchedule();
+}
+function bingoRunDraw(){
+  if(!BG || BG.role!=='teacher') return;
+  if(BG.learn) return bingoLearnDraw();
+  const s=BG.sess, ci=s.calls.length? s.calls[s.calls.length-1] : -1, it=ci>=0? s.items[ci] : null;
+  /* 게임 중에는 정답을 화면에 절대 띄우지 않는다.
+     이 화면이 곧 교실 TV라, 그림이나 문장이 뜨면 늦게 누르는 학생이 소리 대신 화면을 보고 찍는다. */
+  const ph=bingoPhase();
+  let stage, stageCls='';
+  if(s.status==='ready') stage=`<div class="em">👂</div><div class="tx">Listen &amp; Bingo</div>
+      <div class="hint">아래 <b>첫 표현 들려주기</b>를 누르면 시작해요</div>`;
+  else if(s.status==='done') stage=`<div class="tx">Good job! 🎉</div>
+      <div class="hint">${BG.players.filter(p=>p.bingo).length}명이 빙고를 완성했어요</div>`;
+  else if(ph==='jingle'){ stageCls=' jingle';
+    stage=`<div class="em bg-bounce">🎵</div><div class="tx" style="font-size:1.8rem">${s.calls.length}번째 표현</div>
+      <div class="hint">곧 시작해요</div>`; }
+  else if(ph==='whistle'){ stageCls=' whistle';
+    stage=`<div class="em">📣</div><div class="tx" style="font-size:2rem">집중!</div>
+      <div class="hint">잘 들을 준비</div>`; }
+  else if(ph==='listen') stage=`<div class="ear">🔊</div><div class="tx" style="font-size:1.5rem">잘 들어요</div>
+      <div class="hint">한 번만 들려줍니다</div>`;
+  else { stageCls=' think';
+    stage=`<div class="em">👆</div><div class="tx" style="font-size:1.6rem">빙고판에서 찾아 누르세요</div>
+      <div class="hint">${s.calls.length}번째 · 한 칸만 누를 수 있어요</div>`; }
+  /* 들려준 표현은 게임이 끝난 뒤에만 공개한다 (놓친 학생이 뒤늦게 따라 찍는 것도 막는다) */
+  const review= s.status!=='done' ? '' : `<div class="card noanim">
+      <h3 style="margin:0 0 10px">🔎 들려준 표현 (${s.calls.length}번)</h3>
+      <div class="bg-review">${s.calls.map((c,k)=>`<span><b>${k+1}</b> ${s.items[c].e||''} ${esc(s.items[c].t)}</span>`).join('')}</div>
+    </div>`;
+  /* 명단과 학생 기록을 합친다 — 아직 안 들어온 학생도 보이도록 */
+  const byId={}; BG.players.forEach(p=> byId[p.sid]=p);
+  const rows=(BG.roster.length? BG.roster.map(st=>({ sid:st.id, name:st.name, p:byId[st.id] }))
+    : BG.players.map(p=>({ sid:p.sid, name:p.name, p })));
+  const near=rows.filter(r=>r.p && !r.p.bingo && r.p.lines>=s.target-1).length;
+  const wins=rows.filter(r=>r.p && r.p.bingo).length;
+  const tiles=rows.map(r=>{ const p=r.p;
+    const c=p? (p.bingo?'win':(p.lines>=s.target-1?'near':'')) : '';
+    const st=p? (p.bingo?'🎉 빙고!':`${p.lines}줄 · ${p.marks.filter(Boolean).length}칸`) : '아직 안 들어옴';
+    return `<div class="bg-stu ${c}"><div class="nm">${esc(r.name)}</div><div class="st">${st}</div></div>`;}).join('');
+  app.innerHTML=`<button class="back" onclick="bingoQuitTeacher()">← 선생님 메뉴</button>
+    <div class="card noanim">
+      <div class="bg-stage${stageCls}">${stage}</div>
+      <div class="center" style="margin-top:14px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap">
+        ${s.status==='ready'?`<button class="btn ghost" id="bgLearn">📖 표현 익히기</button>`:''}
+        ${s.status!=='done'?`<button class="btn lg" id="bgNext">${s.calls.length?'다음 표현 ▶':'첫 표현 들려주기 ▶'}</button>`:''}
+        ${s.calls.length&&s.status!=='done'?`<button class="btn ghost" id="bgAgain">🔁 다시 들려주기</button>`:''}
+        ${s.status!=='done'?`<button class="btn ghost" id="bgEnd">게임 끝내기</button>`
+          :`<button class="btn coral" id="bgNew">새 게임 만들기</button>`}
+        <button class="btn ghost" id="bgPrint">🖨️ 종이 빙고판</button>
+      </div>
+      ${s.status==='done'? '' : `<div class="bg-auto">
+        ${s.iv>0? `
+          <button class="btn sm ${BG.paused?'coral':'ghost'}" id="bgPause">${BG.paused?'▶ 이어서 하기':'⏸ 잠깐 멈춤'}</button>
+          <span class="ivbox">
+            <button class="btn sm ghost" id="bgSlow" title="간격 줄이기 (빠르게)" ${s.iv<=4?'disabled':''}>−</button>
+            <b>${s.iv}초 간격</b>
+            <button class="btn sm ghost" id="bgFast" title="간격 늘리기 (천천히)" ${s.iv>=30?'disabled':''}>+</button>
+          </span>
+          <span class="tick" id="bgTick"></span>
+          <button class="btn sm ghost" id="bgManual">✋ 수동으로</button>`
+        : `<button class="btn sm ghost" id="bgAuto">⏱ 자동 진행 켜기 (14초마다)</button>
+           <span class="muted" style="font-size:.82rem">켜면 누르지 않아도 다음 표현이 나와요</span>`}
+      </div>`}
+      <div class="bg-stat">
+        <div><b>${s.calls.length}</b><span>들려준 횟수</span></div>
+        <div><b>${near}</b><span>한 줄 남은 학생</span></div>
+        <div><b>${wins}</b><span>빙고 완성</span></div>
+      </div>
+      <p class="muted center">${s.n}×${s.n} · ${s.target}빙고 · 표현 ${s.items.length}개 · ${esc(s.className||'')}</p>
+    </div>
+    <div class="card noanim">
+      <h3 style="margin:0 0 10px">학생별 현황</h3>
+      ${rows.length? `<div class="bg-grid">${tiles}</div>`
+        : '<p class="muted">이 학급에 등록된 학생이 없어요. 종이 빙고판으로도 놀 수 있어요.</p>'}
+    </div>
+    ${review}`;
+  const on=(id,fn)=>{ const el=$(id); if(el) el.onclick=fn; };
+  on('bgNext', bingoNext);
+  on('bgLearn', ()=> bingoLearn(0));
+  on('bgAgain', ()=>{ if(it) bingoSay(it.t, false); });
+  on('bgEnd', ()=>{ clearTimeout(BG.repeatT); clearTimeout(BG.autoT);
+    BG.autoT=0; BG.nextAt=0; speakStop(); bingoTeacherSave({status:'done'}); });
+  on('bgNew', ()=> bingoDraft? bingoConfigDraw() : bingoSetup());
+  on('bgPrint', bingoPrint);
+  on('bgPause', bingoAutoPause);
+  on('bgSlow', ()=> bingoAutoSet(s.iv-2));      /* 화면에 보이는 '초' 숫자를 그대로 올리고 내린다 */
+  on('bgFast', ()=> bingoAutoSet(s.iv+2));
+  on('bgManual', bingoAutoOff);
+  on('bgAuto', ()=> bingoAutoSet(14));
+  bingoAutoTick();
+}
+function bingoQuitTeacher(){ bingoLeave(); teacherHome(); }
+/* ---------- 게임 전 단계: TV로 표현 익히기 (Listen and Repeat) ---------- */
+function bingoLearn(i){
+  BG.learn={ i:Math.max(0, Math.min(BG.sess.items.length-1, i||0)) };
+  bingoRunDraw();
+  bingoSay(BG.sess.items[BG.learn.i].t, false);
+}
+function bingoLearnDraw(){
+  const s=BG.sess, L=BG.learn, it=s.items[L.i];
+  app.innerHTML=`<button class="back" id="lnClose">← 게임 화면으로</button>
+    <div class="card noanim">
+      <div class="bg-stage" style="min-height:300px">
+        <div class="em" style="font-size:7rem">${it.e||'🔤'}</div>
+        <div class="tx">${esc(it.t)}</div>
+        ${it.m?`<div class="mn" style="font-size:1.2rem">${esc(it.m)}</div>`:''}
+      </div>
+      <div class="center" style="margin-top:14px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap">
+        <button class="btn ghost" id="lnPrev" ${L.i===0?'disabled':''}>◀ 이전</button>
+        <button class="btn" id="lnSay">🔊 다시 들려주기</button>
+        <button class="btn ghost" id="lnNext" ${L.i>=s.items.length-1?'disabled':''}>다음 ▶</button>
+      </div>
+      <p class="muted center" style="margin-top:12px">${L.i+1} / ${s.items.length} · 학생들과 함께 듣고 따라 말해 보세요</p>
+      <div class="bg-review" style="margin-top:12px; justify-content:center">
+        ${s.items.map((x,k)=>`<span data-ln="${k}" style="cursor:pointer; ${k===L.i?'border-color:var(--green); background:#E9F6F0':''}">${x.e||''} ${esc(x.t)}</span>`).join('')}
+      </div>
+    </div>`;
+  $('lnClose').onclick=()=>{ BG.learn=null; speakStop(); bingoRunDraw(); };
+  $('lnSay').onclick=()=> bingoSay(it.t, false);
+  const pv=$('lnPrev'), nx=$('lnNext');
+  if(pv && L.i>0) pv.onclick=()=> bingoLearn(L.i-1);
+  if(nx && L.i<s.items.length-1) nx.onclick=()=> bingoLearn(L.i+1);
+  app.querySelectorAll('[data-ln]').forEach(b=> b.onclick=()=> bingoLearn(+b.dataset.ln));
+}
+/* 종이 빙고판 — 태블릿으로 들어온 학생과 같은 판이 나오도록 같은 씨앗을 쓴다 */
+function bingoPrint(){
+  const s=BG.sess;
+  const list=(BG.roster&&BG.roster.length)? BG.roster
+    : [...Array(6)].map((_,i)=>({id:'paper'+i, name:'이름: ____________'}));
+  $('printArea').innerHTML=list.map(st=>{
+    const b=bingoBoard(s.id+'|'+st.id, s.n, s.items.length);
+    const cells=b.map(v=>{ const it=s.items[v];
+      return `<div class="pbc">${it.e? it.e : `<span class="w">${esc(it.m||it.t)}</span>`}</div>`; }).join('');
+    return `<div class="pb"><h3>${esc(s.title)} — ${esc(st.name)}</h3>
+      <div class="pbgrid" style="grid-template-columns:repeat(${s.n},1fr)">${cells}</div>
+      <p style="font-size:9pt; margin-top:3mm">들은 표현을 찾아 한 칸만 ○표 하세요 · ${s.target}빙고가 되면 손을 들어요</p></div>`;
+  }).join('');
+  setTimeout(()=>window.print(), 60);
+}
+
+/* ---------- 학생: 빙고판 ---------- */
+async function bingoStudent(){
+  bingoLeave();
+  session.role='student'; refreshWho();
+  BG={ role:'student', sess:null, me:null, unsubs:[], repeatT:0, fb:'', shake:-1 };
+  app.innerHTML=`<button class="back" onclick="bingoStudentQuit()">← 이름 다시 고르기</button>
+    <div id="bgWrap" class="card empty"><span class="em">⏳</span>불러오는 중...</div>`;
+  const saved=await sGet(bingoPKey(session.classId, session.studentId), null);
+  if(!BG) return;                       /* 기다리는 사이에 화면을 떠났으면 중단 */
+  BG.me=saved;
+  if(fbReady && window.__store){
+    BG.unsubs.push(window.__store.watch(colName('app'), keyRef(bingoKey(session.classId)).id, (v)=>{
+      if(!BG || BG.role!=='student') return;
+      BG.sess=v||null; bingoStudentSync();
+    }));
+  } else {
+    BG.sess=await sGet(bingoKey(session.classId), null); bingoStudentSync();
+  }
+}
+function bingoStudentQuit(){ bingoLeave(); studentPickName(session.classId); }
+/* 새 게임이 열리면 내 판을 새로 만든다 */
+function bingoStudentSync(){
+  const s=BG.sess;
+  if(s && (!BG.me || BG.me.sess!==s.id || !BG.me.marks || BG.me.marks.length!==s.n*s.n)){
+    BG.me={ sess:s.id, sid:session.studentId, name:session.name, marks:Array(s.n*s.n).fill(false),
+      lines:0, bingo:false, lastCall:-1, lastCell:-1, updatedAt:Date.now() };
+  }
+  if(s && s.status!=='ready' && BG.pr){ BG.pr=null; speakStop(); }   /* 게임이 시작되면 연습은 끝 */
+  /* 새 표현이 도착한 순간부터 이 기기 기준으로 단계를 잰다 (선생님 기기와 시계가 달라도 안전) */
+  if(s && s.status==='playing' && s.calls.length !== BG.seenCalls){
+    BG.seenCalls=s.calls.length;
+    BG.callAt=Date.now();
+    BG.sayMs=bingoSayMs(s.items[s.calls[s.calls.length-1]].t, false);
+    bingoPhaseTimers(()=>{ if(BG && BG.role==='student') bingoStudentDraw(); });
+  }
+  bingoStudentDraw();
+}
+async function bingoTap(cell){
+  const s=BG.sess, me=BG.me;
+  if(!s || s.status!=='playing' || me.bingo) return;
+  if(bingoPhase()!=='think') return;          /* 듣는 동안에는 판이 안 보이므로 눌릴 일도 없다 */
+  const callIdx=s.calls.length-1, ei=s.calls[callIdx];
+  /* 방금 이번 차례에 찍은 칸은 취소할 수 있다 (지난 차례 것은 못 고침) */
+  if(me.lastCall===callIdx && me.lastCell===cell){
+    me.marks[cell]=false; me.lastCall=-1; me.lastCell=-1;
+    me.lines=bingoDoneLines(me.marks,s.n).length; BG.fb='취소했어요. 다시 골라도 돼요';
+    bingoStudentDraw(); return bingoSaveMe();
+  }
+  if(me.lastCall===callIdx){ BG.fb='이번 소리는 이미 체크했어요'; return bingoStudentDraw(); }
+  if(me.marks[cell]){ BG.fb='이미 체크한 칸이에요'; BG.shake=cell; return bingoStudentDraw(); }
+  const board=bingoBoard(s.id+'|'+session.studentId, s.n, s.items.length);
+  if(board[cell]!==ei){ BG.fb='다른 그림이에요. 다시 들어보세요'; BG.shake=cell; return bingoStudentDraw(); }
+  me.marks[cell]=true; me.lastCall=callIdx; me.lastCell=cell;
+  me.lines=bingoDoneLines(me.marks,s.n).length;
+  BG.fb='좋아요! 잘 찾았어요';
+  if(me.lines>=s.target && !me.bingo){ me.bingo=true; showCeleb(`${s.target}빙고 완성! 손을 들어 선생님께 알려요 🎉`); }
+  bingoStudentDraw();
+  await bingoSaveMe();
+}
+async function bingoSaveMe(){ BG.me.updatedAt=Date.now(); await sSet(bingoPKey(session.classId, session.studentId), BG.me); }
+
+/* ---------- 게임 전 연습: 그림 ↔ 문장 맞추기 ---------- */
+/* 빙고는 "듣고 그림 찾기"라, 그 전에 어떤 그림이 어떤 표현인지 익혀 두어야 게임이 된다.
+   문제는 학생 기기 안에서만 만들고 채점한다 — 저장도, 통신도 없다. */
+function bingoPracticeStart(dir){
+  const s=BG.sess; if(!s) return;
+  const n=s.items.length, k=Math.min(4, n);
+  const qs=bgShuffle([...Array(n).keys()]).map(ans=>{
+    const others=bgShuffle([...Array(n).keys()].filter(i=>i!==ans)).slice(0, k-1);
+    return { ans, opts:bgShuffle([ans, ...others]) };
+  });
+  BG.pr={ dir:dir||'toPic', qs, i:0, ok:0, tries:0, wrongSel:-1, justOk:false };
+  bingoStudentDraw();
+}
+function bingoPracticeAnswer(choice){
+  const p=BG.pr, q=p.qs[p.i];
+  if(p.justOk) return;
+  p.tries++;
+  if(choice!==q.ans){ p.wrongSel=choice; bingoStudentDraw(); return; }
+  p.ok++; p.justOk=true; p.wrongSel=-1;
+  bingoStudentDraw();
+  setTimeout(()=>{                       /* 맞았다는 표시를 잠깐 보여주고 다음 문제로 */
+    if(!BG || !BG.pr) return;
+    BG.pr.justOk=false; BG.pr.i++;
+    bingoStudentDraw();
+  }, 750);
+}
+function bingoPracticeQuit(){ BG.pr=null; bingoStudentDraw(); }
+function bingoPracticeDraw(wrap){
+  const s=BG.sess, p=BG.pr;
+  const back=`<button class="back" id="prQuit">← 연습 그만하기</button>`;
+  if(p.i>=p.qs.length){                  /* 다 풀었을 때 */
+    const perfect=p.tries===p.qs.length;
+    wrap.className='card center';
+    wrap.innerHTML=`${back}
+      <div class="big" style="font-size:3rem">${perfect?'🏆':'🎉'}</div>
+      <h2 style="margin:6px 0">연습 끝!</h2>
+      <p class="muted">${p.qs.length}문제 중 <b>${p.ok}개</b> 맞혔어요 · 누른 횟수 ${p.tries}번${perfect?'<br>한 번도 안 틀렸어요!':''}</p>
+      <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:14px">
+        <button class="btn" id="prAgain">🔁 한 번 더</button>
+        <button class="btn ghost" id="prFlip">${p.dir==='toPic'?'🔄 그림 보고 문장 고르기':'🔄 문장 보고 그림 고르기'}</button>
+      </div>`;
+    $('prQuit').onclick=bingoPracticeQuit;
+    $('prAgain').onclick=()=> bingoPracticeStart(p.dir);
+    $('prFlip').onclick=()=> bingoPracticeStart(p.dir==='toPic'?'toText':'toPic');
+    return;
+  }
+  const q=p.qs[p.i], it=s.items[q.ans];
+  const prompt = p.dir==='toPic'
+    ? `<div class="pr-ask"><div class="tx">${esc(it.t)}</div>${it.m?`<div class="mn">${esc(it.m)}</div>`:''}
+         <button class="btn sm ghost" id="prSay" style="margin-top:10px">🔊 들어보기</button></div>`
+    : `<div class="pr-ask"><div class="pr-big">${it.e||esc(it.m||it.t)}</div></div>`;
+  const opts=q.opts.map(oi=>{
+    const o=s.items[oi];
+    const cls=['pr-opt', p.justOk&&oi===q.ans?'ok':'', p.wrongSel===oi?'no':''].join(' ');
+    return p.dir==='toPic'
+      ? `<button class="${cls} pic" data-o="${oi}">${bgFace(o)}</button>`
+      : `<button class="${cls} txt" data-o="${oi}"><b>${esc(o.t)}</b>${o.m?`<span class="muted">${esc(o.m)}</span>`:''}</button>`;
+  }).join('');
+  wrap.className='card';
+  wrap.innerHTML=`${back}
+    <div style="display:flex; align-items:center; gap:10px; margin:4px 0 10px">
+      <b class="jua" style="flex:1">🔗 ${p.dir==='toPic'?'문장에 맞는 그림 고르기':'그림에 맞는 문장 고르기'}</b>
+      <span class="pill ${p.justOk?'done':'not'}">${p.i+1} / ${p.qs.length}</span>
+    </div>
+    <div class="progress" style="margin-bottom:12px"><div style="width:${Math.round(p.i/p.qs.length*100)}%"></div></div>
+    ${prompt}
+    <div class="pr-opts ${p.dir==='toPic'?'pic':'txt'}">${opts}</div>
+    <div class="bg-foot ${p.justOk?'hit':(p.wrongSel>=0?'miss':'')}">
+      ${p.justOk?'잘했어요! 👍':(p.wrongSel>=0?'다시 한 번 볼까요?':'맞는 것을 골라 눌러요')}</div>`;
+  $('prQuit').onclick=bingoPracticeQuit;
+  const say=$('prSay'); if(say) say.onclick=()=> speak(it.t);
+  wrap.querySelectorAll('[data-o]').forEach(b=> b.onclick=()=> bingoPracticeAnswer(+b.dataset.o));
+}
+function bingoStudentDraw(){
+  if(!BG || BG.role!=='student') return;
+  const wrap=$('bgWrap'); if(!wrap) return;
+  const s=BG.sess;
+  if(!s){ wrap.className='card empty';
+    wrap.innerHTML='<span class="em">🕰️</span>아직 빙고가 열리지 않았어요.<br>선생님이 시작하면 바로 나와요!'; return; }
+  if(BG.pr && s.status==='ready'){ bingoPracticeDraw(wrap); return; }   /* 시작 전에는 연습 화면 */
+  if(s.status==='ready'){ wrap.className='card center';
+    wrap.innerHTML=`<div style="font-size:2.6rem">👂</div>
+      <h2 style="margin:6px 0">${esc(s.title)}</h2>
+      <p class="muted">곧 시작해요. 그동안 <b>그림과 문장을 맞춰 보며</b> 익혀 두면<br>소리만 듣고도 훨씬 잘 찾을 수 있어요!</p>
+      <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:16px">
+        <button class="btn lg" id="prGo">🔗 그림·문장 맞추기 연습</button>
+        <button class="btn ghost" id="prGo2">🔄 그림 보고 문장 고르기</button>
+      </div>`;
+    $('prGo').onclick=()=> bingoPracticeStart('toPic');
+    $('prGo2').onclick=()=> bingoPracticeStart('toText');
+    return; }
+  const me=BG.me;
+  const board=bingoBoard(s.id+'|'+session.studentId, s.n, s.items.length);
+  const lit=new Set(); bingoDoneLines(me.marks,s.n).forEach(l=>l.forEach(i=>lit.add(i)));
+  const done=(s.status!=='playing')||me.bingo;
+  const cells=board.map((v,i)=>{ const it=s.items[v];
+    const cls=['bg-cell', me.marks[i]?(lit.has(i)?'mk lit':'mk'):'', done?'dis':'', BG.shake===i?'shake':''].join(' ');
+    const face= it.e? `<span class="e">${it.e}</span>` : `<span class="w">${esc(it.m||it.t)}</span>`;
+    return `<button class="${cls}" data-cell="${i}" aria-label="${esc(it.m||it.t)}">${face}</button>`;
+  }).join('');
+  /* 학생 화면에도 정답을 띄우지 않는다 — 소리로만 찾는 활동이라 화면에 답이 뜨면 게임이 무너진다.
+     듣는 동안에는 빙고판 자체를 감춘다 — 판을 훑어보지 말고 소리에 집중하게 하려는 것 */
+  const ph=bingoPhase(), over=(s.status!=='playing');
+  let head, showBoard=true;
+  if(s.status==='done') head=`<div class="bg-stage" style="min-height:120px"><div class="tx">Good job! 🎉</div>
+      <div class="hint">${me.bingo?'빙고를 완성했어요!':`${me.lines}줄 완성했어요`}</div></div>`;
+  else if(ph==='jingle'){ showBoard=false;
+    head=`<div class="bg-stage jingle" style="min-height:200px"><div class="em bg-bounce" style="font-size:4rem">🎵</div>
+      <div class="tx" style="font-size:1.6rem">${s.calls.length}번째 표현</div>
+      <div class="hint">곧 시작해요</div></div>`; }
+  else if(ph==='whistle'){ showBoard=false;
+    head=`<div class="bg-stage whistle" style="min-height:200px"><div class="em" style="font-size:4rem">📣</div>
+      <div class="tx" style="font-size:1.8rem">집중!</div>
+      <div class="hint">곧 들려줄 거예요</div></div>`; }
+  else if(ph==='listen'){ showBoard=false;
+    head=`<div class="bg-stage" style="min-height:200px"><div class="ear">🔊</div>
+      <div class="tx" style="font-size:1.4rem">잘 들어요</div>
+      <div class="hint">한 번만 들려줍니다</div></div>`; }
+  else head=`<div class="bg-stage think" style="min-height:96px"><div class="tx" style="font-size:1.3rem">👆 지금 눌러요</div>
+      <div class="hint">${s.calls.length}번째 · 한 칸만</div></div>`;
+  wrap.className='card';
+  wrap.innerHTML=`
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px">
+      <b class="jua" style="flex:1">${esc(session.name)}</b>
+      <span class="pill ${me.bingo?'done':'not'}">${me.lines} / ${s.target} 빙고</span>
+    </div>
+    ${head}
+    ${showBoard? `<div class="bg-board" style="grid-template-columns:repeat(${s.n},1fr)">${cells}</div>
+    <div class="bg-foot ${/좋아요/.test(BG.fb)?'hit':(BG.fb?'miss':'')}">
+      ${me.bingo? 'BINGO! 🎉 손을 들어요' : (over? '게임이 끝났어요' : (BG.fb||'들은 그림을 한 칸만 눌러요'))}</div>`
+    : `<div class="bg-foot">빙고판은 소리가 끝나면 나와요</div>`}`;
+  /* 소리는 선생님 기기 한 대만 낸다 — 태블릿마다 따로 울리면 교실이 시끄럽고 어느 소리인지 헷갈린다 */
+  BG.fb=''; BG.shake=-1;
+  wrap.querySelectorAll('[data-cell]').forEach(b=> b.onclick=()=> bingoTap(+b.dataset.cell));
+}
 
 /* ============================ START ============================ */
 window.boot = boot;
@@ -1542,7 +2538,7 @@ setTimeout(()=>{ if(!window.__booted) boot(); }, 10000);
     const fsMod  = await imp([`https://cdn.jsdelivr.net/npm/firebase@${V}/firestore/+esm`, `https://www.gstatic.com/firebasejs/${V}/firebase-firestore.js`]);
     const auMod  = await imp([`https://cdn.jsdelivr.net/npm/firebase@${V}/auth/+esm`, `https://www.gstatic.com/firebasejs/${V}/firebase-auth.js`]);
     const { initializeApp } = appMod;
-    const { getFirestore, doc, getDoc, setDoc, deleteDoc, onSnapshot } = fsMod;
+    const { getFirestore, doc, getDoc, setDoc, deleteDoc, onSnapshot, collection, query, where } = fsMod;
     const { getAuth, onAuthStateChanged, signInAnonymously, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail } = auMod;
     const appFb = initializeApp(cfg.config);
     const db = cfg.dbId ? getFirestore(appFb, cfg.dbId) : getFirestore(appFb);
@@ -1560,7 +2556,14 @@ setTimeout(()=>{ if(!window.__booted) boot(); }, 10000);
       async get(col, id){ const s = await getDoc(doc(db, col, id)); return s.exists() ? s.data().value : undefined; },
       async set(col, id, value){ await setDoc(doc(db, col, id), { value }); },
       async del(col, id){ await deleteDoc(doc(db, col, id)); },
-      watch(col, id, cb){ onSnapshot(doc(db, col, id), s=>{ if(s.exists()) cb(s.data().value); }); }
+      // 문서 하나 구독. 반환값을 부르면 구독 해제(화면을 떠날 때 꼭 해제해야 요금이 새지 않음)
+      watch(col, id, cb){ return onSnapshot(doc(db, col, id), s=> cb(s.exists()? s.data().value : undefined)); },
+      // 같은 필드값을 가진 문서들을 통째로 구독 (빙고 교사 대시보드용)
+      watchWhere(col, field, val, cb){
+        return onSnapshot(query(collection(db, col), where(field, '==', val)),
+          snap=> cb(snap.docs.map(d=> d.data().value).filter(v=> v!==undefined)),
+          err=> console.warn('watchWhere', col, err));   // 현황판만 비고 게임은 계속 돌아간다
+      }
     };
     window.__auth = {
       current:()=> auth.currentUser,
@@ -1572,13 +2575,20 @@ setTimeout(()=>{ if(!window.__booted) boot(); }, 10000);
       async signOutToAnon(){ try{ await signOut(auth); }catch(e){} try{ await signInAnonymously(auth); }catch(e){} }
     };
     // 고품질 TTS 콜러블 함수 연결 (실패해도 앱 본체/저장은 그대로 동작)
-    try{
-      const fnMod = await imp([`https://cdn.jsdelivr.net/npm/firebase@${V}/functions/+esm`, `https://www.gstatic.com/firebasejs/${V}/firebase-functions.js`]);
-      const { getFunctions, httpsCallable } = fnMod;
-      const functions = getFunctions(appFb, 'asia-northeast3');
-      const ttsCallable = httpsCallable(functions, 'ttsSpeak');
-      window.__tts = async (text, voice)=>{ const r = await ttsCallable({ text, voice }); return r && r.data && r.data.url; };
-    }catch(e){ console.warn('tts init failed', e); }
+    // firebase/functions 모듈은 쓰지 않는다 — CDN에서 app 모듈과 다른 사본이 잡혀
+    // "Service functions is not available"로 죽는다. 콜러블 규약대로 직접 부른다:
+    //   POST {data:{...}}  →  {result:{...}}
+    const FN_URL = `https://asia-northeast3-${cfg.config.projectId}.cloudfunctions.net/ttsSpeak`;
+    window.__tts = async (text, voice)=>{
+      const u = auth.currentUser; if(!u) return '';
+      const tok = await u.getIdToken();
+      const r = await fetch(FN_URL, { method:'POST',
+        headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer '+tok },
+        body: JSON.stringify({ data:{ text, voice } }) });
+      if(!r.ok) throw new Error('tts http '+r.status);
+      const j = await r.json();
+      return j && j.result && j.result.url;
+    };
     window.__backend = { ready:true };
   }catch(e){
     window.__backend = { ready:false, error:(e && e.message) || String(e) };
