@@ -238,8 +238,34 @@
   .bg-stat div{background:#fff; border:2px solid var(--border); border-radius:14px; padding:10px; text-align:center;}
   .bg-stat b{display:block; font-family:'Jua'; font-size:1.5rem; color:var(--green-d);}
   .bg-stat span{font-size:.78rem; color:var(--ink-soft);}
-  .bg-emo{width:52px; height:44px; font-size:1.5rem; text-align:center; background:#fff;
+  .bg-emo{width:56px; height:46px; font-size:1.5rem; text-align:center; background:#fff;
     border:2px solid var(--border); border-radius:12px; flex:0 0 auto; box-shadow:none; padding:0;}
+  .bg-emo::placeholder{font-size:.8rem; color:var(--ink-soft); font-family:'Gowun Dodum';}
+  .bg-emo-cyc{width:34px; height:46px; background:none; box-shadow:none; font-size:1rem;
+    color:var(--ink-soft); flex:0 0 auto; padding:0;}
+  .bg-emo-cyc:hover{color:var(--green-d);}
+  /* 이모지 고르기 창 */
+  .emopick{position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:70;
+    background:rgba(43,42,38,.55); backdrop-filter:blur(3px); padding:16px;}
+  .emopick.show{display:flex; animation:rise .2s ease both;}
+  .emopick .box{background:var(--paper2); border:3px solid var(--border); border-radius:22px;
+    box-shadow:0 14px 0 var(--shadow); width:min(660px,100%); max-height:88vh; display:flex;
+    flex-direction:column; overflow:hidden;}
+  .emopick .hd{padding:16px 18px 10px; border-bottom:2px solid var(--border);}
+  .emopick .hd .q{font-family:'Andika'; font-weight:700; font-size:1.05rem; word-break:break-word;}
+  .emopick .cats{display:flex; gap:6px; overflow-x:auto; padding:10px 18px 0; flex:0 0 auto;}
+  .emopick .cats .chip{white-space:nowrap; cursor:pointer; margin:0; font-family:'Jua'; font-size:.82rem;}
+  .emopick .cats .chip.on{background:var(--green); color:#fff; border-color:var(--green);}
+  .emopick .body{overflow-y:auto; padding:12px 18px 8px; flex:1;}
+  .emopick .sec{font-size:.8rem; color:var(--ink-soft); margin:4px 0 6px 2px;}
+  .emopick .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(58px,1fr)); gap:6px; margin-bottom:12px;}
+  .emopick .grid button{aspect-ratio:1; font-size:1.7rem; background:#fff; border:2px solid var(--border);
+    border-radius:12px; box-shadow:none; display:flex; align-items:center; justify-content:center; padding:0;}
+  .emopick .grid button:hover{border-color:var(--green); background:#F1FAF6;}
+  .emopick .grid button.on{border-color:var(--green); background:#E3F3ED;}
+  .emopick .ft{display:flex; gap:8px; padding:12px 18px; border-top:2px solid var(--border); flex-wrap:wrap;}
+  .pill.bingo{background:#E7F0FA; color:#2C6FA8;}
+  .chip.lib-g.bingo.on{background:#2C6FA8; border-color:#2C6FA8;}
   /* 종이 빙고판 인쇄 */
   #printArea{display:none;}
   @media print{
@@ -266,6 +292,7 @@
   </div>
   <div id="app"></div>
 </div>
+<div id="emoPick" class="emopick"><div class="box" id="emoBox"></div></div>
 <div id="printArea"></div>
 <div class="toast" id="toast"></div>
 <div class="celebrate" id="celebrate"><div class="box">
@@ -889,9 +916,12 @@ async function saveListToLibrary(meta, items, opts){
   opts=opts||{};
   if(!items || !items.length){ if(!opts.silent) toast('저장할 항목이 없어요'); return null; }
   const name=(meta.title||'').trim() || [meta.grade,meta.unit].filter(Boolean).join(' ') || '제목 없는 목록';
-  const clean=items.map(i=>({id:i.id||uid(), text:i.text, meaning:i.meaning||'', type:i.type}));
   let existing = meta.sourceListId ? DB.lists.find(l=>l.id===meta.sourceListId) : null;
   if(!existing) existing = DB.lists.find(l=> listMatchKey(l.grade,l.unit,l.name)===listMatchKey(meta.grade,meta.unit,name));
+  /* 빙고에서 지정해 둔 그림은 과제를 고쳐도 살려 둔다 (편집 화면에서는 항목 id가 새로 생기므로 문장으로 맞춘다) */
+  const prevEmoji=new Map((existing? existing.items:[]).filter(i=>i.emoji).map(i=>[i.text, i.emoji]));
+  const clean=items.map(i=>({ id:i.id||uid(), text:i.text, meaning:i.meaning||'', type:i.type,
+    emoji: i.emoji || prevEmoji.get(i.text) || '' }));
   if(existing){
     Object.assign(existing,{ name, grade:meta.grade||'', unit:meta.unit||'', lesson:meta.lesson||'', items:clean, updatedAt:Date.now() });
   } else {
@@ -914,7 +944,7 @@ function createAssignment(){
       <p class="muted">새로 만들거나, 그동안 만든 과제를 골라 <b>다른 학급에도 그대로 부여</b>할 수 있어요.</p>
       ${DB.lists.length? `<input type="text" id="libSearch" placeholder="🔎 제목·단어·뜻으로 검색 (예: color, 색깔)" style="margin-top:8px">
       <p class="muted" style="font-size:.85rem; margin:10px 0 4px 2px">학년을 선택하세요</p>
-      <div id="gradeChips">${grades.map(g=>`<span class="chip lib-g" data-g="${esc(g)}">${esc(g)}</span>`).join('')}${DB.lists.some(l=>!(l.grade||'').trim())?'<span class="chip lib-g" data-g="__none__">미지정</span>':''}</div>`:''}
+      <div id="gradeChips">${grades.map(g=>`<span class="chip lib-g" data-g="${esc(g)}">${esc(g)}</span>`).join('')}${DB.lists.some(l=>!(l.grade||'').trim())?'<span class="chip lib-g" data-g="__none__">미지정</span>':''}<span class="chip lib-g bingo" data-g="__bingo__">👂 빙고놀이</span></div>`:''}
     </div>
     <p class="muted" style="margin:0 0 6px 6px">${DB.lists.length? '📋 그동안 만든 과제':''}</p>
     <div id="libList"></div>`;
@@ -929,33 +959,48 @@ function createAssignment(){
         || l.items.some(i=> (i.text||'').toLowerCase().includes(q) || (i.meaning||'').toLowerCase().includes(q)));
     } else if(curGrade==null){
       el.innerHTML='<div class="card empty"><span class="em">👆</span>위에서 학년을 선택하면<br>그 학년의 과제가 나와요.</div>'; return;
+    } else if(curGrade==='__bingo__'){
+      rows=DB.lists.filter(l=> l.bingo);                      /* 빙고놀이용으로 표시해 둔 것만 */
     } else {
       rows=DB.lists.filter(l=> curGrade==='__none__' ? !(l.grade||'').trim() : (l.grade||'').trim()===curGrade);
     }
     rows=[...rows].sort((a,b)=> (a.grade||'').localeCompare(b.grade||'') || (a.unit||'').localeCompare(b.unit||'') || (b.updatedAt-a.updatedAt));
-    if(!rows.length){ el.innerHTML=`<div class="card empty"><span class="em">🔍</span>${curQ?'검색 결과가 없어요.':'이 학년에는 만든 과제가 없어요.'}</div>`; return; }
+    if(!rows.length){ el.innerHTML=`<div class="card empty"><span class="em">${curGrade==='__bingo__'?'👂':'🔍'}</span>${
+      curQ? '검색 결과가 없어요.'
+      : curGrade==='__bingo__'? '빙고놀이용으로 표시한 목록이 없어요.<br>목록 카드의 <b>「👂 빙고놀이용으로 표시」</b>를 눌러 두면 여기 모입니다.'
+      : '이 학년에는 만든 과제가 없어요.'}</div>`; return; }
     el.innerHTML = rows.map(l=>{
       const preview=l.items.slice(0,8).map(i=>esc(i.text)).join(', ')+(l.items.length>8?' …':'');
       const tag=[l.grade,l.unit,l.lesson].filter(Boolean).join(' / ');
       const givenClassIds=[...new Set(DB.assignments.filter(a=>a.listId===l.id).map(a=>a.classId))];
       const givenChips=givenClassIds.map(cid=>{ const c=DB.classes.find(x=>x.id===cid); if(!c) return '';
         return `<span class="chip">${esc(c.name)} <button class="del" data-revoke="${l.id}|${cid}" title="이 학급에서 배부 취소" style="font-size:1rem; padding:0 2px">×</button></span>`; }).filter(Boolean).join('');
+      const emoCount=l.items.filter(i=>i.emoji && i.emoji!=='-').length;
       return `<div class="card" style="margin-bottom:12px">
         <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap">
-          <h3 style="margin:0; flex:1">📄 ${esc(l.name)}</h3><span class="muted">${l.items.length}개</span>
+          <h3 style="margin:0; flex:1">${l.bingo?'👂':'📄'} ${esc(l.name)}</h3>
+          ${l.bingo?`<span class="pill bingo">빙고놀이</span>`:''}<span class="muted">${l.items.length}개</span>
         </div>
-        <p class="muted" style="margin:5px 0 6px">${tag||'학년 미지정'}</p>
+        <p class="muted" style="margin:5px 0 6px">${tag||'학년 미지정'}${emoCount?` · 그림 ${emoCount}개 지정됨`:''}</p>
         <p style="font-family:'Andika'; font-size:.95rem; margin:0 0 8px; color:var(--ink-soft)">${preview}</p>
         <p class="muted" style="font-size:.82rem; margin:0 0 4px">${givenChips? '✅ 부여한 학급 <span style="font-size:.78rem">(×로 배부 취소)</span>' : '아직 부여한 학급 없음'}</p>
         ${givenChips? `<div style="margin:0 0 10px">${givenChips}</div>` : ''}
         <div style="display:flex; gap:8px; flex-wrap:wrap">
           <button class="btn sm" data-load="${l.id}">이 과제 부여 / 편집</button>
+          <button class="btn ${l.bingo?'':'ghost'} sm" data-bingo="${l.id}">${l.bingo?'👂 빙고놀이용 ✓':'👂 빙고놀이용으로 표시'}</button>
           <button class="btn ghost sm" data-rename="${l.id}">이름 변경</button>
           <button class="btn ghost sm" data-dellist="${l.id}">삭제</button>
         </div>
       </div>`;
     }).join('');
     el.querySelectorAll('[data-load]').forEach(b=> b.onclick=()=> loadListIntoDraft(b.dataset.load));
+    el.querySelectorAll('[data-bingo]').forEach(b=> b.onclick=async ()=>{
+      const l=DB.lists.find(x=>x.id===b.dataset.bingo); if(!l) return;
+      l.bingo=!l.bingo; l.updatedAt=Date.now();
+      await sSet(KEYS.lists, DB.lists);
+      toast(l.bingo? '빙고놀이용으로 표시했어요 👂' : '빙고놀이 표시를 뺐어요');
+      render();                    /* 보고 있던 학년·검색은 그대로 둔다 */
+    });
     el.querySelectorAll('[data-rename]').forEach(b=> b.onclick=async ()=>{ const l=DB.lists.find(x=>x.id===b.dataset.rename);
       const nn=prompt('새 이름을 입력하세요', l.name); if(nn==null) return; l.name=(nn.trim()||l.name); l.updatedAt=Date.now(); await sSet(KEYS.lists,DB.lists); render(); });
     el.querySelectorAll('[data-dellist]').forEach(b=> b.onclick=async ()=>{ if(!confirm('이 과제 목록을 삭제할까요? (이미 학급에 부여된 과제는 그대로 남아요)')) return;
@@ -1113,17 +1158,21 @@ function assignmentForm(){
         <button data-mt="write" class="${draft.mode==='write'?'on':''}">✏️ 쓰기</button>
         <button data-mt="speak" class="${draft.mode==='speak'?'on':''}">🗣️ 말하기</button>
         <button data-mt="both" class="${draft.mode==='both'?'on':''}">✏️+🗣️ 둘 다</button>
+        <button data-mt="bingo" class="${draft.mode==='bingo'?'on':''}">👂 듣기 빙고</button>
       </div>
       <p class="muted" style="font-size:.82rem; margin:-4px 0 12px 2px" id="modeHint"></p>
       <div class="hr"></div>
-      <h3 id="cntTitle" style="margin-top:0">쓰기 횟수</h3>
-      <p class="muted" id="cntDesc">각 낱말·문장을 몇 번 따라 쓰게 할까요?</p>
-      <div class="count-ctrl">
-        <button id="cMinus">−</button>
-        <span class="n" id="cNum">${draft.repeat}</span>
-        <button id="cPlus">+</button>
-        <span class="muted">번</span>
+      <div id="cntBox">
+        <h3 id="cntTitle" style="margin-top:0">쓰기 횟수</h3>
+        <p class="muted" id="cntDesc">각 낱말·문장을 몇 번 따라 쓰게 할까요?</p>
+        <div class="count-ctrl">
+          <button id="cMinus">−</button>
+          <span class="n" id="cNum">${draft.repeat}</span>
+          <button id="cPlus">+</button>
+          <span class="muted">번</span>
+        </div>
       </div>
+      <div id="bingoBox" style="display:none"></div>
     </div>
 
     <div class="card">
@@ -1147,17 +1196,59 @@ function assignmentForm(){
   }
   renderClassPick();
   if($('aGrade')) $('aGrade').addEventListener('input', renderClassPick);
-  const modeHints={ write:'학생이 흐린 글자 위에 따라 써요.', speak:'학생이 듣고 마이크로 따라 말해요(자동 채점).', both:'쓰기 과제와 말하기 과제가 각각 하나씩 배부돼요.' };
+  const modeHints={ write:'학생이 흐린 글자 위에 따라 써요.', speak:'학생이 듣고 마이크로 따라 말해요(자동 채점).',
+    both:'쓰기 과제와 말하기 과제가 각각 하나씩 배부돼요.',
+    bingo:'선생님이 들려주는 표현을 학생이 빙고판에서 찾는 놀이예요. 아래에서 판과 그림을 정하세요.' };
   const cntText={ write:['쓰기 횟수','각 낱말·문장을 몇 번 따라 쓰게 할까요?'], speak:['말하기 횟수','각 낱말·문장을 몇 번 따라 말하게 할까요?'], both:['연습 횟수','각 낱말·문장을 쓰기·말하기 각각 몇 번씩 연습하게 할까요?'] };
   const updateModeUI=()=>{ const h=$('modeHint'); if(h) h.textContent=modeHints[draft.mode]||'';
-    const t=cntText[draft.mode]||cntText.write; const ct=$('cntTitle'); if(ct) ct.textContent=t[0]; const cd=$('cntDesc'); if(cd) cd.textContent=t[1]; };
+    const t=cntText[draft.mode]||cntText.write; const ct=$('cntTitle'); if(ct) ct.textContent=t[0]; const cd=$('cntDesc'); if(cd) cd.textContent=t[1];
+    const isB=draft.mode==='bingo';
+    $('cntBox').style.display = isB? 'none':'';
+    $('bingoBox').style.display = isB? '':'none';
+    const sv=$('saveAsg'); if(sv) sv.textContent = isB? '👂 선택한 학급에 빙고 배부하기' : '📨 선택한 학급에 배부하기';
+    if(isB) renderBingoBox();
+  };
+  /* 빙고 설정 — 판 크기·목표·자동 진행과 항목별 그림 */
+  const renderBingoBox=()=>{
+    draft.bingo = draft.bingo || { n:5, target:3, iv:14 };
+    const b=draft.bingo;
+    const chosen=draft.items.filter(i=>i.sel);
+    chosen.forEach(i=>{ if(!i.emoji) i.emoji = bingoSuggest(i.text,1)[0] || '-'; });   /* 처음엔 자동 추천 */
+    $('bingoBox').innerHTML=`
+      <h3 style="margin-top:0">빙고 설정</h3>
+      <div class="row">
+        <div><label>빙고판 크기</label><select id="bgN">
+          ${[3,4,5,7].map(v=>`<option value="${v}" ${v===b.n?'selected':''}>${v} × ${v}${v===7?' (학습지)':''}</option>`).join('')}
+        </select></div>
+        <div><label>빙고 목표</label><select id="bgT">
+          ${[1,2,3,4].map(v=>`<option value="${v}" ${v===b.target?'selected':''}>${v}빙고</option>`).join('')}
+        </select></div>
+        <div><label>자동 진행</label><select id="bgI">
+          <option value="0" ${b.iv===0?'selected':''}>수동 (선생님이 누름)</option>
+          ${[8,10,12,14,16,20,24].map(v=>`<option value="${v}" ${v===b.iv?'selected':''}>${v}초마다 자동</option>`).join('')}
+        </select></div>
+      </div>
+      <div class="hr"></div>
+      <h3 style="margin-top:0">칸에 보일 그림</h3>
+      <p class="muted" style="margin:0 0 10px">위 ②에서 <b>체크한 항목</b>이 빙고에 쓰여요 (3개 이상, 6~12개 권장).
+        <b>🔎</b>로 목록에서 고르거나 칸에 <b>이모지를 직접</b> 넣으세요. 비우면 <b>뜻(한글)</b>이 글자로 나옵니다.</p>
+      ${chosen.length? `<div id="bgEmoRows">${emojiRowsHTML(chosen)}</div>`
+        : '<p class="muted">② 에서 항목을 먼저 골라 주세요.</p>'}
+      <p class="muted" style="margin-top:8px">${chosen.length<3? '⚠️ 표현을 <b>3개 이상</b> 골라야 빙고를 만들 수 있어요.' : `고른 표현 ${chosen.length}개`}</p>`;
+    const rows=$('bgEmoRows');
+    if(rows) emojiRowsBind(rows, chosen, renderBingoBox);
+    $('bgN').onchange=()=>{ b.n=+$('bgN').value; };
+    $('bgT').onchange=()=>{ b.target=+$('bgT').value; };
+    $('bgI').onchange=()=>{ b.iv=+$('bgI').value; };
+  };
+  window.__renderBingoBox=renderBingoBox;      /* 항목 체크가 바뀌면 다시 그린다 */
   updateModeUI();
   app.querySelectorAll('#modeType button').forEach(b=> b.onclick=()=>{ draft.mode=b.dataset.mt;
     app.querySelectorAll('#modeType button').forEach(x=>x.classList.toggle('on',x.dataset.mt===draft.mode)); updateModeUI(); });
   app.querySelectorAll('#modeSeg button').forEach(b=> b.onclick=()=>{ draft.inputMode=b.dataset.mode;
     app.querySelectorAll('#modeSeg button').forEach(x=>x.classList.toggle('on',x.dataset.mode===draft.inputMode)); renderInputArea(); });
-  $('selAll').onclick=()=>{ draft.items.forEach(i=>i.sel=true); renderItemList(); };
-  $('selNone').onclick=()=>{ draft.items.forEach(i=>i.sel=false); renderItemList(); };
+  $('selAll').onclick=()=>{ draft.items.forEach(i=>i.sel=true); renderItemList(); if(window.__renderBingoBox && draft.mode==='bingo') window.__renderBingoBox(); };
+  $('selNone').onclick=()=>{ draft.items.forEach(i=>i.sel=false); renderItemList(); if(window.__renderBingoBox && draft.mode==='bingo') window.__renderBingoBox(); };
   $('cMinus').onclick=()=>{ draft.repeat=Math.max(1,draft.repeat-1); $('cNum').textContent=draft.repeat; };
   $('cPlus').onclick=()=>{ draft.repeat=Math.min(10,draft.repeat+1); $('cNum').textContent=draft.repeat; };
   $('saveList').onclick=async ()=>{
@@ -1222,27 +1313,40 @@ function renderItemList(){
       <span class="txt"><span style="font-family:'Andika'">${esc(i.text)}</span>${i.meaning?` <span class="muted" style="font-size:.85rem">— ${esc(i.meaning)}</span>`:''}</span>
       <button class="del" data-deli="${i.id}">×</button>
     </div>`).join('');
-  list.querySelectorAll('[data-sel]').forEach(c=> c.onchange=()=>{ const it=draft.items.find(x=>x.id===c.dataset.sel); it.sel=c.checked; });
-  list.querySelectorAll('[data-deli]').forEach(b=> b.onclick=()=>{ draft.items=draft.items.filter(x=>x.id!==b.dataset.deli); renderItemList(); });
+  list.querySelectorAll('[data-sel]').forEach(c=> c.onchange=()=>{ const it=draft.items.find(x=>x.id===c.dataset.sel); it.sel=c.checked;
+    if(draft.mode==='bingo' && window.__renderBingoBox) window.__renderBingoBox(); });   /* 빙고 그림 목록도 같이 갱신 */
+  list.querySelectorAll('[data-deli]').forEach(b=> b.onclick=()=>{ draft.items=draft.items.filter(x=>x.id!==b.dataset.deli); renderItemList();
+    if(draft.mode==='bingo' && window.__renderBingoBox) window.__renderBingoBox(); });
 }
 async function saveAssignment(){
   const title=$('aTitle').value.trim() || '영어 과제';
-  const chosen = draft.items.filter(i=>i.sel).map(i=>({id:i.id,text:i.text,meaning:i.meaning||'',type:i.type}));
+  const isBingo = draft.mode==='bingo';
+  const chosen = draft.items.filter(i=>i.sel).map(i=>({id:i.id,text:i.text,meaning:i.meaning||'',type:i.type,emoji:i.emoji||''}));
   if(!chosen.length){ toast('제시할 항목을 1개 이상 선택하세요'); return; }
+  if(isBingo && chosen.length<3){ toast('빙고는 표현이 3개 이상이어야 해요'); return; }
   if(!draft.classIds.length){ toast('배부할 학급을 1개 이상 선택하세요'); return; }
+  if(isBingo && draft.bingo.target>draft.bingo.n){ toast(`${draft.bingo.n}×${draft.bingo.n} 판에서는 ${draft.bingo.n}빙고까지 가능해요`); return; }
   const grade=$('aGrade').value.trim(), unit=$('aUnit').value.trim(), lesson=$('aLesson').value.trim();
   const listId = await saveListToLibrary({ grade, unit, lesson, title, sourceListId:draft.sourceListId }, draft.items, {silent:true});
+  if(isBingo){                       /* 보관함에서도 빙고용으로 구분되게 */
+    const l=DB.lists.find(x=>x.id===listId);
+    if(l){ l.bingo=true; l.updatedAt=Date.now(); await sSet(KEYS.lists, DB.lists); }
+  }
   const modes = draft.mode==='both' ? ['write','speak'] : [draft.mode||'write'];
   const now=Date.now(); let k=0;
   draft.classIds.forEach((classId)=>{
     modes.forEach((md)=>{
-      DB.assignments.push({ id:uid(), classId, listId, title, grade, unit, lesson, mode:md,
-        items:chosen.map(c=>({...c})), repeat:draft.repeat, createdAt:now + (k++) });
+      const a={ id:uid(), classId, listId, title, grade, unit, lesson, mode:md,
+        items:chosen.map(c=>({...c})), repeat:draft.repeat, createdAt:now + (k++) };
+      if(md==='bingo') a.bingo={...draft.bingo};    /* 판 크기·목표·자동 진행을 과제에 저장 */
+      DB.assignments.push(a);
     });
   });
   await sSet(KEYS.assignments, DB.assignments);
   const n=draft.classIds.length;
-  draft=null; toast(`${n}개 학급에 과제를 배부했어요! 🎉`); createAssignment();
+  draft=null;
+  toast(isBingo? `${n}개 학급에 빙고를 배부했어요! 👂` : `${n}개 학급에 과제를 배부했어요! 🎉`);
+  createAssignment();
 }
 
 /* ============================ DASHBOARD ============================ */
@@ -1745,68 +1849,129 @@ window.addEventListener('resize', ()=>{ /* canvases keep their pixel state; resi
 const bingoKey  = (cid)=> `v1:bingo:${cid}`;
 const bingoPKey = (cid,sid)=> `v1:prog:bingo:${cid}:${sid}`;
 
-/* 그림 사전 — [이모지, 영어 키워드(| 구분)] : 여러 낱말 키워드가 한 낱말보다 우선 */
-const BINGO_EMO=[
-['🏊','swim|swimming'],['🛒','go shopping|shopping|shop'],['🎬','go to the movies|movie|movies|cinema'],
-['📓','do homework|homework'],['📚','comic book|comic books|comic'],['📖','read|reading|book'],
-['🎲','board game|board games'],['⚽','soccer|football'],['⚾','baseball'],['🏀','basketball'],
-['🏐','volleyball'],['🏸','badminton'],['🎾','tennis'],['🏓','table tennis|ping pong'],
-['🎿','ski|skiing'],['⛸️','skate|skating'],['🚲','ride a bike|bike|bicycle'],['🏃','run|running|jog'],
-['🚶','take a walk|walk'],['💃','dance|dancing'],['🎤','sing|singing|song'],['🎹','play the piano|piano'],
-['🎸','play the guitar|guitar'],['🎻','violin'],['🥁','drum|drums'],['🎵','listen to music|music'],
-['🎨','draw|drawing|paint|painting'],['📷','take a picture|take pictures|photo|camera'],
-['🍳','cook|cooking|kitchen'],['🧹','clean the room|clean|cleaning'],['🧼','wash my face|wash'],
-['🪥','brush my teeth|brush'],['🚿','take a shower|shower'],['🛁','take a bath|bath'],
-['🛌','go to bed|sleep|sleeping'],['⏰','get up|wake up'],['📺','watch tv|television'],
-['💻','computer'],['📱','phone|smartphone|call'],['✍️','write|writing'],['🎧','listen|listening'],
-['🗣️','speak|talk'],['📝','study|studying'],['🍽️','do the dishes|dishes|breakfast|lunch|dinner|meal'],
-['🧺','laundry|wash the clothes'],['🏕️','camp|camping'],['🥾','hike|hiking|climb|climbing'],
-['🎣','fish|fishing'],['🧳','travel|trip'],['🎁','gift|present'],['🎉','party'],
-['⛄','make a snowman|snowman'],['🪁','fly a kite|kite'],['🤝','help|helping'],['💤','take a rest|rest'],
-['🎮','video game|computer game'],['🧩','puzzle'],
-['🍎','apple'],['🍌','banana'],['🍊','orange'],['🍇','grape|grapes'],['🍉','watermelon'],
-['🍓','strawberry|strawberries'],['🍑','peach'],['🍐','pear'],['🍍','pineapple'],['🍕','pizza'],
-['🍔','hamburger|burger'],['🍗','chicken'],['🍞','bread'],['🍚','rice'],['🥛','milk'],['💧','water'],
-['🧃','juice'],['🥚','egg|eggs'],['🎂','cake'],['🍦','ice cream'],['🍬','candy'],['🍪','cookie|cookies'],
-['🥗','salad'],['🍲','soup|stew'],['🍜','noodle|noodles|ramen'],['🥪','sandwich'],['🍝','spaghetti|pasta'],
-['🥩','meat|beef'],['🥕','carrot'],['🥔','potato'],['🍅','tomato'],['🧅','onion'],['🌽','corn'],
-['🧀','cheese'],['🍵','tea'],['☕','coffee'],['🍫','chocolate'],['🍿','popcorn'],['🥤','soda|cola'],
-['🐶','dog|puppy'],['🐱','cat'],['🐦','bird'],['🐰','rabbit'],['🐯','tiger'],['🦁','lion'],
-['🐘','elephant'],['🐵','monkey'],['🐻','bear'],['🐷','pig'],['🐮','cow'],['🐴','horse'],['🐑','sheep'],
-['🦆','duck'],['🐔','hen'],['🐸','frog'],['🐍','snake'],['🦊','fox'],['🐭','mouse|mice'],['🐼','panda'],
-['🦒','giraffe'],['🦓','zebra'],['🐧','penguin'],['🐬','dolphin'],['🐳','whale'],['🦈','shark'],
-['🐢','turtle'],['🦋','butterfly'],['🐝','bee'],['🐜','ant'],['🕷️','spider'],['🐟','fish'],
-['☀️','sunny|sun'],['🌧️','rainy|rain'],['☁️','cloudy|cloud'],['❄️','snowy|snow'],['💨','windy|wind'],
-['🥵','hot'],['🥶','cold'],['🌈','rainbow'],['⭐','star|favorite'],['🌙','moon'],['🌊','sea|ocean'],
-['⛰️','mountain'],['🏞️','river'],['🌳','tree'],['🌸','flower'],['🍁','fall|autumn'],['🌱','spring'],
-['🌞','summer'],['☃️','winter'],['🔥','fire'],['🌍','earth|world'],
-['🏫','school'],['🏠','home|house'],['🌲','park'],['🏛️','library'],['🖼️','museum'],['🏥','hospital'],
-['🏦','bank'],['🏪','store|market|supermarket'],['🍴','restaurant'],['🐾','zoo'],['🏖️','beach'],
-['🛫','airport'],['🚉','station'],['🏤','post office'],['🥐','bakery'],['⛪','church'],['🛝','playground'],
-['🚻','bathroom|restroom'],['🛏️','bedroom'],['🚜','farm'],['🏢','building'],['🎡','amusement park'],
-['✏️','pencil'],['🖊️','pen'],['🧽','eraser'],['📏','ruler'],['📔','notebook'],['🎒','bag|backpack'],
-['✂️','scissors'],['🖍️','crayon'],['🕐','what time|o clock|clock'],['⌚','watch'],['🪑','chair'],
-['🗄️','desk|table'],['🚪','door'],['🪟','window'],['🔑','key'],['☂️','umbrella'],['🥎','ball'],
-['🧸','doll|teddy bear'],['🤖','robot'],['🚗','car'],['🚌','bus'],['🚂','train'],['🛩️','plane|airplane'],
-['🚢','ship|boat'],['🚕','taxi'],['🚇','subway'],['👕','shirt|clothes|t shirt'],['👖','pants|jeans'],
-['👗','dress|skirt'],['🧢','cap|hat'],['👟','shoes|sneakers'],['🧤','gloves'],['🧣','scarf'],
-['💰','how much|money|price'],['🎫','ticket'],['🪞','mirror'],['🛋️','sofa'],
-['😀','happy|glad'],['😢','sad'],['😠','angry|mad'],['😪','tired|sleepy'],['😋','hungry'],
-['🫗','thirsty'],['🤒','sick'],['🤩','excited'],['😐','bored'],['😱','scared|afraid'],
-['🙇','sorry|busy|i m busy'],['👍','sounds good|good idea|great|sure|okay|nice'],
-['👋','hello|hi|bye|goodbye'],['🙏','thank|thanks|please'],['🧠','head'],['✋','hand'],['🦶','foot|feet'],
-['👁️','eye|eyes'],['👂','ear|ears'],['👃','nose'],['👄','mouth'],['🦷','tooth|teeth'],['💇','hair'],
-['💪','arm|strong'],['🦵','leg'],['📐','tall|short'],['🎈','birthday'],
-['👩‍🏫','teacher'],['👨‍⚕️','doctor'],['👩‍⚕️','nurse'],['👮','police officer|police'],
-['🧑‍🚒','firefighter'],['🧑‍🍳','chef|cook'],['🧑‍🎤','singer'],['🕺','dancer'],['🧑‍✈️','pilot'],
-['🧑‍🌾','farmer'],['🧑‍🔬','scientist'],['🧑‍🎨','artist'],['🖋️','writer'],['👩','mother|mom|mommy'],
-['👨','father|dad|daddy'],['👧','sister'],['👦','brother'],['👵','grandmother|grandma'],
-['👴','grandfather|grandpa'],['👶','baby'],['🧑‍🤝‍🧑','friend'],['👪','family'],['🧑‍🎓','student'],
-['🌅','morning'],['🌤️','afternoon'],['🌆','evening'],['🌃','night'],['📅','today|tomorrow|yesterday'],
-['🎄','christmas'],['🏝️','vacation|holiday'],['📆','weekend|week|month'],['🔢','how many|number'],
-['🔴','red'],['🔵','blue'],['🟡','yellow'],['🟢','green'],['⚫','black'],['⚪','white'],['🩷','pink'],
-['🟣','purple'],['🟤','brown'],['❓','what|who|where|when|why|how']
+/* 그림 사전 — 갈래별 [이모지, 영어 키워드(| 구분), 한글 이름]
+   여러 낱말로 된 키워드가 한 낱말보다 항상 우선한다 (예: "science camp" > "camp") */
+const BINGO_EMO_CATS=[
+['동작·활동',[
+['🏊','swim|swimming','수영'],['🛒','go shopping|shopping|shop','쇼핑'],
+['🎬','go to the movies|movie|movies|cinema','영화'],['📓','do homework|homework','숙제'],
+['📚','comic book|comic books|comic','만화책'],['📖','read|reading|book','읽기'],
+['🎲','board game|board games','보드게임'],['⚽','soccer|football','축구'],['⚾','baseball','야구'],
+['🏀','basketball','농구'],['🏐','volleyball','배구'],['🏸','badminton','배드민턴'],
+['🎾','tennis','테니스'],['🏓','table tennis|ping pong','탁구'],['🎿','ski|skiing','스키'],
+['⛸️','skate|skating','스케이트'],['🚲','ride a bike|bike|bicycle','자전거'],['🏃','run|running|jog','달리기'],
+['🚶','take a walk|walk','걷기'],['💃','dance|dancing','춤'],['🎤','sing|singing|song','노래'],
+['🎹','play the piano|piano','피아노'],['🎸','play the guitar|guitar','기타'],['🎻','violin','바이올린'],
+['🥁','drum|drums','드럼'],['🎵','listen to music|music','음악'],['🎨','draw|drawing|paint|painting','그림그리기'],
+['📷','take a picture|take pictures|photo|camera','사진'],['🍳','cook|cooking|kitchen','요리'],
+['🧹','clean the room|clean|cleaning','청소'],['🧼','wash my face|wash','세수'],
+['🪥','brush my teeth|brush','양치'],['🚿','take a shower|shower','샤워'],['🛁','take a bath|bath','목욕'],
+['🛌','go to bed|sleep|sleeping','잠자기'],['⏰','get up|wake up','일어나기'],
+['📺','watch tv|television','티브이'],['💻','computer','컴퓨터'],['📱','phone|smartphone|call','전화'],
+['✍️','write|writing','쓰기'],['🎧','listen|listening','듣기'],['🗣️','speak|talk','말하기'],
+['📝','study|studying','공부'],['🍽️','do the dishes|dishes|breakfast|lunch|dinner|meal','식사·설거지'],
+['🧺','laundry|wash the clothes','빨래'],['🏕️','camp|camping|tent','캠핑·텐트'],
+['🥾','hike|hiking|climb|climbing','등산'],['🎣','fish|fishing','낚시'],['🧳','travel|trip','여행'],
+['🎁','gift|present','선물'],['🎉','party','파티'],['⛄','make a snowman|snowman','눈사람'],
+['🪁','fly a kite|kite','연날리기'],['🤝','help|helping','돕기'],['💤','take a rest|rest','휴식'],
+['🎮','video game|computer game','게임'],['🧩','puzzle','퍼즐'],['🛴','scooter|kick board','킥보드'],
+['🏅','medal|prize','메달'],['🏆','trophy|champion|win|winner','우승']
+]],
+['학교·과학',[
+['🔬','science camp|science|experiment|microscope','과학·현미경'],['🧪','test tube|lab|chemistry','실험'],
+['⚗️','science lab|laboratory','실험기구'],['🔭','telescope|space camp|astronomy','망원경'],
+['🧲','magnet','자석'],['🌡️','thermometer|temperature','온도계'],['🚀','rocket|space','로켓'],
+['🪐','planet|solar system','행성'],['🌌','universe|galaxy','우주'],['🧬','dna|gene','유전자'],
+['🦠','germ|virus|bacteria','세균'],['🥼','lab coat','실험복'],['🔎','magnifying glass|find|search','돋보기'],
+['💡','idea|invention|light bulb','아이디어'],['🔋','battery','건전지'],['⚙️','machine|gear','기계'],
+['📊','graph|chart','그래프'],['🧮','math|abacus|count','계산'],['🔢','how many|number','숫자'],
+['🎓','graduation|graduate','졸업'],['📕','textbook','교과서'],['🗺️','map','지도'],
+['⏱️','stopwatch|timer','초시계'],['🎯','goal|target','목표'],['✅','check|correct|right','맞음'],
+['❌','wrong','틀림'],['❓','what|who|where|when|why|how','질문']
+]],
+['음식',[
+['🍎','apple','사과'],['🍌','banana','바나나'],['🍊','orange','오렌지'],['🍇','grape|grapes','포도'],
+['🍉','watermelon','수박'],['🍓','strawberry|strawberries','딸기'],['🍑','peach','복숭아'],
+['🍐','pear','배'],['🍍','pineapple','파인애플'],['🍕','pizza','피자'],['🍔','hamburger|burger','햄버거'],
+['🍗','chicken','치킨'],['🍞','bread','빵'],['🍚','rice','밥'],['🥛','milk','우유'],['💧','water','물'],
+['🧃','juice','주스'],['🥚','egg|eggs','계란'],['🎂','cake','케이크'],['🍦','ice cream','아이스크림'],
+['🍬','candy','사탕'],['🍪','cookie|cookies','쿠키'],['🥗','salad','샐러드'],['🍲','soup|stew','국'],
+['🍜','noodle|noodles|ramen','국수'],['🥪','sandwich','샌드위치'],['🍝','spaghetti|pasta','스파게티'],
+['🥩','meat|beef','고기'],['🥕','carrot','당근'],['🥔','potato','감자'],['🍅','tomato','토마토'],
+['🧅','onion','양파'],['🌽','corn','옥수수'],['🧀','cheese','치즈'],['🍵','tea','차'],['☕','coffee','커피'],
+['🍫','chocolate','초콜릿'],['🍿','popcorn','팝콘'],['🥤','soda|cola','음료수']
+]],
+['동물',[
+['🐶','dog|puppy','개'],['🐱','cat','고양이'],['🐦','bird','새'],['🐰','rabbit','토끼'],
+['🐯','tiger','호랑이'],['🦁','lion','사자'],['🐘','elephant','코끼리'],['🐵','monkey','원숭이'],
+['🐻','bear','곰'],['🐷','pig','돼지'],['🐮','cow','소'],['🐴','horse','말'],['🐑','sheep','양'],
+['🦆','duck','오리'],['🐔','hen','닭'],['🐸','frog','개구리'],['🐍','snake','뱀'],['🦊','fox','여우'],
+['🐭','mouse|mice','쥐'],['🐼','panda','판다'],['🦒','giraffe','기린'],['🦓','zebra','얼룩말'],
+['🐧','penguin','펭귄'],['🐬','dolphin','돌고래'],['🐳','whale','고래'],['🦈','shark','상어'],
+['🐢','turtle','거북이'],['🦋','butterfly','나비'],['🐝','bee','벌'],['🐜','ant','개미'],
+['🕷️','spider','거미'],['🐟','fish','물고기']
+]],
+['자연·날씨',[
+['☀️','sunny|sun','맑음'],['🌧️','rainy|rain','비'],['☁️','cloudy|cloud','흐림'],['❄️','snowy|snow','눈'],
+['💨','windy|wind','바람'],['🥵','hot','더움'],['🥶','cold','추움'],['🌈','rainbow','무지개'],
+['⭐','star|favorite','별'],['🌙','moon','달'],['🌊','sea|ocean','바다'],['⛰️','mountain','산'],
+['🏞️','river','강'],['🌳','tree','나무'],['🌸','flower','꽃'],['🍁','fall|autumn','가을'],
+['🌱','spring','봄'],['🌞','summer','여름'],['☃️','winter','겨울'],['🔥','fire','불'],
+['🌍','earth|world','지구']
+]],
+['장소',[
+['🏫','school','학교'],['🏠','home|house','집'],['🌲','park','공원'],['🏛️','library','도서관'],
+['🖼️','museum','박물관'],['🏥','hospital','병원'],['🏦','bank','은행'],
+['🏪','store|market|supermarket','가게'],['🍴','restaurant','식당'],['🐾','zoo','동물원'],
+['🏖️','beach','해변'],['🛫','airport','공항'],['🚉','station','역'],['🏤','post office','우체국'],
+['🥐','bakery','빵집'],['⛪','church','교회'],['🛝','playground','놀이터'],
+['🚻','bathroom|restroom','화장실'],['🛏️','bedroom','침실'],['🚜','farm','농장'],
+['🏢','building','건물'],['🎡','amusement park','놀이공원']
+]],
+['물건',[
+['✏️','pencil','연필'],['🖊️','pen','펜'],['🧽','eraser','지우개'],['📏','ruler','자'],
+['📔','notebook','공책'],['🎒','bag|backpack','가방'],['✂️','scissors','가위'],['🖍️','crayon','크레용'],
+['🕐','what time|o clock|clock','시계'],['⌚','watch','손목시계'],['🪑','chair','의자'],
+['🗄️','desk|table','책상'],['🚪','door','문'],['🪟','window','창문'],['🔑','key','열쇠'],
+['☂️','umbrella','우산'],['🥎','ball','공'],['🧸','doll|teddy bear','인형'],['🤖','robot','로봇'],
+['🚗','car','자동차'],['🚌','bus','버스'],['🚂','train','기차'],['🛩️','plane|airplane','비행기'],
+['🚢','ship|boat','배'],['🚕','taxi','택시'],['🚇','subway','지하철'],
+['👕','shirt|clothes|t shirt','옷'],['👖','pants|jeans','바지'],['👗','dress|skirt','원피스'],
+['🧢','cap|hat','모자'],['👟','shoes|sneakers','신발'],['🧤','gloves','장갑'],['🧣','scarf','목도리'],
+['💰','how much|money|price','돈'],['🎫','ticket','표'],['🪞','mirror','거울'],['🛋️','sofa','소파']
+]],
+['몸·기분',[
+['😀','happy|glad','기쁨'],['😢','sad','슬픔'],['😠','angry|mad','화남'],['😪','tired|sleepy','피곤'],
+['😋','hungry','배고픔'],['🫗','thirsty','목마름'],['🤒','sick','아픔'],['🤩','excited','신남'],
+['😐','bored','지루함'],['😱','scared|afraid','무서움'],['🙇','sorry|busy|i m busy','미안·바쁨'],
+['👍','sounds good|good idea|great|sure|okay|nice','좋아요'],['👋','hello|hi|bye|goodbye','인사'],
+['🙏','thank|thanks|please','고마움'],['❤️','love|like|heart','좋아함'],['🧠','head','머리'],
+['✋','hand','손'],['🦶','foot|feet','발'],['👁️','eye|eyes','눈'],['👂','ear|ears','귀'],
+['👃','nose','코'],['👄','mouth','입'],['🦷','tooth|teeth','이'],['💇','hair','머리카락'],
+['💪','arm|strong','팔'],['🦵','leg','다리'],['📐','tall|short','키'],['🎈','birthday','생일']
+]],
+['사람',[
+['👩‍🏫','teacher','선생님'],['👨‍⚕️','doctor','의사'],['👩‍⚕️','nurse','간호사'],
+['👮','police officer|police','경찰'],['🧑‍🚒','firefighter','소방관'],['🧑‍🍳','chef|cook','요리사'],
+['🧑‍🎤','singer','가수'],['🕺','dancer','댄서'],['🧑‍✈️','pilot','조종사'],['🧑‍🌾','farmer','농부'],
+['🧑‍🔬','scientist','과학자'],['🧑‍🎨','artist','화가'],['🖋️','writer','작가'],
+['👩','mother|mom|mommy','엄마'],['👨','father|dad|daddy','아빠'],['👧','sister','자매'],
+['👦','brother','형제'],['👵','grandmother|grandma','할머니'],['👴','grandfather|grandpa','할아버지'],
+['👶','baby','아기'],['🧑‍🤝‍🧑','friend','친구'],['👪','family','가족'],['🧑‍🎓','student','학생']
+]],
+['시간·색깔',[
+['🌅','morning','아침'],['🌤️','afternoon','오후'],['🌆','evening','저녁'],['🌃','night','밤'],
+['📅','today|tomorrow|yesterday','날짜'],['🎄','christmas','크리스마스'],
+['🏝️','vacation|holiday','방학'],['📆','weekend|week|month','주·달'],
+['🔴','red','빨강'],['🔵','blue','파랑'],['🟡','yellow','노랑'],['🟢','green','초록'],
+['⚫','black','검정'],['⚪','white','하양'],['🩷','pink','분홍'],['🟣','purple','보라'],
+['🟤','brown','갈색']
+]]
 ];
+/* 추천 검색용 평면 목록 */
+const BINGO_EMO=[];
+BINGO_EMO_CATS.forEach(([cat,list])=> list.forEach(([e,k,ko])=> BINGO_EMO.push([e,k,ko,cat])));
+
 function bingoStem(w){
   if(w.length>5&&w.endsWith('ing')){ let s=w.slice(0,-3); if(s.length>2&&s[s.length-1]===s[s.length-2]) s=s.slice(0,-1); return s; }
   if(w.length>4&&w.endsWith('ies')) return w.slice(0,-3)+'y';
@@ -1993,7 +2158,7 @@ function bingoSetup(){
 async function bingoOpenClass(cid){
   const cls=DB.classes.find(x=>x.id===cid);
   const old=await sGet(bingoKey(cid), null);
-  if(!old || old.status==='done') return bingoPickList(cid);
+  if(!old || old.status==='done') return bingoPickAssignment(cid);
   app.innerHTML=`<button class="back" onclick="bingoSetup()">← 반 다시 고르기</button>
     <div class="card center">
       <h2 style="margin-top:4px">${esc(cls?cls.name:'')}에 하던 게임이 있어요</h2>
@@ -2004,103 +2169,154 @@ async function bingoOpenClass(cid){
       </div>
     </div>`;
   $('bgResume').onclick=()=> bingoRun(old);
-  $('bgFresh').onclick=()=> bingoPickList(cid);
+  $('bgFresh').onclick=()=> bingoPickAssignment(cid);
 }
-function bingoPickList(cid){
-  const grades=[...new Set(DB.lists.map(l=>(l.grade||'').trim()).filter(Boolean))].sort();
+/* 배부된 빙고 과제 중에서 고른다 — 판·그림 설정은 이미 과제에 들어 있다 */
+function bingoPickAssignment(cid){
+  const cls=DB.classes.find(x=>x.id===cid);
+  const asgs=DB.assignments.filter(a=>a.classId===cid && a.mode==='bingo')
+    .sort((a,b)=> b.createdAt-a.createdAt);
   app.innerHTML=`<button class="back" onclick="bingoSetup()">← 반 다시 고르기</button>
-    <div class="card"><h2 style="margin-top:4px">어떤 표현으로 놀까요?</h2>
-      <p class="muted">보관함에 있는 낱말·문장 목록을 그대로 씁니다. 표현이 <b>3개 이상</b>이면 돼요.</p>
-      ${DB.lists.length?`<div id="gradeChips" style="margin-top:8px">${grades.map(g=>`<span class="chip lib-g" data-g="${esc(g)}">${esc(g)}</span>`).join('')}${DB.lists.some(l=>!(l.grade||'').trim())?'<span class="chip lib-g" data-g="__none__">미지정</span>':''}</div>`:''}
+    <div class="card">
+      <h2 style="margin-top:4px">👂 ${esc(cls?cls.name:'')} — 어떤 빙고를 할까요?</h2>
+      <p class="muted">「과제 만들기」에서 이 반에 배부한 빙고입니다. 누르면 바로 시작 준비가 돼요.</p>
     </div>
     <div id="bgList"></div>`;
-  if(!DB.lists.length){ $('bgList').innerHTML='<div class="card empty"><span class="em">🌱</span>보관함이 비었어요.<br>「과제 만들기」로 목록을 먼저 만들어 주세요.</div>'; return; }
-  let cur=null;
-  const draw=()=>{
-    const el=$('bgList');
-    if(cur==null){ el.innerHTML='<div class="card empty"><span class="em">👆</span>위에서 학년을 선택하세요.</div>'; return; }
-    const rows=DB.lists.filter(l=> cur==='__none__'? !(l.grade||'').trim() : (l.grade||'').trim()===cur)
-      .sort((a,b)=>(a.unit||'').localeCompare(b.unit||'')||(b.updatedAt-a.updatedAt));
-    if(!rows.length){ el.innerHTML='<div class="card empty">이 학년 목록이 없어요.</div>'; return; }
-    el.innerHTML=rows.map(l=>{ const tag=[l.grade,l.unit,l.lesson].filter(Boolean).join(' / ');
-      const few=l.items.length<3;
-      return `<div class="card" style="margin-bottom:12px; ${few?'opacity:.5':'cursor:pointer'}" ${few?'':`data-l="${l.id}"`}>
-        <h3 style="margin:0 0 4px">📄 ${esc(l.name)}</h3>
-        <p class="muted" style="margin:0">${tag||''} · 표현 ${l.items.length}개${few?' — 3개 이상 필요해요':''}</p></div>`;}).join('');
-    el.querySelectorAll('[data-l]').forEach(c=> c.onclick=()=> bingoConfig(cid, c.dataset.l));
-  };
-  app.querySelectorAll('.lib-g').forEach(ch=> ch.onclick=()=>{ cur=ch.dataset.g;
-    app.querySelectorAll('.lib-g').forEach(x=>x.classList.toggle('on',x===ch)); draw(); });
-  draw();
-}
-let bingoDraft=null;
-function bingoConfig(cid, listId){
-  const l=DB.lists.find(x=>x.id===listId); if(!l) return bingoPickList(cid);
-  bingoDraft={ cid, listId, title:l.name,
-    items:l.items.slice(0,24).map(i=>{ const cands=bingoSuggest(i.text,4);
-      return { t:i.text, m:i.meaning||'', cands, ci:cands.length?0:-1, sel:true }; }) };
-  bingoConfigDraw();
-}
-function bingoConfigDraw(){
-  const d=bingoDraft, cls=DB.classes.find(x=>x.id===d.cid);
-  const n=d.n||5, target=d.target||3, iv=(d.iv==null?14:d.iv);
-  app.innerHTML=`<button class="back" onclick="bingoPickList('${d.cid}')">← 목록 다시 고르기</button>
-    <div class="card">
-      <h2 style="margin-top:4px">👂 ${esc(d.title)}</h2>
-      <p class="muted">${esc(cls?cls.name:'')} · 쓸 표현을 고르고, 칸에 보일 그림을 눌러 바꿀 수 있어요.<br>
-        그림이 없으면 <b>뜻(한글)</b>이 글자로 나와요.</p>
-      <div class="hr"></div>
-      <div id="bgItems"></div>
-      <p class="muted" id="bgCount" style="margin:6px 2px 0"></p>
-    </div>
-    <div class="card">
-      <h3 style="margin:0 0 10px">게임 설정</h3>
-      <div class="row">
-        <div><label>빙고판 크기</label><select id="bgN">
-          ${[3,4,5,7].map(v=>`<option value="${v}" ${v===n?'selected':''}>${v} × ${v}${v===7?' (학습지)':''}</option>`).join('')}
-        </select></div>
-        <div><label>빙고 목표</label><select id="bgT">
-          ${[1,2,3,4].map(v=>`<option value="${v}" ${v===target?'selected':''}>${v}빙고</option>`).join('')}
-        </select></div>
-        <div><label>자동 진행</label><select id="bgI">
-          <option value="0" ${iv===0?'selected':''}>수동 (선생님이 누름)</option>
-          ${[8,10,12,14,16,20,24].map(v=>`<option value="${v}" ${v===iv?'selected':''}>${v}초마다 자동</option>`).join('')}
-        </select></div>
-      </div>
-      <p class="muted" style="margin-top:10px">※ 표현 8개 · 5×5면 같은 그림이 3번쯤 나와요. 한 번 들려줄 때 <b>한 칸만</b> 체크할 수 있습니다.<br>
-        ※ 자동 진행을 켜면 시작만 누르고 계속 놀 수 있어요. 진행 중에도 <b>간격을 늘리거나 줄이고, 잠깐 멈출 수</b> 있습니다.<br>
-        ※ 게임 중에는 <b>정답(그림·문장)을 어디에도 띄우지 않습니다.</b> 오직 소리로만 판단해요. 들려준 표현은 게임을 끝낸 뒤 확인할 수 있어요.</p>
-      <div class="center" style="margin-top:14px"><button class="btn lg" id="bgGo">게임 만들기 ▶</button></div>
+  const el=$('bgList');
+  if(!asgs.length){
+    el.innerHTML=`<div class="card empty"><span class="em">🌱</span>이 반에 배부한 빙고가 없어요.<br>
+      <span class="muted">「과제 만들기 → ③ 과제 유형에서 <b>👂 듣기 빙고</b> 선택 → 학급 고르기」로 만들어 주세요.</span>
+      <div style="margin-top:14px"><button class="btn" id="goMake">📝 과제 만들러 가기</button></div></div>`;
+    $('goMake').onclick=()=>{ draft=null; createAssignment(); };
+    return;
+  }
+  el.innerHTML=asgs.map(a=>{
+    const b=a.bingo||{n:5,target:3,iv:14};
+    const tag=[a.grade,a.unit,a.lesson].filter(Boolean).join(' / ');
+    const emo=a.items.filter(i=>i.emoji && i.emoji!=='-').map(i=>i.emoji).slice(0,10).join(' ');
+    return `<div class="card" style="margin-bottom:12px; cursor:pointer" data-a="${a.id}">
+      <h3 style="margin:0 0 4px">👂 ${esc(a.title)}</h3>
+      <p class="muted" style="margin:0 0 6px">${tag||''} · 표현 ${a.items.length}개 ·
+        ${b.n}×${b.n} · ${b.target}빙고 · ${b.iv? b.iv+'초 자동':'수동 진행'}</p>
+      ${emo? `<div style="font-size:1.5rem; letter-spacing:2px">${emo}${a.items.length>10?' …':''}</div>`:''}
     </div>`;
-  const drawItems=()=>{
-    $('bgItems').innerHTML=d.items.map((it,i)=>`
-      <div class="item-row">
-        <input type="checkbox" ${it.sel?'checked':''} data-sel="${i}">
-        <button class="bg-emo" data-emo="${i}" title="눌러서 그림 바꾸기">${it.ci>=0?it.cands[it.ci]:'글자'}</button>
-        <span class="txt">${esc(it.t)}${it.m?`<span class="muted" style="font-size:.85rem"> — ${esc(it.m)}</span>`:''}</span>
-      </div>`).join('');
-    const sel=d.items.filter(x=>x.sel).length;
-    $('bgCount').innerHTML= sel<3 ? '⚠️ 표현을 <b>3개 이상</b> 골라 주세요.'
-      : `고른 표현 ${sel}개 · ${sel>16?'너무 많으면 판에 한 번씩만 나와요. 6~12개를 권해요.':'좋아요!'}`;
-    $('bgItems').querySelectorAll('[data-sel]').forEach(cb=> cb.onchange=()=>{ d.items[+cb.dataset.sel].sel=cb.checked; drawItems(); });
-    $('bgItems').querySelectorAll('[data-emo]').forEach(b=> b.onclick=()=>{ const it=d.items[+b.dataset.emo];
-      it.ci = it.ci+1 >= it.cands.length ? -1 : it.ci+1;   /* 후보를 돌다가 마지막엔 '글자' */
-      drawItems(); });
-  };
-  drawItems();
-  $('bgGo').onclick=async ()=>{
-    d.n=+$('bgN').value; d.target=+$('bgT').value; d.iv=+$('bgI').value;
-    const items=d.items.filter(x=>x.sel).map(x=>({ t:x.t, m:x.m, e:x.ci>=0?x.cands[x.ci]:'' }));
-    if(items.length<3) return toast('표현을 3개 이상 골라 주세요');
-    if(d.target>d.n) return toast(`${d.n}×${d.n} 판에서는 ${d.n}빙고까지 가능해요`);
-    const sess={ id:'bg'+uid(), classId:d.cid, className:cls?cls.name:'', listId:d.listId, title:d.title,
-      n:d.n, target:d.target, iv:d.iv, items, calls:[], at:Date.now(), status:'ready', updatedAt:Date.now() };
-    const ok=await sSet(bingoKey(d.cid), sess);
-    if(!ok) return;
-    bingoRun(sess);
-  };
+  }).join('');
+  el.querySelectorAll('[data-a]').forEach(c=> c.onclick=()=> bingoStartFromAssignment(c.dataset.a));
 }
+/* 과제에 저장된 설정 그대로 게임을 연다 — 학급마다 다시 설정할 필요가 없다 */
+async function bingoStartFromAssignment(aid){
+  const a=DB.assignments.find(x=>x.id===aid); if(!a) return;
+  const cls=DB.classes.find(x=>x.id===a.classId);
+  const b=a.bingo||{n:5,target:3,iv:14};
+  const items=a.items.map(i=>({ t:i.text, m:i.meaning||'', e:(i.emoji==='-'?'':(i.emoji||'')) }));
+  const sess={ id:'bg'+uid(), classId:a.classId, className:cls?cls.name:'', listId:a.listId, asgId:a.id,
+    title:a.title, n:b.n, target:b.target, iv:b.iv, items, calls:[], at:Date.now(),
+    status:'ready', updatedAt:Date.now() };
+  const ok=await sSet(bingoKey(a.classId), sess);
+  if(!ok) return;
+  bingoRun(sess);
+}
+/* ---------- 이모지 고르기 창 ---------- */
+/* 추천 후보만 돌리면 원하는 그림이 없을 때 막힌다. 사전 전체에서 찾아 고를 수 있게 한다. */
+/* opts = { text, meaning, cands, cur, onPick(이모지) } — 어느 화면에서든 쓸 수 있게 값만 주고받는다 */
+let emoPick=null;
+function emojiPickOpen(opts){
+  emoPick=Object.assign({ q:'', cat:'', cands:[], cur:'', meaning:'' }, opts);
+  emojiPickDraw();
+  $('emoPick').classList.add('show');
+  setTimeout(()=>{ const s=$('emoQ'); if(s) s.focus(); }, 60);
+}
+function emojiPickClose(){ $('emoPick').classList.remove('show'); emoPick=null; }
+function emojiPickSet(e){
+  const cb=emoPick && emoPick.onPick;
+  emojiPickClose();
+  if(cb) cb(e);
+}
+function emojiPickDraw(){
+  const it={ t:emoPick.text, m:emoPick.meaning, e:emoPick.cur, cands:emoPick.cands };
+  const q=emoPick.q.trim().toLowerCase();
+  const hit=(d)=> !q || d[2].includes(q) || d[1].split('|').some(k=>k.includes(q));
+  let secs;
+  if(q){
+    const rows=BINGO_EMO.filter(hit);
+    secs = rows.length
+      ? `<div class="sec">'${esc(emoPick.q)}' 검색 결과 ${rows.length}개</div>
+         <div class="grid">${rows.map(d=>emojiPickCell(d,it.e)).join('')}</div>`
+      : `<div class="empty"><span class="em">🔍</span>찾는 그림이 없어요.<br>
+           <span class="muted">한글(예: 실험)이나 영어(예: science)로 찾아보세요.<br>
+           그래도 없으면 창을 닫고 칸에 이모지를 직접 붙여넣으면 됩니다.</span></div>`;
+  } else {
+    const rec=it.cands||[];
+    const cats=BINGO_EMO_CATS.filter(([c])=> !emoPick.cat || c===emoPick.cat);
+    secs = (rec.length && !emoPick.cat
+        ? `<div class="sec">✨ 이 표현에 어울리는 그림</div>
+           <div class="grid">${rec.map(e=>emojiPickCell(BINGO_EMO.find(d=>d[0]===e)||[e,'',''], it.e)).join('')}</div>`
+        : '')
+      + cats.map(([c,list])=>`<div class="sec">${c}</div>
+           <div class="grid">${list.map(d=>emojiPickCell(d,it.e)).join('')}</div>`).join('');
+  }
+  $('emoBox').innerHTML=`
+    <div class="hd">
+      <div class="q">${esc(it.t)}</div>
+      ${it.m?`<div class="muted" style="margin-bottom:8px">${esc(it.m)}</div>`:'<div style="height:8px"></div>'}
+      <input type="text" id="emoQ" placeholder="🔎 한글·영어로 찾기 (예: 실험, science)" value="${esc(emoPick.q)}">
+    </div>
+    <div class="cats">
+      <span class="chip ${emoPick.cat?'':'on'}" data-cat="">전체</span>
+      ${BINGO_EMO_CATS.map(([c])=>`<span class="chip ${emoPick.cat===c?'on':''}" data-cat="${esc(c)}">${esc(c)}</span>`).join('')}
+    </div>
+    <div class="body">${secs}</div>
+    <div class="ft">
+      <button class="btn ghost sm" id="emoNone">글자로 표시</button>
+      <div style="flex:1"></div>
+      <button class="btn sm" id="emoClose">닫기</button>
+    </div>`;
+  const qi=$('emoQ');
+  qi.oninput=()=>{ emoPick.q=qi.value; const at=qi.selectionStart; emojiPickDraw();
+    const n=$('emoQ'); if(n){ n.focus(); try{ n.setSelectionRange(at,at); }catch(e){} } };
+  $('emoBox').querySelectorAll('[data-cat]').forEach(c=> c.onclick=()=>{ emoPick.cat=c.dataset.cat; emoPick.q=''; emojiPickDraw(); });
+  $('emoBox').querySelectorAll('[data-pick]').forEach(b=> b.onclick=()=> emojiPickSet(b.dataset.pick));
+  $('emoNone').onclick=()=> emojiPickSet('');
+  $('emoClose').onclick=emojiPickClose;
+}
+function emojiPickCell(d, cur){
+  return `<button data-pick="${esc(d[0])}" class="${d[0]===cur?'on':''}" title="${esc(d[2]||'')}">${d[0]}</button>`;
+}
+$('emoPick').onclick=(e)=>{ if(e.target.id==='emoPick') emojiPickClose(); };   /* 바깥을 누르면 닫기 */
 
+/* ---------- 그림 고르기 한 줄 (과제 만들기의 빙고 설정에서 씀) ----------
+   보관함 항목의 emoji 값을 그대로 다룬다: '' = 아직 안 정함, '-' = 일부러 글자로, 그 외 = 이모지 */
+function emojiRowsHTML(items){
+  return items.map((i,k)=>{
+    const cur=i.emoji==='-'? '' : (i.emoji||'');
+    return `<div class="item-row">
+      <input class="bg-emo" data-emoin="${k}" value="${esc(cur)}" placeholder="글자" maxlength="8"
+        title="이모지를 직접 넣거나 붙여넣기 (비우면 한글 뜻이 글자로 나와요)" aria-label="${esc(i.text)} 그림">
+      <button class="bg-emo-cyc" data-emocyc="${k}" title="추천 그림으로 바꾸기">🔄</button>
+      <button class="bg-emo-cyc" data-emopick="${k}" title="그림 목록에서 고르기">🔎</button>
+      <span class="txt">${esc(i.text)}${i.meaning?`<span class="muted" style="font-size:.85rem"> — ${esc(i.meaning)}</span>`:''}</span>
+    </div>`;
+  }).join('');
+}
+function emojiRowsBind(root, items, redraw){
+  root.querySelectorAll('[data-emoin]').forEach(inp=> inp.oninput=()=>{
+    const v=inp.value.trim(); items[+inp.dataset.emoin].emoji = v || '-';   /* 다시 그리지 않는다(커서 유지) */
+  });
+  root.querySelectorAll('[data-emocyc]').forEach(b=> b.onclick=()=>{
+    const i=items[+b.dataset.emocyc], cands=bingoSuggest(i.text,4);
+    if(!cands.length){ i.emoji='-'; return redraw(); }
+    const cur=i.emoji==='-'? '' : (i.emoji||'');
+    const at=cands.indexOf(cur);
+    i.emoji = at<0 ? cands[0] : (at+1>=cands.length ? '-' : cands[at+1]);
+    redraw();
+  });
+  root.querySelectorAll('[data-emopick]').forEach(b=> b.onclick=()=>{
+    const k=+b.dataset.emopick, i=items[k];
+    emojiPickOpen({ text:i.text, meaning:i.meaning||'', cands:bingoSuggest(i.text,4),
+      cur:(i.emoji==='-'?'':(i.emoji||'')),
+      onPick:(e)=>{ i.emoji = e || '-'; redraw(); } });
+  });
+}
 /* ---------- 선생님: 진행 ---------- */
 function bingoRun(sess){
   bingoLeave();
@@ -2264,7 +2480,7 @@ function bingoRunDraw(){
   on('bgAgain', ()=>{ if(it) bingoSay(it.t, false); });
   on('bgEnd', ()=>{ clearTimeout(BG.repeatT); clearTimeout(BG.autoT);
     BG.autoT=0; BG.nextAt=0; speakStop(); bingoTeacherSave({status:'done'}); });
-  on('bgNew', ()=> bingoDraft? bingoConfigDraw() : bingoSetup());
+  on('bgNew', ()=> bingoPickAssignment(s.classId));
   on('bgPrint', bingoPrint);
   on('bgPause', bingoAutoPause);
   on('bgSlow', ()=> bingoAutoSet(s.iv-2));      /* 화면에 보이는 '초' 숫자를 그대로 올리고 내린다 */
