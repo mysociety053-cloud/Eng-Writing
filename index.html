@@ -2421,8 +2421,31 @@ async function bingoStartFromAssignment(aid){
 /* 추천 후보만 돌리면 원하는 그림이 없을 때 막힌다. 사전 전체에서 찾아 고를 수 있게 한다. */
 /* opts = { text, meaning, cands, cur, onPick(이모지) } — 어느 화면에서든 쓸 수 있게 값만 주고받는다 */
 let emoPick=null;
+/* 붙여넣은 글에서 첫 번째 그림(이모지) 하나만 꺼낸다.
+   👩‍🏫처럼 여러 조각이 붙은 것도 통째로 살려야 해서 글자 단위(grapheme)로 자른다. */
+const EMO_RE = (()=>{ try{ return new RegExp('\\p{Extended_Pictographic}|\\p{Regional_Indicator}','u'); }
+                      catch(e){ return null; } })();
+function emojiIsEmo(c){
+  if(!c) return false;
+  if(/[0-9#*]️?⃣/.test(c)) return true;                 /* 1️⃣ 같은 숫자 그림 */
+  if(/[←-⯿]/.test(c)) return true;           /* ★ ☆ ♪ ➤ 같은 기호도 받아 준다 */
+  if(EMO_RE) return EMO_RE.test(c);
+  return c.codePointAt(0) > 0x1F000;                   /* 유니코드 속성을 못 쓰는 옛 기기 */
+}
+function emojiFirst(s){
+  const t=String(s||'').trim();
+  if(!t) return '';
+  try{
+    const seg=new Intl.Segmenter('ko',{granularity:'grapheme'});
+    for(const g of seg.segment(t)) if(emojiIsEmo(g.segment)) return g.segment;
+    return '';
+  }catch(e){
+    for(const c of t) if(emojiIsEmo(c)) return c;   /* Segmenter가 없으면 조각 하나만 나올 수 있다 */
+    return '';
+  }
+}
 function emojiPickOpen(opts){
-  emoPick=Object.assign({ q:'', cat:'', cands:[], cur:'', meaning:'' }, opts);
+  emoPick=Object.assign({ q:'', cat:'', cands:[], cur:'', meaning:'', direct:'' }, opts);
   emojiPickDraw();
   $('emoPick').classList.add('show');
   setTimeout(()=>{ const s=$('emoQ'); if(s) s.focus(); }, 60);
@@ -2467,16 +2490,43 @@ function emojiPickDraw(){
       ${BINGO_EMO_CATS.map(([c])=>`<span class="chip ${emoPick.cat===c?'on':''}" data-cat="${esc(c)}">${esc(c)}</span>`).join('')}
     </div>
     <div class="body">${secs}</div>
-    <div class="ft">
-      <button class="btn ghost sm" id="emoNone">글자로 표시</button>
-      <div style="flex:1"></div>
-      <button class="btn sm" id="emoClose">닫기</button>
+    <div class="ft" style="flex-direction:column; align-items:stretch; gap:10px">
+      <div>
+        <div class="muted" style="font-size:.8rem; margin-bottom:5px">
+          찾는 그림이 없나요? <b>이모지를 직접 넣을 수 있어요</b>
+          — 윈도우는 <b>⊞ + .</b> , 태블릿은 자판의 이모지 단추를 누르세요.</div>
+        <div style="display:flex; gap:8px; align-items:center">
+          <input type="text" id="emoDirect" placeholder="여기에 이모지를 붙여넣기 (예: 🥩)"
+            value="${esc(emoPick.direct||'')}" style="flex:1; min-width:0">
+          <span id="emoDirectPv" style="flex:0 0 42px; font-size:1.7rem; text-align:center; line-height:1.2"></span>
+          <button class="btn sm" id="emoUse" style="flex:0 0 auto">넣기</button>
+        </div>
+      </div>
+      <div style="display:flex; gap:8px; align-items:center">
+        <button class="btn ghost sm" id="emoNone">글자로 표시</button>
+        <div style="flex:1"></div>
+        <button class="btn sm" id="emoClose">닫기</button>
+      </div>
     </div>`;
   const qi=$('emoQ');
   qi.oninput=()=>{ emoPick.q=qi.value; const at=qi.selectionStart; emojiPickDraw();
     const n=$('emoQ'); if(n){ n.focus(); try{ n.setSelectionRange(at,at); }catch(e){} } };
   $('emoBox').querySelectorAll('[data-cat]').forEach(c=> c.onclick=()=>{ emoPick.cat=c.dataset.cat; emoPick.q=''; emojiPickDraw(); });
   $('emoBox').querySelectorAll('[data-pick]').forEach(b=> b.onclick=()=> emojiPickSet(b.dataset.pick));
+  /* 직접 넣기 — 사전에 없는 그림도 쓸 수 있는 탈출구 */
+  const di=$('emoDirect'), pv=$('emoDirectPv'), use=$('emoUse');
+  const syncDirect=()=>{
+    emoPick.direct=di.value;                 /* 검색으로 화면을 다시 그려도 남아 있게 */
+    const e=emojiFirst(di.value);
+    pv.textContent = e || (di.value.trim() ? '✕' : '');   /* 그림이 아니면 왜 못 넣는지 보이게 */
+    pv.style.color = e ? '' : 'var(--bad)';
+    use.disabled = !e;
+  };
+  const useDirect=()=>{ const e=emojiFirst(di.value); if(e) emojiPickSet(e); };
+  di.oninput=syncDirect;
+  di.onkeydown=(ev)=>{ if(ev.key==='Enter'){ ev.preventDefault(); useDirect(); } };
+  use.onclick=useDirect;
+  syncDirect();
   $('emoNone').onclick=()=> emojiPickSet('');
   $('emoClose').onclick=emojiPickClose;
 }
