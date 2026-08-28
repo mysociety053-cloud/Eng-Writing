@@ -266,6 +266,148 @@
   .emopick .ft{display:flex; gap:8px; padding:12px 18px; border-top:2px solid var(--border); flex-wrap:wrap;}
   .pill.bingo{background:#E7F0FA; color:#2C6FA8;}
   .chip.lib-g.bingo.on{background:#2C6FA8; border-color:#2C6FA8;}
+  /* ===== 카드 미션 (친구 찾기 말하기) ===== */
+  .mg-warn{background:#FCE6DF; border:2px solid var(--coral); color:var(--coral-d);
+    border-radius:14px; padding:12px 14px; font-family:'Jua'; line-height:1.6;}
+  .mg-note{background:#FCF7E6; border:2px solid var(--gold); border-radius:14px;
+    padding:11px 13px; font-size:.9rem; line-height:1.55; margin-bottom:12px;}
+  .mg-listcard{display:flex; align-items:center; gap:12px; background:#fff; border:2px solid var(--border);
+    border-radius:16px; padding:13px 15px; margin-bottom:10px; cursor:pointer; box-shadow:0 4px 0 var(--shadow);
+    transition:transform .06s, box-shadow .06s;}
+  .mg-listcard:active{transform:translateY(3px); box-shadow:0 1px 0 var(--shadow);}
+  .mg-listcard .t{font-family:'Jua'; font-size:1.05rem; word-break:keep-all;}
+  .mg-listcard .m{font-size:.82rem; color:var(--ink-soft); margin-top:3px;}
+  .mg-listcard .ar{font-size:1.3rem; color:var(--ink-soft); flex:0 0 auto;}
+  .mg-off{opacity:.34; pointer-events:none;}
+  /* 카드 미션은 낱말이 한 줄에 다 보여야 해서 화면을 좌우로 더 넓게 쓴다 */
+  body.mg-wide .wrap{max-width:1320px;}
+  /* 미션 화면 — 왼쪽 내 카드·대화문, 오른쪽 미션 보드 */
+  .mg-mission{display:grid; grid-template-columns:minmax(280px,.8fr) 1.5fr; gap:16px; align-items:start;}
+  @media(max-width:820px){ .mg-mission{grid-template-columns:1fr;} }
+  .mg-my{background:#fff; border:3px solid var(--green); border-radius:20px; padding:15px 18px;
+    display:grid; grid-template-columns:auto 1fr; column-gap:16px; align-items:center;}
+  .mg-my .lbl{grid-column:1/-1; font-family:'Jua'; font-size:.72rem; letter-spacing:.22em;
+    color:var(--ink-soft); margin-bottom:6px;}
+  .mg-my .em{font-size:3.4rem; line-height:1.1; grid-row:span 2;}
+  .mg-my .en{font-family:'Andika'; font-weight:700; font-size:1.85rem; align-self:end;
+    word-break:keep-all; overflow-wrap:break-word;}
+  .mg-my .ko{font-size:.95rem; color:var(--ink-soft); align-self:start;}
+  .mg-line{display:flex; gap:9px; align-items:flex-start; background:#fff; border:2px solid var(--border);
+    border-radius:14px; padding:10px 12px; margin-bottom:8px;}
+  .mg-line.b{background:#F3F7FC; border-color:#D9E5F1;}
+  .mg-line .rc{flex:0 0 28px; width:28px; height:28px; border-radius:9px; color:#fff; font-family:'Jua';
+    display:flex; align-items:center; justify-content:center; font-size:.9rem;}
+  .mg-line .rc.A{background:#2C6FA8;} .mg-line .rc.B{background:var(--coral);}
+  .mg-line .tx{flex:1; min-width:0;}
+  .mg-line .en{font-family:'Andika'; font-weight:700; font-size:1.05rem; line-height:1.35; word-break:break-word;}
+  .mg-line .ko{font-size:.82rem; color:var(--ink-soft); margin-top:2px;}
+  .mg-line .bl{color:var(--coral); border-bottom:3px solid var(--coral); padding:0 2px;}
+  .mg-line .say{flex:0 0 auto; background:none; box-shadow:none; font-size:1.05rem; padding:2px; color:var(--green-d);}
+  .mg-bgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:10px;}
+  .mg-btile{border:2px solid var(--border); border-radius:16px; padding:11px; background:#fff;
+    container-type:inline-size;}
+  .mg-btile.zero{opacity:.38;}
+  .mg-btile.full{border-color:var(--green); background:#EFF8F4;}
+  .mg-btile .r1{display:flex; align-items:center; justify-content:space-between; gap:6px;}
+  .mg-btile .em{font-size:1.7rem; line-height:1;}
+  .mg-btile .nd{font-family:'Jua'; font-size:.8rem; color:var(--ink-soft); white-space:nowrap;}
+  /* 낱말은 절대 줄바꿈하지 않는다 — 쪼개져 보이면 학생이 다른 낱말로 읽는다.
+     칸을 한 줄 통째로 쓰고, 긴 낱말이면 칸 너비에 맞춰 글씨만 작아진다. */
+  .mg-btile .w{font-family:'Andika'; font-weight:700; margin-top:5px; line-height:1.25;
+    font-size:min(10cqw, 1.2rem); white-space:nowrap; overflow:hidden;}
+  .mg-slots{display:flex; flex-wrap:wrap; gap:5px; margin-top:8px; min-height:44px;}
+  .mg-btile.zero .mg-slots{display:none;}
+  .mg-slot{width:44px; height:44px; border-radius:50%; border:2px dashed #D8CDB6;
+    display:flex; align-items:center; justify-content:center;}
+  .mg-slot.on{border:3px double currentColor; font-family:'Jua'; font-size:.62rem; text-align:center;
+    line-height:1.05; padding:2px; word-break:keep-all; overflow:hidden;
+    background:radial-gradient(circle at 32% 28%, rgba(255,255,255,.6), transparent 58%);
+    animation:mgstamp .45s cubic-bezier(.2,1.6,.4,1);}
+  @keyframes mgstamp{0%{transform:scale(2.2) rotate(-8deg); opacity:0;} 60%{transform:scale(.9);}
+    100%{transform:scale(1) rotate(var(--r,0deg));}}
+  .mg-done{background:linear-gradient(135deg,#FFE9C9,#FFD6C4); border:3px solid var(--coral);
+    border-radius:20px; padding:20px; text-align:center; margin-bottom:16px;}
+  /* 카드 뽑기 · 룰렛 오버레이 */
+  .mg-ov{position:fixed; inset:0; z-index:65; background:rgba(43,42,38,.6); backdrop-filter:blur(3px);
+    display:flex; align-items:center; justify-content:center; padding:16px;}
+  .mg-skip{position:absolute; top:16px; right:16px; background:rgba(255,255,255,.2); color:#fff;
+    border-radius:12px; padding:8px 14px; font-size:.9rem; box-shadow:none;}
+  .mg-flip{width:210px; height:290px; perspective:900px; cursor:pointer;}
+  .mg-flip .in{width:100%; height:100%; position:relative; transform-style:preserve-3d;
+    transition:transform .7s cubic-bezier(.3,1.2,.4,1);}
+  .mg-flip.open .in{transform:rotateY(180deg);}
+  .mg-face{position:absolute; inset:0; border-radius:20px; backface-visibility:hidden;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; text-align:center;}
+  .mg-face.bk{background:repeating-linear-gradient(45deg,#2F8F77,#2F8F77 12px,#246F5C 12px,#246F5C 24px);
+    border:4px solid #fff; color:#fff; font-family:'Jua'; font-size:1.15rem;}
+  .mg-face.fr{background:var(--paper2); border:4px solid var(--coral); transform:rotateY(180deg); padding:8px;}
+  .mg-face.fr .em{font-size:4.4rem; line-height:1.1;}
+  .mg-face.fr .en{font-family:'Andika'; font-weight:700; font-size:1.5rem; word-break:break-word;}
+  .mg-face.fr .ko{color:var(--ink-soft); font-size:.9rem;}
+  .mg-hint{position:absolute; bottom:11%; left:0; right:0; text-align:center; color:#fff;
+    font-family:'Jua'; font-size:1.05rem; padding:0 20px; line-height:1.5;}
+  .mg-roul{display:flex; flex-direction:column; align-items:center; gap:12px;}
+  .mg-stat{color:#fff; font-family:'Jua'; text-align:center; min-height:1.5em; font-size:1.05rem; padding:0 10px;}
+  .mg-pin{width:0; height:0; border-left:13px solid transparent; border-right:13px solid transparent;
+    border-top:20px solid var(--coral); margin-bottom:-8px; z-index:2;}
+  .mg-wheel{width:250px; height:250px; border-radius:50%; border:6px solid #fff; position:relative;
+    box-shadow:0 8px 24px rgba(0,0,0,.3);}
+  .mg-wheel span{position:absolute; left:50%; top:50%; font-family:'Jua'; font-size:1.5rem; color:var(--ink);
+    transform:translate(-50%,-50%) rotate(var(--a)) translateY(-88px);}
+  .mg-hub{position:absolute; left:50%; top:50%; width:70px; height:70px; border-radius:50%; background:#fff;
+    transform:translate(-50%,-50%); box-shadow:0 0 0 5px rgba(0,0,0,.08); z-index:1;
+    display:flex; align-items:center; justify-content:center; font-size:2rem;}
+  .mg-tally{display:flex; flex-wrap:wrap; gap:6px; justify-content:center; max-width:340px;}
+  .mg-tally .c{background:#fff; border-radius:999px; padding:5px 11px; font-family:'Jua';
+    display:flex; gap:4px; align-items:center;}
+  .mg-tally .c b{color:var(--coral);}
+  .mg-tally .c.now{box-shadow:0 0 0 3px var(--coral);}
+  .mg-tally .c.bump{animation:mgbump .35s;}
+  @keyframes mgbump{40%{transform:scale(1.3);}}
+  /* 도장 꾹 */
+  .mg-friend{text-align:center; padding:6px 0 2px;}
+  .mg-friend .em{font-size:4.2rem; line-height:1.15;}
+  .mg-friend .t{font-family:'Jua'; font-size:1.2rem; margin-top:4px; word-break:keep-all;}
+  .mg-hold{width:150px; height:150px; border-radius:50%; box-shadow:none; padding:0; margin:14px auto 0;
+    background:conic-gradient(var(--coral) calc(var(--p,0)*1%), #EFE6D2 0);
+    display:flex; align-items:center; justify-content:center;
+    touch-action:none; user-select:none; -webkit-user-select:none;}
+  .mg-hold .in{width:122px; height:122px; border-radius:50%; background:var(--ink); color:#fff;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:'Jua'; font-size:1.15rem;}
+  .mg-hold .in small{font-size:.72rem; opacity:.75; font-family:'Gowun Dodum';}
+  .mg-conf{position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:70;}
+  .mg-conf span{position:absolute; top:-40px; font-size:1.7rem; animation:mgdrop 1.7s ease-in forwards;}
+  @keyframes mgdrop{to{transform:translateY(110vh) rotate(360deg); opacity:.9;}}
+  /* 세트 편집 행 */
+  .mg-crow{display:grid; grid-template-columns:54px 1fr 1fr 34px; gap:7px; align-items:center; margin-bottom:8px;}
+  .mg-drow{display:grid; grid-template-columns:54px 1.2fr 1fr 34px; gap:7px; align-items:center; margin-bottom:8px;}
+  @media(max-width:560px){
+    .mg-crow,.mg-drow{grid-template-columns:54px 1fr 34px;}
+    .mg-crow>*:nth-child(1),.mg-drow>*:nth-child(1){grid-area:1/1/3/2; height:auto; align-self:stretch;}
+    .mg-crow>*:nth-child(2),.mg-drow>*:nth-child(2){grid-area:1/2/2/3;}
+    .mg-crow>*:nth-child(3),.mg-drow>*:nth-child(3){grid-area:2/2/3/3;}
+    .mg-crow>*:nth-child(4),.mg-drow>*:nth-child(4){grid-area:1/3/3/4;}
+  }
+  .mg-em{width:54px; height:48px; font-size:1.6rem; background:#fff; border:2px solid var(--border);
+    border-radius:12px; box-shadow:none; padding:0;}
+  .mg-em.auto{border-style:dashed; background:#FFFCF4;}
+  .mg-rb{width:54px; height:48px; border-radius:12px; color:#fff; font-family:'Jua';
+    font-size:1.15rem; box-shadow:none; padding:0;}
+  .mg-rb.A{background:#2C6FA8;} .mg-rb.B{background:var(--coral);}
+  /* 실시간 현황 */
+  .mg-row{display:flex; align-items:center; gap:10px; background:#fff; border:2px solid var(--border);
+    border-radius:14px; padding:10px 13px;}
+  .mg-row.done{border-color:var(--green); background:#EFF8F4;}
+  .mg-row .nm{font-family:'Jua'; flex:0 0 96px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .mg-row .cd{flex:0 0 30px; font-size:1.3rem; text-align:center;}
+  .mg-row .bar{flex:1; height:14px; background:#EFE6D2; border-radius:999px; overflow:hidden; border:1px solid var(--border);}
+  .mg-row .bar>div{height:100%; background:var(--coral); border-radius:999px; transition:width .4s;}
+  .mg-row.done .bar>div{background:var(--green);}
+  .mg-row .ct{font-family:'Jua'; flex:0 0 54px; text-align:right;}
+  .mg-tv .mg-row .nm{font-size:1.5rem; flex-basis:150px;}
+  .mg-tv .mg-row .ct{font-size:1.4rem; flex-basis:78px;}
+  .mg-tv .mg-row .bar{height:22px;}
+  .mg-tv .mg-row .cd{font-size:1.8rem; flex-basis:44px;}
   /* 종이 빙고판 인쇄 */
   #printArea{display:none;}
   @media print{
@@ -325,7 +467,8 @@ const BACKEND_READY = !!(FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.projectId);
 window.__cfg = { config:FIREBASE_CONFIG, dbId:DATABASE_ID, ready:BACKEND_READY };
 
 /* ============================ STORAGE LAYER (Firestore) ============================ */
-const KEYS = { classes:'v1:classes', assignments:'v1:assignments', settings:'v1:settings', lists:'v1:lists' };
+const KEYS = { classes:'v1:classes', assignments:'v1:assignments', settings:'v1:settings', lists:'v1:lists',
+               mingle:'v1:mingle' };   /* 카드 미션 세트 모음 → eng_app/mingle (선생님만 쓰기) */
 let fbReady=false, backendError='';
 const mem={}; // 백엔드 연결 전/실패 시 임시 메모리(기기 간 공유 안 됨)
 function colName(name){ return COLLECTION_PREFIX+name; }
@@ -358,11 +501,12 @@ function setupLiveSync(){
   window.__store.watch(c,'classes', v=> DB.classes=v||[]);
   window.__store.watch(c,'assignments', v=> DB.assignments=v||[]);
   window.__store.watch(c,'lists', v=> DB.lists=v||[]);
+  window.__store.watch(c,'mingle', v=> DB.mingle=v||[]);
   window.__store.watch(c,'settings', v=>{ if(v) applyVoiceSetting(v); });
 }
 
 /* ============================ APP STATE ============================ */
-let DB = { classes:[], assignments:[], lists:[] };
+let DB = { classes:[], assignments:[], lists:[], mingle:[] };
 let session = { role:null, name:null, classId:null, studentId:null };
 const uid = ()=> Math.random().toString(36).slice(2,9);
 const $ = (id)=> document.getElementById(id);
@@ -376,6 +520,7 @@ async function boot(){
     DB.classes = await sGet(KEYS.classes, []);
     DB.assignments = await sGet(KEYS.assignments, []);
     DB.lists = await sGet(KEYS.lists, []);
+    DB.mingle = await sGet(KEYS.mingle, []);
     await loadVoiceSetting();     // 선생님이 정한 목소리·속도를 학생 기기도 그대로 쓴다
     setupLiveSync();
   }
@@ -443,7 +588,7 @@ function refreshWho(){
   else { $('who').textContent=''; $('logoutBtn').style.display='none'; }
 }
 function logout(){
-  bingoLeave();
+  bingoLeave(); mingleLeave();
   const wasTeacher = session.role==='teacher';
   session={role:null,name:null,classId:null,studentId:null};
   if(wasTeacher && window.__auth) window.__auth.signOutToAnon();
@@ -456,7 +601,7 @@ function esc(s){ return (s==null?'':String(s)).replace(/[&<>"']/g,c=>({'&':'&amp
 
 /* ============================ HOME / ROLE ============================ */
 function renderHome(){
-  bingoLeave();
+  bingoLeave(); mingleLeave();
   session.role=null; refreshWho();
   app.innerHTML = `
     <div class="card center">
@@ -474,7 +619,7 @@ function renderHome(){
 }
 
 function studentMenu(){
-  bingoLeave();
+  bingoLeave(); mingleLeave();
   app.innerHTML = `
     <button class="back" onclick="renderHome()">← 처음으로</button>
     <div class="card center">
@@ -484,11 +629,13 @@ function studentMenu(){
         <div class="tile" id="goWrite"><span class="emoji">✏️</span><div class="t">또박또박 영어 쓰기</div><div class="s">흐린 글자 따라쓰기</div></div>
         <div class="tile" id="goSpeak"><span class="emoji">🗣️</span><div class="t">또박또박 영어 말하기</div><div class="s">듣고 따라 말하기</div></div>
         <div class="tile" id="goBingo"><span class="emoji">👂</span><div class="t">듣고 빙고</div><div class="s">선생님과 함께 하는 놀이</div></div>
+        <div class="tile" id="goMingle"><span class="emoji">🃏</span><div class="t">카드 미션</div><div class="s">친구를 찾아 말하기</div></div>
       </div>
     </div>`;
   $('goWrite').onclick = ()=>{ studentMode='write'; studentPickClass(); };
   $('goSpeak').onclick = ()=>{ studentMode='speak'; studentPickClass(); };
   $('goBingo').onclick = ()=>{ studentMode='bingo'; studentPickClass(); };
+  $('goMingle').onclick = ()=>{ studentMode='mingle'; studentPickClass(); };
 }
 
 /* ============================ SPEAKING PRACTICE ============================ */
@@ -842,7 +989,7 @@ async function teacherLogin(){
 
 /* ============================ TEACHER HOME ============================ */
 function teacherHome(){
-  bingoLeave();
+  bingoLeave(); mingleLeave();
   session.role='teacher'; refreshWho();
   app.innerHTML = `
     <div class="card">
@@ -852,6 +999,7 @@ function teacherHome(){
         <div class="tile" id="mNew"><span class="emoji">📝</span><div class="t">과제 만들기</div><div class="s">새로 만들기·다시 부여</div></div>
         <div class="tile" id="mDash"><span class="emoji">📊</span><div class="t">진행 현황</div><div class="s">학급별 완료 확인</div></div>
         <div class="tile" id="mBingo"><span class="emoji">👂</span><div class="t">듣기 빙고</div><div class="s">TV로 들려주는 놀이</div></div>
+        <div class="tile" id="mMingle"><span class="emoji">🃏</span><div class="t">카드 미션</div><div class="s">교실을 돌며 말하기</div></div>
         <div class="tile" id="mVoice"><span class="emoji">🔊</span><div class="t">소리 설정</div><div class="s">${esc(voiceInfo().label)} · ${esc(speedLabel(VOICE.rate))}</div></div>
       </div>
     </div>`;
@@ -859,6 +1007,7 @@ function teacherHome(){
   $('mNew').onclick = ()=> createAssignment();
   $('mDash').onclick = dashboardList;
   $('mBingo').onclick = bingoSetup;
+  $('mMingle').onclick = mingleTeacher;
   $('mVoice').onclick = voiceSettings;
 }
 
@@ -1464,7 +1613,9 @@ function studentPickName(cid){
     <div class="grid-cards">${c.students.map(s=>`<div class="tile" data-s="${s.id}"><span class="emoji">🧒</span><div class="t">${esc(s.name)}</div></div>`).join('')}</div></div>`;
   app.querySelectorAll('[data-s]').forEach(el=> el.onclick=()=>{ const s=c.students.find(x=>x.id===el.dataset.s);
     session={role:'student', name:s.name, classId:cid, studentId:s.id};
-    if(studentMode==='bingo') bingoStudent(); else studentAssignments(); });
+    if(studentMode==='bingo') bingoStudent();
+    else if(studentMode==='mingle') mingleStudent();
+    else studentAssignments(); });
 }
 async function studentAssignments(){
   session.role='student'; refreshWho();
@@ -1866,7 +2017,7 @@ const bingoPKey = (cid,sid)=> `v1:prog:bingo:${cid}:${sid}`;
    여러 낱말로 된 키워드가 한 낱말보다 항상 우선한다 (예: "science camp" > "camp") */
 const BINGO_EMO_CATS=[
 ['동작·활동',[
-['🏊','swim|swimming','수영'],['🛒','go shopping|shopping|shop','쇼핑'],
+['🏊','swim|swimming|pool','수영·수영장'],['🛒','go shopping|shopping|shop','쇼핑'],
 ['🎬','go to the movies|movie|movies|cinema','영화'],['📓','do homework|homework','숙제'],
 ['📚','comic book|comic books|comic','만화책'],['📖','read|reading|book','읽기'],
 ['🎲','board game|board games','보드게임'],['⚽','soccer|football','축구'],['⚾','baseball','야구'],
@@ -1882,13 +2033,15 @@ const BINGO_EMO_CATS=[
 ['🛌','go to bed|sleep|sleeping','잠자기'],['⏰','get up|wake up','일어나기'],
 ['📺','watch tv|television','티브이'],['💻','computer','컴퓨터'],['📱','phone|smartphone|call','전화'],
 ['✍️','write|writing','쓰기'],['🎧','listen|listening','듣기'],['🗣️','speak|talk','말하기'],
-['📝','study|studying','공부'],['🍽️','do the dishes|dishes|breakfast|lunch|dinner|meal','식사·설거지'],
+['📝','study|studying','공부'],['🍽️','do the dishes|dishes|breakfast|lunch|dinner|meal|eat|eating','식사·먹기'],
 ['🧺','laundry|wash the clothes','빨래'],['🏕️','camp|camping|tent','캠핑·텐트'],
 ['🥾','hike|hiking|climb|climbing','등산'],['🎣','fish|fishing','낚시'],['🧳','travel|trip','여행'],
 ['🎁','gift|present','선물'],['🎉','party','파티'],['⛄','make a snowman|snowman','눈사람'],
 ['🪁','fly a kite|kite','연날리기'],['🤝','help|helping','돕기'],['💤','take a rest|rest','휴식'],
-['🎮','video game|computer game','게임'],['🧩','puzzle','퍼즐'],['🛴','scooter|kick board','킥보드'],
-['🏅','medal|prize','메달'],['🏆','trophy|champion|win|winner','우승']
+['🎮','video game|computer game|game|games|play|playing','게임·놀기'],['🧩','puzzle','퍼즐'],['🛴','scooter|kick board','킥보드'],
+['🏅','medal|prize','메달'],['🏆','trophy|champion|win|winner','우승'],
+['⛳','golf','골프'],['🎳','bowling','볼링'],['🥊','boxing','권투'],['🥋','taekwondo','태권도'],
+['🤸','jump|jumping','점프']
 ]],
 ['학교·과학',[
 ['🔬','science camp|science|experiment|microscope','과학·현미경'],['🧪','test tube|lab|chemistry','실험'],
@@ -1896,23 +2049,31 @@ const BINGO_EMO_CATS=[
 ['🧲','magnet','자석'],['🌡️','thermometer|temperature','온도계'],['🚀','rocket|space','로켓'],
 ['🪐','planet|solar system','행성'],['🌌','universe|galaxy','우주'],['🧬','dna|gene','유전자'],
 ['🦠','germ|virus|bacteria','세균'],['🥼','lab coat','실험복'],['🔎','magnifying glass|find|search','돋보기'],
-['💡','idea|invention|light bulb','아이디어'],['🔋','battery','건전지'],['⚙️','machine|gear','기계'],
+['💡','idea|invention|light bulb|light','아이디어·빛'],['🔋','battery','건전지'],['⚙️','machine|gear','기계'],
 ['📊','graph|chart','그래프'],['🧮','math|abacus|count','계산'],['🔢','how many|number','숫자'],
 ['🎓','graduation|graduate','졸업'],['📕','textbook','교과서'],['🗺️','map','지도'],
 ['⏱️','stopwatch|timer','초시계'],['🎯','goal|target','목표'],['✅','check|correct|right','맞음'],
-['❌','wrong','틀림'],['❓','what|who|where|when|why|how','질문']
+['❌','wrong','틀림'],['❓','what|who|where|when|why|how','질문'],
+['📄','paper','종이'],['👝','pencil case','필통'],['🔤','english','영어'],['📗','korean','국어'],
+['🖌️','art','미술'],['⛹️','pe|p e|physical education','체육'],['📜','history','역사'],
+['🌏','social studies','사회']
 ]],
 ['음식',[
 ['🍎','apple','사과'],['🍌','banana','바나나'],['🍊','orange','오렌지'],['🍇','grape|grapes','포도'],
 ['🍉','watermelon','수박'],['🍓','strawberry|strawberries','딸기'],['🍑','peach','복숭아'],
 ['🍐','pear','배'],['🍍','pineapple','파인애플'],['🍕','pizza','피자'],['🍔','hamburger|burger','햄버거'],
-['🍗','chicken','치킨'],['🍞','bread','빵'],['🍚','rice','밥'],['🥛','milk','우유'],['💧','water','물'],
+['🍗','chicken','치킨'],['🍞','bread','빵'],['🍚','rice','밥'],['🥛','milk|cup','우유·컵'],['💧','water','물'],
 ['🧃','juice','주스'],['🥚','egg|eggs','계란'],['🎂','cake','케이크'],['🍦','ice cream','아이스크림'],
 ['🍬','candy','사탕'],['🍪','cookie|cookies','쿠키'],['🥗','salad','샐러드'],['🍲','soup|stew','국'],
 ['🍜','noodle|noodles|ramen','국수'],['🥪','sandwich','샌드위치'],['🍝','spaghetti|pasta','스파게티'],
 ['🥩','meat|beef','고기'],['🥕','carrot','당근'],['🥔','potato','감자'],['🍅','tomato','토마토'],
 ['🧅','onion','양파'],['🌽','corn','옥수수'],['🧀','cheese','치즈'],['🍵','tea','차'],['☕','coffee','커피'],
-['🍫','chocolate','초콜릿'],['🍿','popcorn','팝콘'],['🥤','soda|cola','음료수']
+['🍫','chocolate','초콜릿'],['🍿','popcorn','팝콘'],['🥤','soda|cola|drink|drinking','음료수·마시기'],
+['🌭','hot dog|hotdog','핫도그'],['🍩','donut|doughnut','도넛'],['🥧','pie','파이'],
+['🍠','sweet potato','고구마'],['🥒','cucumber','오이'],['🍄','mushroom','버섯'],
+['🌮','taco','타코'],['🍟','fries|french fries','감자튀김'],['🎃','pumpkin|halloween','호박·핼러윈'],
+['🍋','lemon','레몬'],['🍈','melon','멜론·참외'],['🍒','cherry|cherries','체리'],
+['🥝','kiwi','키위'],['🥭','mango','망고'],['🫐','blueberry|blueberries','블루베리']
 ]],
 ['동물',[
 ['🐶','dog|puppy','개'],['🐱','cat','고양이'],['🐦','bird','새'],['🐰','rabbit','토끼'],
@@ -1922,7 +2083,10 @@ const BINGO_EMO_CATS=[
 ['🐭','mouse|mice','쥐'],['🐼','panda','판다'],['🦒','giraffe','기린'],['🦓','zebra','얼룩말'],
 ['🐧','penguin','펭귄'],['🐬','dolphin','돌고래'],['🐳','whale','고래'],['🦈','shark','상어'],
 ['🐢','turtle','거북이'],['🦋','butterfly','나비'],['🐝','bee','벌'],['🐜','ant','개미'],
-['🕷️','spider','거미'],['🐟','fish','물고기']
+['🕷️','spider','거미'],['🐟','fish','물고기'],
+['🐺','wolf','늑대'],['🐨','koala','코알라'],['🐙','octopus','문어'],['🦀','crab','게'],
+['🐤','chick','병아리'],['🐹','hamster','햄스터'],['🦌','deer','사슴'],['🦉','owl','부엉이'],
+['🦅','eagle','독수리'],['🐿️','squirrel','다람쥐'],['🦕','dinosaur','공룡'],['🐌','snail','달팽이']
 ]],
 ['자연·날씨',[
 ['☀️','sunny|sun','맑음'],['🌧️','rainy|rain','비'],['☁️','cloudy|cloud','흐림'],['❄️','snowy|snow','눈'],
@@ -1930,28 +2094,36 @@ const BINGO_EMO_CATS=[
 ['⭐','star|favorite','별'],['🌙','moon','달'],['🌊','sea|ocean','바다'],['⛰️','mountain','산'],
 ['🏞️','river','강'],['🌳','tree','나무'],['🌸','flower','꽃'],['🍁','fall|autumn','가을'],
 ['🌱','spring','봄'],['🌞','summer','여름'],['☃️','winter','겨울'],['🔥','fire','불'],
-['🌍','earth|world','지구']
+['🌍','earth|world','지구'],
+['⛈️','storm|thunder','폭풍·천둥'],['🌿','grass','풀·잔디'],['🍃','leaf|leaves','잎'],
+['🪨','stone|rock','돌']
 ]],
 ['장소',[
 ['🏫','school','학교'],['🏠','home|house','집'],['🌲','park','공원'],['🏛️','library','도서관'],
 ['🖼️','museum','박물관'],['🏥','hospital','병원'],['🏦','bank','은행'],
-['🏪','store|market|supermarket','가게'],['🍴','restaurant','식당'],['🐾','zoo','동물원'],
+['🏪','store|market|supermarket','가게'],['🍴','restaurant|fork','식당·포크'],['🐾','zoo','동물원'],
 ['🏖️','beach','해변'],['🛫','airport','공항'],['🚉','station','역'],['🏤','post office','우체국'],
 ['🥐','bakery','빵집'],['⛪','church','교회'],['🛝','playground','놀이터'],
-['🚻','bathroom|restroom','화장실'],['🛏️','bedroom','침실'],['🚜','farm','농장'],
-['🏢','building','건물'],['🎡','amusement park','놀이공원']
+['🚻','bathroom|restroom','화장실'],['🛏️','bedroom|bed','침실·침대'],['🚜','farm','농장'],
+['🏢','building','건물'],['🎡','amusement park','놀이공원'],
+['🏰','castle','성'],['🌉','bridge','다리(강)']
 ]],
 ['물건',[
 ['✏️','pencil','연필'],['🖊️','pen','펜'],['🧽','eraser','지우개'],['📏','ruler','자'],
 ['📔','notebook','공책'],['🎒','bag|backpack','가방'],['✂️','scissors','가위'],['🖍️','crayon','크레용'],
-['🕐','what time|o clock|clock','시계'],['⌚','watch','손목시계'],['🪑','chair','의자'],
+['🕐','what time|o clock|clock|time','시계·시간'],['⌚','watch','손목시계'],['🪑','chair','의자'],
 ['🗄️','desk|table','책상'],['🚪','door','문'],['🪟','window','창문'],['🔑','key','열쇠'],
-['☂️','umbrella','우산'],['🥎','ball','공'],['🧸','doll|teddy bear','인형'],['🤖','robot','로봇'],
+['☂️','umbrella','우산'],['🥎','ball','공'],['🧸','doll|teddy bear|toy|toys','인형·장난감'],['🤖','robot','로봇'],
 ['🚗','car','자동차'],['🚌','bus','버스'],['🚂','train','기차'],['🛩️','plane|airplane','비행기'],
 ['🚢','ship|boat','배'],['🚕','taxi','택시'],['🚇','subway','지하철'],
 ['👕','shirt|clothes|t shirt','옷'],['👖','pants|jeans','바지'],['👗','dress|skirt','원피스'],
 ['🧢','cap|hat','모자'],['👟','shoes|sneakers','신발'],['🧤','gloves','장갑'],['🧣','scarf','목도리'],
-['💰','how much|money|price','돈'],['🎫','ticket','표'],['🪞','mirror','거울'],['🛋️','sofa','소파']
+['💰','how much|money|price','돈'],['🎫','ticket','표'],['🪞','mirror','거울'],['🛋️','sofa','소파'],
+['🏍️','motorcycle','오토바이'],['🚚','truck','트럭'],['🚁','helicopter','헬리콥터'],
+['🚒','fire truck','소방차'],['🚓','police car','경찰차'],['🚑','ambulance','구급차'],
+['🧦','socks','양말'],['🧥','coat|jacket','외투'],['👓','glasses','안경'],['💍','ring','반지'],
+['👑','crown','왕관'],['✉️','letter','편지'],['🥄','spoon','숟가락'],['🔪','knife','칼'],
+['🪈','flute|recorder','리코더']
 ]],
 ['몸·기분',[
 ['😀','happy|glad','기쁨'],['😢','sad','슬픔'],['😠','angry|mad','화남'],['😪','tired|sleepy','피곤'],
@@ -1961,7 +2133,8 @@ const BINGO_EMO_CATS=[
 ['🙏','thank|thanks|please','고마움'],['❤️','love|like|heart','좋아함'],['🧠','head','머리'],
 ['✋','hand','손'],['🦶','foot|feet','발'],['👁️','eye|eyes','눈'],['👂','ear|ears','귀'],
 ['👃','nose','코'],['👄','mouth','입'],['🦷','tooth|teeth','이'],['💇','hair','머리카락'],
-['💪','arm|strong','팔'],['🦵','leg','다리'],['📐','tall|short','키'],['🎈','birthday','생일']
+['💪','arm|strong','팔'],['🦵','leg','다리'],['📐','tall|short','키'],
+['🎈','birthday|balloon','생일·풍선'],['🙂','face','얼굴'],['😲','surprised','놀람']
 ]],
 ['사람',[
 ['👩‍🏫','teacher','선생님'],['👨‍⚕️','doctor','의사'],['👩‍⚕️','nurse','간호사'],
@@ -1970,15 +2143,23 @@ const BINGO_EMO_CATS=[
 ['🧑‍🔬','scientist','과학자'],['🧑‍🎨','artist','화가'],['🖋️','writer','작가'],
 ['👩','mother|mom|mommy','엄마'],['👨','father|dad|daddy','아빠'],['👧','sister','자매'],
 ['👦','brother','형제'],['👵','grandmother|grandma','할머니'],['👴','grandfather|grandpa','할아버지'],
-['👶','baby','아기'],['🧑‍🤝‍🧑','friend','친구'],['👪','family','가족'],['🧑‍🎓','student','학생']
+['👶','baby','아기'],['🧑‍🤝‍🧑','friend','친구'],['👪','family','가족'],['🧑‍🎓','student','학생'],
+['🧑‍🚀','astronaut','우주비행사'],['🩺','vet','수의사'],['🤴','king|prince','왕·왕자'],
+['👸','queen|princess','여왕·공주'],['👻','ghost','유령'],['👾','monster','괴물'],['😇','angel','천사']
 ]],
 ['시간·색깔',[
 ['🌅','morning','아침'],['🌤️','afternoon','오후'],['🌆','evening','저녁'],['🌃','night','밤'],
-['📅','today|tomorrow|yesterday','날짜'],['🎄','christmas','크리스마스'],
+['📅','today|tomorrow|yesterday|calendar','날짜·달력'],['🎄','christmas','크리스마스'],
+['🎅','santa|santa claus','산타'],['🎆','new year','새해'],
 ['🏝️','vacation|holiday','방학'],['📆','weekend|week|month','주·달'],
 ['🔴','red','빨강'],['🔵','blue','파랑'],['🟡','yellow','노랑'],['🟢','green','초록'],
 ['⚫','black','검정'],['⚪','white','하양'],['🩷','pink','분홍'],['🟣','purple','보라'],
-['🟤','brown','갈색']
+['🟤','brown','갈색'],['🩶','gray|grey','회색']
+]],
+['숫자',[
+['1️⃣','one','하나'],['2️⃣','two','둘'],['3️⃣','three','셋'],['4️⃣','four','넷'],
+['5️⃣','five','다섯'],['6️⃣','six','여섯'],['7️⃣','seven','일곱'],['8️⃣','eight','여덟'],
+['9️⃣','nine','아홉'],['🔟','ten','열']
 ]]
 ];
 /* 추천 검색용 평면 목록 */
@@ -2773,6 +2954,709 @@ function bingoStudentDraw(){
   wrap.querySelectorAll('[data-cell]').forEach(b=> b.onclick=()=> bingoTap(+b.dataset.cell));
 }
 
+/* ============================ 카드 미션 (친구 찾기 말하기) ============================ */
+/* 저장 위치
+   · 세트(선생님만 씀) : v1:mingle → eng_app/mingle — 세트 전부를 배열 한 문서에 담는다(읽기 1회)
+   · 학생 배정·도장    : v1:prog:mingle:<세트>:<학급>:<학생> → eng_progress/mingle__…
+   기존 보안 규칙(eng_app=선생님만 쓰기 / eng_progress=인증되면 쓰기)을 그대로 쓴다. 규칙 수정 불필요.
+
+   쓰기 횟수: 학생 최초 입장 1회(카드·보드 배정) + 도장 1개당 1회. 룰렛·화면 이동은 저장하지 않는다.
+   도장은 언제나 '도장을 받는 학생의 기기'가 자기 문서에만 쓴다 → 한 문서를 쓰는 기기는 늘 하나뿐.
+   다만 친구가 아직 입장 전이면 사인 화면에서 친구 배정을 대신 만들어야 하므로, 그 자리만
+   트랜잭션(store.ensure)으로 처리한다 — 친구 기기와 동시에 만들어도 카드가 갈리지 않는다. */
+const mgPKey = (setId,cid,sid)=> `v1:prog:mingle:${setId}:${cid}:${sid}`;
+const MG_INKS = ['#D8543A','#2C6FA8','#2F8F77','#8E5AA8','#D9A324'];
+const MG_PUBS = ['천재(함)','천재(윤)','YBM(김)','YBM(최)','대교','동아','지학사','미래엔'];
+let MG=null, mgUnsub=null, mgEdit=null, mgSaveArm=false, mgDelArm=false;
+
+/* 화면을 떠날 때 구독·오버레이를 정리한다 (안 하면 요금이 계속 샌다) */
+function mingleLeave(){
+  if(mgUnsub){ try{ mgUnsub(); }catch(e){} mgUnsub=null; }
+  document.querySelectorAll('.mg-ov,.mg-conf').forEach(el=> el.remove());
+  if(app) app.classList.remove('mg-tv');
+  mgWide(false);
+  MG=null;
+}
+/* 카드 미션 화면에서만 본문을 좌우로 넓게 쓴다 (낱말이 한 줄에 다 들어가도록) */
+function mgWide(on){ document.body.classList.toggle('mg-wide', !!on); }
+function mgSets(){ return (DB.mingle||[]).slice().sort((a,b)=> (b.createdAt||0)-(a.createdAt||0)); }
+/* 이 세트를 받은 학급들 (classIds가 없는 옛 세트는 전체 학급) */
+function mgClasses(set){
+  if(!set) return [];
+  if(!set.classIds || !set.classIds.length) return DB.classes.slice();
+  return DB.classes.filter(c=> set.classIds.includes(c.id));
+}
+function mgClassNames(set){
+  if(!set.classIds || !set.classIds.length) return '전체 학급';
+  const list=mgClasses(set);
+  return list.length ? list.map(c=>c.name).join(', ') : '배부된 학급 없음(지워진 학급)';
+}
+function mgSet(id){ return (DB.mingle||[]).find(s=>s.id===id) || null; }
+function mgTotal(p){ return (p && p.board ? p.board : []).reduce((a,b)=>a+b,0); }
+/* 그림 추천 — 듣기 빙고와 같은 사전을 쓴다(영어 키워드 + 한글 이름) */
+function mgSuggest(en, ko){
+  const out = bingoSuggest(en, 8).slice();
+  const k = String(ko||'').trim();
+  if(k) BINGO_EMO.forEach(d=>{
+    const nm = d[2]||'';
+    if((k.length>=2 ? nm.includes(k) : nm===k) && !out.includes(d[0])) out.push(d[0]);
+  });
+  return out.slice(0,12);
+}
+
+/* 배정: 내 카드 1장 + 카드별 만날 친구 수 (모든 카드 최소 1명, 카드당 최대 cap명) */
+function mgMakeAssign(set){
+  const K=set.cards.length;
+  const card=Math.floor(Math.random()*K);
+  const board=Array(K).fill(1);
+  let left=Math.max(0, (set.goal||K)-K), guard=0;
+  while(left>0 && guard++<800){ const i=Math.floor(Math.random()*K); if(board[i]<set.cap){ board[i]++; left--; } }
+  return { card, board };
+}
+/* 배정이 없거나 세트가 바뀌었으면(ver 불일치) 새로 만든다. 그대로면 쓰기 0회. */
+async function mgEnsure(set, cid, stu){
+  const key=mgPKey(set.id, cid, stu.id), ref=keyRef(key);
+  let made=false;
+  const resolve=(cur)=>{
+    if(cur && cur.ver===set.ver && Array.isArray(cur.board) && cur.board.length===set.cards.length){
+      made=false; return null;                       /* 그대로 쓴다 → 쓰기 없음 */
+    }
+    made=true;
+    const a=mgMakeAssign(set);
+    return { setId:set.id, classId:cid, sid:stu.id, name:stu.name, mgKey:set.id+'|'+cid,
+             ver:set.ver, card:a.card, board:a.board, stamps:[], startedAt:Date.now() };
+  };
+  if(fbReady && window.__store && window.__store.ensure){
+    try{ const val=await window.__store.ensure(ref.col, ref.id, resolve); return { doc:val, made }; }
+    catch(e){ console.warn('mgEnsure', e); }        /* 트랜잭션이 막히면 아래 방식으로 */
+  }
+  const cur=await sGet(key, null);
+  const next=resolve(cur);
+  if(next){ await sSet(key, next); return { doc:next, made:true }; }
+  return { doc:cur, made:false };
+}
+
+/* ---------------- 학생 ---------------- */
+function mingleStudent(){
+  mingleLeave(); mgWide(true);
+  session.role='student'; refreshWho();
+  /* 우리 반에 배부된 미션만 보인다 (classIds가 없는 옛 세트는 전체 공개로 본다) */
+  const sets=mgSets().filter(s=> !s.classIds || !s.classIds.length || s.classIds.includes(session.classId));
+  app.innerHTML=`
+    <button class="back" onclick="studentPickName('${session.classId}')">← 이름 다시 고르기</button>
+    <div class="card">
+      <h2 style="margin-top:4px">🃏 ${esc(session.name)}의 카드 미션</h2>
+      <p class="muted">미션을 골라 카드를 뽑고, 교실을 돌아다니며 친구와 영어로 말해요!</p>
+    </div>
+    ${sets.length ? sets.map(s=>`
+      <div class="mg-listcard" data-set="${esc(s.id)}">
+        <div style="flex:1; min-width:0">
+          <div class="t">${esc(s.title)}</div>
+          <div class="m">${esc(s.grade||'')} · ${esc(s.pub||'')} · 카드 ${s.cards.length}종 · 친구 ${s.goal}명</div>
+        </div><div class="ar">›</div>
+      </div>`).join('')
+      : '<div class="card empty"><span class="em">🌱</span>우리 반에 온 미션이 아직 없어요.<br>선생님을 기다려요!</div>'}`;
+  app.querySelectorAll('[data-set]').forEach(el=> el.onclick=()=> mingleEnter(el.dataset.set));
+}
+
+async function mingleEnter(setId){
+  const set=mgSet(setId); if(!set) return;
+  const cls=DB.classes.find(c=>c.id===session.classId);
+  app.innerHTML='<div class="card empty"><span class="em">🃏</span>카드를 준비하고 있어요…</div>';
+  const r=await mgEnsure(set, session.classId, { id:session.studentId, name:session.name });
+  if(!r.doc){
+    app.innerHTML=`<button class="back" onclick="mingleStudent()">← 미션 고르기</button>
+      <div class="card empty"><span class="em">😢</span>미션을 불러오지 못했어요.<br>잠시 뒤 다시 눌러 주세요.</div>`;
+    return;
+  }
+  MG={ role:'student', set, prog:r.doc, cls, celebrated:false, pend:null };
+  mingleMission();
+  if(r.made) mgReveal();                              /* 처음 받을 때만 카드 뽑기 연출 */
+}
+
+function mingleMission(){
+  if(!MG || !MG.set) return mingleStudent();
+  mgWide(true);
+  const st=MG.set, p=MG.prog, my=st.cards[p.card]||st.cards[0];
+  const total=mgTotal(p), got=(p.stamps||[]).length, done=got>=total;
+  const filled=st.cards.map(()=>[]);
+  (p.stamps||[]).forEach(s=>{ if(filled[s.cardIdx]) filled[s.cardIdx].push(s.pname||''); });
+  const mates=(MG.cls? MG.cls.students.length : 0)-1;
+  app.innerHTML=`
+    <button class="back" onclick="mingleStudent()">← 미션 고르기</button>
+    <div class="card noanim" style="padding:14px 18px; margin-bottom:14px">
+      <h2 style="margin:2px 0">${esc(st.title)}</h2>
+      <p class="muted" style="margin:0">${esc(session.name)} 님의 미션 · 친구 <b>${got}</b> / ${total}명</p>
+    </div>
+    ${done ? `<div class="mg-done">
+        <h2 style="margin:0">🎉 미션 완료!</h2>
+        <p class="muted" style="margin:6px 0 0">친구 ${total}명과 영어로 대화 성공! 선생님께 보여 주세요.</p></div>` : ''}
+    ${total>mates && mates>=0 ? `<div class="mg-note">⚠️ 우리 반에서 만날 수 있는 친구는 ${mates}명인데
+        미션은 ${total}명이에요. 다 채울 수 없으니 선생님께 알려 주세요.</div>` : ''}
+    <div class="mg-mission">
+      <div>
+        <div class="mg-my">
+          <div class="lbl">MY CARD</div>
+          <div class="em">${my.em||'🃏'}</div>
+          <div class="en">${esc(my.en)}</div>
+          <div class="ko">${esc(my.ko||'')}</div>
+        </div>
+        <div class="card noanim" style="margin-top:14px">
+          <h3 style="margin:0 0 10px">이렇게 말해요 🗣️</h3>
+          ${st.lines.map((l,i)=>{
+            const role=l.role || (i%2?'B':'A');
+            const en=esc(l.en).replace(/_{2,}/g, `<span class="bl">${esc(my.en)}</span>`);
+            const ko=esc(l.ko||'').replace(/_{2,}/g, esc(my.ko||''));
+            const say=String(l.en||'').replace(/_{2,}/g, my.en);
+            return `<div class="mg-line ${role==='B'?'b':''}">
+              <span class="rc ${role}">${role}</span>
+              <div class="tx"><div class="en">${en}</div>${ko?`<div class="ko">${ko}</div>`:''}</div>
+              <button class="say" data-say="${esc(say)}" title="들어보기">🔊</button>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+      <div>
+        <div class="card noanim">
+          <div style="display:flex; align-items:center; gap:10px">
+            <h3 style="margin:0; flex:1">미션 보드 🎯</h3>
+            <span class="muted"><b style="color:var(--coral); font-size:1.25rem">${got}</b> / ${total}명</span>
+          </div>
+          <p class="muted" style="margin:6px 0 12px">필요한 카드를 가진 친구를 찾아 대화하고 도장을 받아요.</p>
+          <div class="mg-bgrid">${st.cards.map((c,i)=>{
+            const need=p.board[i]||0, list=filled[i];
+            const cls2 = need===0 ? 'zero' : (list.length>=need ? 'full' : '');
+            const slots=Array.from({length:need},(_,k)=> k<list.length
+              ? `<div class="mg-slot on" style="color:${MG_INKS[(i+k)%MG_INKS.length]}; --r:${(k*37)%17-8}deg">${esc(list[k])}</div>`
+              : '<div class="mg-slot"></div>').join('');
+            return `<div class="mg-btile ${cls2}">
+              <div class="r1"><span class="em">${c.em||'🃏'}</span>
+                <span class="nd">${need===0 ? '×0' : list.length+'/'+need+'명'}</span></div>
+              <div class="w">${esc(c.en)}</div>
+              <div class="mg-slots">${slots}</div></div>`;
+          }).join('')}</div>
+        </div>
+        ${done ? '' : '<button class="btn coral lg" id="mgSign" style="width:100%">🎤 친구와 대화했어요! 사인 받기</button>'}
+      </div>
+    </div>`;
+  const sg=$('mgSign'); if(sg) sg.onclick=mingleSign;
+  app.querySelectorAll('[data-say]').forEach(b=> b.onclick=()=> speak(b.dataset.say));
+  if(done && !MG.celebrated){ MG.celebrated=true; mgConfetti(); }
+}
+
+/* 카드 뽑기 — 뒤집고 한 번 더 누르면 룰렛으로 */
+function mgReveal(){
+  const c=MG.set.cards[MG.prog.card]; if(!c) return;
+  const ov=document.createElement('div'); ov.className='mg-ov';
+  ov.innerHTML=`
+    <button class="btn mg-skip">건너뛰기</button>
+    <div class="mg-flip"><div class="in">
+      <div class="mg-face bk">🃏<br>카드 뽑기</div>
+      <div class="mg-face fr"><div class="em">${c.em||'🃏'}</div>
+        <div class="en">${esc(c.en)}</div><div class="ko">${esc(c.ko||'')}</div></div>
+    </div></div>
+    <div class="mg-hint">카드를 눌러 뒤집어요!</div>`;
+  document.body.appendChild(ov);
+  ov.querySelector('.mg-skip').onclick=()=> ov.remove();
+  const flip=ov.querySelector('.mg-flip'), hint=ov.querySelector('.mg-hint');
+  flip.onclick=()=>{
+    if(!flip.classList.contains('open')){
+      flip.classList.add('open');
+      hint.textContent='이 카드가 내 카드! 한 번 더 누르면 룰렛을 돌려요 🎡';
+    } else mgRoulette(ov);
+  };
+}
+
+/* 룰렛 — 카드마다 한 번씩 돌려 그 카드의 친구 수를 정한다.
+   이미 저장된 배분(board) 숫자 칸에 착지시키므로 연출과 데이터가 절대 어긋나지 않는다.
+   스핀 횟수 = 카드 수 (목표가 25명이어도 연출 시간은 그대로) */
+function mgRoulette(ov){
+  const st=MG.set, p=MG.prog, K=st.cards.length;
+  const SEG=8, cap=Math.max(1, st.cap||3);
+  const vals=Array.from({length:SEG},(_,i)=>(i%cap)+1);
+  const PAS=['#F6D2CE','#CFE0EF','#D5EBDD','#E4D7EE','#F6E3C6','#F9EFD6','#EAD9CD','#D8E8EA'];
+  const segA=360/SEG;
+  const grad=vals.map((_,i)=>`${PAS[i%PAS.length]} ${i*segA}deg ${(i+1)*segA}deg`).join(',');
+  ov.innerHTML=`
+    <button class="btn mg-skip">건너뛰기</button>
+    <div class="mg-roul">
+      <div class="mg-stat" id="mgStat">🎡 카드마다 룰렛을 돌려 만날 친구 수를 정해요!</div>
+      <div class="mg-pin"></div>
+      <div style="position:relative">
+        <div class="mg-wheel" id="mgWheel" style="background:conic-gradient(${grad})">
+          ${vals.map((v,i)=>`<span style="--a:${i*segA+segA/2}deg">${v}</span>`).join('')}
+        </div>
+        <div class="mg-hub" id="mgHub">${st.cards[0].em||'🃏'}</div>
+      </div>
+      <div class="mg-tally">${st.cards.map((c,i)=>`<div class="c${i===0?' now':''}" id="mgC${i}">${c.em||'🃏'}<b>?</b></div>`).join('')}</div>
+      <button class="btn coral lg" id="mgSpin" style="width:250px">🎡 룰렛 돌리기!</button>
+    </div>`;
+  ov.querySelector('.mg-skip').onclick=()=> ov.remove();
+  const wheel=$('mgWheel'), hub=$('mgHub'), btn=$('mgSpin'), stat=$('mgStat');
+  let rot=0, step=0;
+  const ask=()=> `${st.cards[step].em||''} ${st.cards[step].en} 친구는 몇 명일까?`;
+  btn.onclick=()=>{
+    if(step>=K){ ov.remove(); return; }               /* 다 돌린 뒤: 보드 보러 가기 */
+    btn.disabled=true; stat.textContent=ask(); spin();
+  };
+  function spin(){
+    if(!document.body.contains(ov)) return;           /* 건너뛰기로 닫힌 경우 */
+    const n=p.board[step]||0;
+    const hits=vals.map((v,i)=> v===n ? i : -1).filter(i=>i>=0);
+    const seg=hits.length ? hits[Math.floor(Math.random()*hits.length)] : 0;
+    const dur = step===0 ? 2200 : 1200;               /* 첫 스핀만 길게 */
+    const land = 360-(seg*segA+segA/2);
+    rot = Math.ceil(rot/360)*360 + (step===0?4:2)*360 + land;
+    wheel.style.transition=`transform ${dur}ms cubic-bezier(.15,.85,.25,1)`;
+    wheel.style.transform=`rotate(${rot}deg)`;
+    setTimeout(()=>{
+      if(!document.body.contains(ov)) return;
+      const ch=$('mgC'+step);
+      ch.querySelector('b').textContent='×'+n;
+      ch.classList.remove('now','bump'); void ch.offsetWidth; ch.classList.add('bump');
+      stat.textContent=`${st.cards[step].em||''} ${st.cards[step].en} 친구 ${n}명!`;
+      step++;
+      if(step<K){
+        hub.textContent=st.cards[step].em||'🃏';
+        $('mgC'+step).classList.add('now');
+        setTimeout(()=>{ if(!document.body.contains(ov)) return; stat.textContent=ask(); spin(); }, 500);
+      } else {
+        btn.disabled=false; btn.textContent='✅ 미션 보드 보러 가기';
+        stat.textContent=`🎯 모두 ${mgTotal(p)}명! 이제 친구를 찾아 떠나요!`;
+      }
+    }, dur+100);
+  }
+}
+
+/* 친구 사인 — 자기 자신과 이미 도장 받은 친구는 고를 수 없다 */
+function mingleSign(){
+  if(!MG || !MG.cls) return mingleStudent();
+  const stamped=new Set((MG.prog.stamps||[]).map(s=>s.pid));
+  app.innerHTML=`
+    <button class="back" onclick="mingleMission()">← 미션 보드</button>
+    <div class="card">
+      <h2 style="margin-top:4px">📲 태블릿을 친구에게 주세요</h2>
+      <p class="muted">대화한 친구가 직접 자기 이름을 골라요.</p>
+    </div>
+    <div class="card"><div class="grid-cards">
+      ${MG.cls.students.map(s=>{
+        const me = s.id===session.studentId, had = stamped.has(s.id);
+        return `<div class="tile ${(me||had)?'mg-off':''}" ${(me||had)?'':`data-p="${esc(s.id)}"`}>
+          <span class="emoji">🧒</span><div class="t">${esc(s.name)}</div>
+          ${me? '<div class="s">나</div>' : (had? '<div class="s">도장 완료 ✓</div>' : '')}
+        </div>`;
+      }).join('')}
+    </div></div>`;
+  app.querySelectorAll('[data-p]').forEach(el=> el.onclick=()=> mingleFriend(el.dataset.p));
+}
+
+async function mingleFriend(pid){
+  if(!MG || !MG.cls) return;
+  const st=MG.set, friend=MG.cls.students.find(s=>s.id===pid);
+  if(!friend) return;
+  app.innerHTML='<div class="card empty"><span class="em">🃏</span>친구 카드를 확인하고 있어요…</div>';
+  /* 친구가 아직 입장 전이면 여기서 배정이 만들어진다 → 트랜잭션이라 친구 기기와 겹쳐도 안전 */
+  const r=await mgEnsure(st, session.classId, { id:friend.id, name:friend.name });
+  if(!r.doc){ toast('친구 카드를 불러오지 못했어요'); return mingleSign(); }
+  const fi=r.doc.card, fc=st.cards[fi]||{en:'?',em:'🃏'};
+  const p=MG.prog;
+  const got=(p.stamps||[]).filter(s=>s.cardIdx===fi).length, need=p.board[fi]||0;
+  MG.pend={ id:friend.id, name:friend.name, cardIdx:fi };
+  app.innerHTML=`
+    <button class="back" onclick="mingleSign()">← 이름 다시 고르기</button>
+    <div class="card">
+      <div class="mg-friend">
+        <div class="em">${fc.em||'🃏'}</div>
+        <div class="t">${esc(friend.name)} 님의 카드는 <b style="color:var(--coral)">${esc(fc.en)}</b>!</div>
+        <div class="muted">${esc(fc.ko||'')}</div>
+      </div>
+      ${got<need ? `
+        <p class="muted center" style="margin:16px 0 0">대화를 잘 마쳤다면 친구가 도장을 꾹~ 눌러 주세요</p>
+        <button class="mg-hold" id="mgHold" aria-label="길게 눌러 도장 찍기">
+          <span class="in">도장 꾹!<small>1초 동안 누르기</small></span></button>
+        <div style="height:10px"></div>`
+      : `
+        <div class="mg-warn center" style="margin:16px 0 0">앗! ${fc.em||''} ${esc(fc.en)} 카드는
+          ${need===0 ? '이번 미션에 없어요' : '벌써 다 모았어요'}.<br>다른 카드를 가진 친구를 찾아봐요! 🔍</div>
+        <div class="center" style="margin-top:14px">
+          <button class="btn ghost" onclick="mingleMission()">미션 보드로 돌아가기</button></div>`}
+    </div>`;
+  if(got<need) mgHold();
+}
+
+/* 1초 길게 누르면 도장. 채워지는 고리는 rAF로 그리지만, 완료 판정은 타이머로 한다
+   — 화면이 잠깐 가려져 rAF가 멈춰도 도장이 안 찍히는 일이 없도록. */
+function mgHold(){
+  const btn=$('mgHold'); if(!btn) return;
+  const DUR=1000; let t0=0, raf=0, timer=0;
+  const stop=()=>{
+    if(raf) cancelAnimationFrame(raf); raf=0;
+    if(timer) clearTimeout(timer); timer=0;
+    btn.style.setProperty('--p',0);
+  };
+  const tick=()=>{
+    btn.style.setProperty('--p', Math.min(100,(performance.now()-t0)/DUR*100));
+    raf=requestAnimationFrame(tick);
+  };
+  btn.addEventListener('pointerdown', e=>{
+    e.preventDefault(); stop();
+    t0=performance.now();
+    raf=requestAnimationFrame(tick);
+    timer=setTimeout(()=>{ stop(); mgDoStamp(); }, DUR);
+  });
+  ['pointerup','pointercancel','pointerleave'].forEach(ev=> btn.addEventListener(ev, stop));
+}
+
+async function mgDoStamp(){
+  if(!MG || !MG.pend) return;
+  const pend=MG.pend; MG.pend=null;
+  const key=mgPKey(MG.set.id, session.classId, session.studentId), ref=keyRef(key);
+  const item={ pid:pend.id, pname:pend.name, cardIdx:pend.cardIdx, at:Date.now() };
+  MG.prog.stamps=[...(MG.prog.stamps||[]), item];
+  mingleMission();                                    /* 저장을 기다리지 않고 먼저 보여 준다 */
+  let ok=false;
+  if(fbReady && window.__store && window.__store.push){
+    try{ await window.__store.push(ref.col, ref.id, 'stamps', item); ok=true; }
+    catch(e){ console.warn('mgStamp', e); }
+  }
+  if(!ok) ok=await sSet(key, MG.prog);                /* 문서가 없거나 실패하면 통째로 저장 */
+  if(!ok) toast('도장을 저장하지 못했어요. 잠시 뒤 다시 해 주세요.');
+}
+
+function mgConfetti(){
+  const box=document.createElement('div'); box.className='mg-conf';
+  const em=['🎉','⭐','🎊','💮','✨'];
+  for(let i=0;i<26;i++){
+    const s=document.createElement('span');
+    s.textContent=em[i%em.length];
+    s.style.left=(Math.random()*100)+'%';
+    s.style.animationDelay=(Math.random()*0.6)+'s';
+    box.appendChild(s);
+  }
+  document.body.appendChild(box);
+  setTimeout(()=> box.remove(), 2700);
+}
+
+/* ---------------- 선생님 ---------------- */
+function mingleTeacher(){
+  mingleLeave(); bingoLeave();
+  session.role='teacher'; refreshWho();
+  const sets=mgSets();
+  app.innerHTML=`
+    <button class="back" onclick="teacherHome()">← 선생님 메뉴</button>
+    <div class="card">
+      <h2 style="margin-top:4px">🃏 카드 미션</h2>
+      <p class="muted">학생이 카드를 한 장 뽑고, 교실을 돌아다니며 친구를 인터뷰하는 말하기 놀이예요.
+        필요한 카드를 가진 친구를 만나 대화하면 도장을 하나 받아요.</p>
+      <div class="grid-cards" style="margin-top:14px">
+        <div class="tile" id="mgNew"><span class="emoji">✏️</span><div class="t">미션 세트 만들기</div><div class="s">카드·대화문 정하기</div></div>
+        <div class="tile" id="mgDash"><span class="emoji">📊</span><div class="t">실시간 현황</div><div class="s">TV로 함께 보기</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:2px">만든 세트 <span class="muted" style="font-size:.82rem">(누르면 수정)</span></h3>
+      ${sets.length ? sets.map(s=>`
+        <div class="mg-listcard" data-edit="${esc(s.id)}">
+          <div style="flex:1; min-width:0">
+            <div class="t">${esc(s.title)}</div>
+            <div class="m">${esc(s.grade||'')} · ${esc(s.pub||'')} · 카드 ${s.cards.length}종 ·
+              목표 ${s.goal}명 · 카드당 최대 ${s.cap}명</div>
+            <div class="m">🏫 ${esc(mgClassNames(s))}</div>
+          </div><div class="ar">✏️</div>
+        </div>`).join('')
+        : '<div class="empty"><span class="em">🃏</span>아직 만든 세트가 없어요.</div>'}
+    </div>`;
+  $('mgNew').onclick = ()=> mingleEditor(null);
+  $('mgDash').onclick = ()=> mingleDash();
+  app.querySelectorAll('[data-edit]').forEach(el=> el.onclick=()=> mingleEditor(el.dataset.edit));
+}
+
+function mingleEditor(id){
+  mingleLeave();
+  mgSaveArm=false; mgDelArm=false;
+  const st = id ? mgSet(id) : null;
+  mgEdit = {
+    id: id||null,
+    title: st? st.title : '', grade: st? st.grade : '5학년', pub: st? st.pub : MG_PUBS[0],
+    goal: st? st.goal : 6, cap: st? st.cap : 3,
+    classIds: st ? (st.classIds||[]).slice() : [],
+    cards: st ? st.cards.map(c=>({ en:c.en, ko:c.ko||'', em:c.em||'', lock:!!c.em }))
+              : [0,0,0,0].map(()=>({ en:'', ko:'', em:'', lock:false })),
+    lines: st ? st.lines.map((l,i)=>({ role:l.role||(i%2?'B':'A'), en:l.en, ko:l.ko||'' }))
+              : [{role:'A',en:'',ko:''},{role:'B',en:'',ko:''}]
+  };
+  mgEditorDraw();
+}
+function mgEditorDraw(){
+  const e=mgEdit;
+  app.innerHTML=`
+    <button class="back" onclick="mingleTeacher()">← 카드 미션</button>
+    <div class="card">
+      <h2 style="margin-top:4px">${e.id? '미션 세트 수정' : '미션 세트 만들기'}</h2>
+      <label>제목</label>
+      <input type="text" id="mgTitle" placeholder="예) 5학년 5단원 – What's your favorite food?" value="${esc(e.title)}">
+      <div class="row" style="margin-top:10px">
+        <div><label>학년</label><select id="mgGrade">
+          ${['3학년','4학년','5학년','6학년'].map(g=>`<option ${g===e.grade?'selected':''}>${g}</option>`).join('')}
+        </select></div>
+        <div><label>출판사</label><select id="mgPub">
+          ${MG_PUBS.map(g=>`<option ${g===e.pub?'selected':''}>${esc(g)}</option>`).join('')}
+        </select></div>
+      </div>
+      <div class="hr"></div>
+      <label>어느 학급에 줄까요? (여러 학급을 고를 수 있어요)</label>
+      <div class="grid-cards" id="mgCls"></div>
+      <p class="muted" id="mgClsNote" style="margin:8px 0 0"></p>
+      <div class="hr"></div>
+      <label>주제 카드 — 영어와 한글을 쓰면 그림이 저절로 붙어요 (그림을 누르면 바꿀 수 있어요)</label>
+      <div id="mgCards"></div>
+      <button class="btn ghost sm" id="mgAddCard">＋ 카드 추가</button>
+      <div class="hr"></div>
+      <label>기본 대화문 — A / B 를 눌러 말하는 사람을 정해요 (빈칸은 <b>___</b> , 각자의 카드 낱말이 채워져요)</label>
+      <div id="mgLines"></div>
+      <button class="btn ghost sm" id="mgAddLine">＋ 문장 추가</button>
+      <div class="hr"></div>
+      <div class="row">
+        <div><label>만날 친구 수 (카드 수 이상, 최대 25)</label>
+          <input type="number" id="mgGoal" min="2" max="25" inputmode="numeric" value="${e.goal}"></div>
+        <div><label>카드 하나에 몰릴 수 있는 최대 인원</label>
+          <select id="mgCap">${[2,3,4,5,6].map(v=>`<option ${v===e.cap?'selected':''}>${v}</option>`).join('')}</select></div>
+      </div>
+      <div id="mgMsg"></div>
+      <div class="row" style="margin-top:16px">
+        <button class="btn lg" id="mgSave" style="flex:2 1 200px">${e.id? '수정 저장' : '세트 저장'}</button>
+        ${e.id? '<button class="btn ghost lg" id="mgDel" style="flex:1 1 120px">🗑️ 삭제</button>' : ''}
+      </div>
+    </div>`;
+  mgRowsDraw();
+  mgClsDraw();
+  $('mgTitle').oninput = ev=> e.title=ev.target.value;
+  $('mgGrade').onchange = ev=>{ e.grade=ev.target.value; mgClsDraw(); };
+  $('mgPub').onchange = ev=> e.pub=ev.target.value;
+  $('mgGoal').oninput = ev=> e.goal=+ev.target.value;
+  $('mgCap').onchange = ev=> e.cap=+ev.target.value;
+  $('mgAddCard').onclick = ()=>{ e.cards.push({en:'',ko:'',em:'',lock:false}); mgRowsDraw(); };
+  $('mgAddLine').onclick = ()=>{ e.lines.push({ role:e.lines.length%2?'B':'A', en:'', ko:'' }); mgRowsDraw(); };
+  $('mgSave').onclick = mgSaveSet;
+  if($('mgDel')) $('mgDel').onclick = mgDelSet;
+}
+function mgRowsDraw(){
+  const e=mgEdit;
+  $('mgCards').innerHTML = e.cards.map((c,i)=>`
+    <div class="mg-crow">
+      <button class="mg-em ${c.lock?'':'auto'}" data-cem="${i}" title="그림 고르기">${mgRowEm(c)}</button>
+      <input type="text" data-cen="${i}" placeholder="영어 (예: pizza)" value="${esc(c.en)}">
+      <input type="text" data-cko="${i}" placeholder="한글 뜻 (예: 피자)" value="${esc(c.ko)}">
+      <button class="del" data-cdel="${i}" title="카드 지우기">✕</button>
+    </div>`).join('');
+  $('mgLines').innerHTML = e.lines.map((l,i)=>`
+    <div class="mg-drow">
+      <button class="mg-rb ${l.role}" data-lrole="${i}" title="말하는 사람 바꾸기">${l.role}</button>
+      <input type="text" data-len="${i}" placeholder="영어 문장 (빈칸은 ___)" value="${esc(l.en)}">
+      <input type="text" data-lko="${i}" placeholder="한국어 뜻" value="${esc(l.ko)}">
+      <button class="del" data-ldel="${i}" title="문장 지우기">✕</button>
+    </div>`).join('');
+  app.querySelectorAll('[data-cen]').forEach(el=> el.oninput=()=>{
+    const i=+el.dataset.cen; e.cards[i].en=el.value; mgRefreshEm(i); });
+  app.querySelectorAll('[data-cko]').forEach(el=> el.oninput=()=>{
+    const i=+el.dataset.cko; e.cards[i].ko=el.value; mgRefreshEm(i); });
+  app.querySelectorAll('[data-cdel]').forEach(el=> el.onclick=()=>{ e.cards.splice(+el.dataset.cdel,1); mgRowsDraw(); });
+  app.querySelectorAll('[data-cem]').forEach(el=> el.onclick=()=>{
+    const i=+el.dataset.cem, c=e.cards[i];
+    emojiPickOpen({ text: c.en||'카드 그림', meaning: c.ko, cands: mgSuggest(c.en,c.ko), cur: c.em,
+      onPick:(em)=>{ c.em=em; c.lock=!!em; mgRefreshEm(i); } });   /* '글자로 표시'를 고르면 다시 자동 추천 */
+  });
+  app.querySelectorAll('[data-len]').forEach(el=> el.oninput=()=> e.lines[+el.dataset.len].en=el.value);
+  app.querySelectorAll('[data-lko]').forEach(el=> el.oninput=()=> e.lines[+el.dataset.lko].ko=el.value);
+  app.querySelectorAll('[data-ldel]').forEach(el=> el.onclick=()=>{ e.lines.splice(+el.dataset.ldel,1); mgRowsDraw(); });
+  app.querySelectorAll('[data-lrole]').forEach(el=> el.onclick=()=>{
+    const l=e.lines[+el.dataset.lrole];
+    l.role = l.role==='A' ? 'B' : 'A';
+    el.textContent=l.role; el.className='mg-rb '+l.role;
+  });
+}
+/* 배부할 학급 고르기 — 학년을 바꾸면 그 학년 학급만 보여 준다(과제 만들기와 같은 방식).
+   이미 고른 학급은 학년 밖이라도 계속 보여 줘서 실수로 빠지지 않게 한다. */
+function mgClsDraw(){
+  const wrap=$('mgCls'), note=$('mgClsNote'), e=mgEdit;
+  if(!wrap) return;
+  if(!DB.classes.length){
+    wrap.innerHTML='<div class="empty" style="grid-column:1/-1"><span class="em">🏫</span>아직 학급이 없어요. 먼저 학급을 만들어 주세요.</div>';
+    if(note) note.textContent=''; return;
+  }
+  const {list, none}=classesForGrade(e.grade);
+  const shown=list.slice();
+  DB.classes.forEach(c=>{ if(e.classIds.includes(c.id) && !shown.some(x=>x.id===c.id)) shown.push(c); });
+  wrap.innerHTML=shown.map(c=>`<div class="tile ${e.classIds.includes(c.id)?'on':''}" data-mgc="${esc(c.id)}">
+      <span class="emoji">🏫</span>
+      <div class="t">${esc(c.name)}</div><div class="s">${c.students.length}명</div></div>`).join('');
+  if(note) note.textContent = none ? `'${e.grade}' 학급을 찾지 못해 전체 학급을 보여줘요.`
+    : `'${e.grade}' 학급만 보여주는 중이에요. 고른 학급의 학생에게만 이 미션이 보여요.`;
+  wrap.querySelectorAll('[data-mgc]').forEach(t=> t.onclick=()=>{
+    const id=t.dataset.mgc;
+    if(e.classIds.includes(id)){ e.classIds=e.classIds.filter(x=>x!==id); t.classList.remove('on'); }
+    else { e.classIds.push(id); t.classList.add('on'); }
+  });
+}
+function mgRowEm(c){ return (c.lock && c.em) ? c.em : (mgSuggest(c.en,c.ko)[0] || '🃏'); }
+function mgRefreshEm(i){
+  const c=mgEdit.cards[i], btn=app.querySelector(`[data-cem="${i}"]`);
+  if(!btn) return;
+  btn.textContent=mgRowEm(c);
+  btn.classList.toggle('auto', !c.lock);
+}
+function mgMsg(html, kind){
+  const el=$('mgMsg'); if(!el) return;
+  el.innerHTML = html ? `<div class="${kind==='note'?'mg-note':'mg-warn'}" style="margin:16px 0 0">${html}</div>` : '';
+  if(html) try{ el.scrollIntoView({block:'center'}); }catch(e){}
+}
+async function mgSaveSet(){
+  const e=mgEdit;
+  const title=(e.title||'').trim();
+  const cards=e.cards.map(c=>({ en:(c.en||'').trim(), ko:(c.ko||'').trim(),
+      em: (c.lock && c.em) ? c.em : (mgSuggest(c.en,c.ko)[0] || '🃏') })).filter(c=>c.en);
+  const lines=e.lines.map(l=>({ role:l.role||'A', en:(l.en||'').trim(), ko:(l.ko||'').trim() })).filter(l=>l.en);
+  const goal=+e.goal, cap=+e.cap;
+  const classIds=(e.classIds||[]).filter(id=> DB.classes.some(c=>c.id===id));
+  if(!title || cards.length<2 || !lines.length){
+    mgSaveArm=false; return mgMsg('⚠️ 제목, 카드 2개 이상(영어는 꼭), 대화문 1문장 이상을 채워 주세요.'); }
+  if(!classIds.length){
+    mgSaveArm=false; return mgMsg('⚠️ 이 미션을 받을 <b>학급을 한 곳 이상</b> 골라 주세요.'); }
+  if(!goal || goal<2 || goal>25){
+    mgSaveArm=false; return mgMsg('⚠️ 만날 친구 수는 2~25명 사이로 정해 주세요.'); }
+  if(goal<cards.length){
+    mgSaveArm=false; return mgMsg(`⚠️ 모든 카드에 최소 1명씩 배정되므로, 만날 친구 수는 카드 수(${cards.length}명) 이상이어야 해요.`); }
+  if(goal>cards.length*cap){
+    mgSaveArm=false;
+    return mgMsg(`⚠️ 지금 설정으로는 카드 ${cards.length}종 × 최대 ${cap}명 = <b>${cards.length*cap}명</b>까지만 가능해요.<br>
+      👉 '카드당 최대 인원'을 <b>${Math.ceil(goal/cards.length)} 이상</b>으로 올리거나 카드를 늘려 주세요.`); }
+
+  const prev = e.id ? mgSet(e.id) : null;
+  /* 카드·인원이 바뀌면 예전 배정은 더 이상 맞지 않는다 → ver를 올려 학생이 다시 뽑게 한다.
+     제목이나 대화문만 고칠 때는 ver를 그대로 두어 진행 중인 기록을 지키다 */
+  const reset = !!prev && (prev.goal!==goal || prev.cap!==cap ||
+                           JSON.stringify(prev.cards)!==JSON.stringify(cards));
+  /* 중복 도장 금지라 '만날 친구 수'가 반 인원 − 1보다 많으면 아무도 끝낼 수 없다 */
+  const small=DB.classes.filter(c=> classIds.includes(c.id) && c.students.length-1 < goal);
+  const warns=[];
+  if(reset) warns.push(`카드나 인원이 바뀌었어요. 저장하면 <b>이미 시작한 학생의 카드와 도장이 초기화</b>되고
+    다음에 들어올 때 새로 뽑게 됩니다.`);
+  if(small.length) warns.push(`${small.map(c=>`<b>${esc(c.name)}</b>(${c.students.length}명)`).join(', ')}
+    ${small.length>1?'은':'은'} 만날 수 있는 친구가 ${Math.min(...small.map(c=>c.students.length))-1}명뿐이라
+    <b>${goal}명을 다 채울 수 없어요.</b> 만날 친구 수를 줄이거나 학생을 더 등록해 주세요.`);
+  if(warns.length && !mgSaveArm){
+    mgSaveArm=true;
+    return mgMsg('⚠️ '+warns.join('<br><br>⚠️ ')+'<br><br>그래도 저장하려면 <b>저장 버튼을 한 번 더</b> 눌러 주세요.');
+  }
+  mgSaveArm=false;
+  const rec={ id: e.id || ('m'+uid()), title, grade:e.grade, pub:e.pub, classIds, cards, lines, goal, cap,
+    ver: prev ? ((prev.ver||1) + (reset?1:0)) : 1,
+    createdAt: prev ? prev.createdAt : Date.now() };
+  const list=(DB.mingle||[]).slice();
+  const i=list.findIndex(s=>s.id===rec.id);
+  if(i>=0) list[i]=rec; else list.unshift(rec);
+  const ok=await sSet(KEYS.mingle, list);
+  if(!ok) return mgMsg('⚠️ 저장하지 못했어요. 선생님 계정으로 로그인했는지 확인해 주세요.');
+  DB.mingle=list;
+  toast(e.id? '세트를 수정했어요 ✏️' : '세트를 만들었어요 🃏');
+  mingleTeacher();
+}
+async function mgDelSet(){
+  if(!mgEdit || !mgEdit.id) return;
+  if(!mgDelArm){
+    mgDelArm=true;
+    setTimeout(()=>{ mgDelArm=false; }, 5000);
+    return mgMsg('🗑️ 이 세트를 지울까요? 학생 기록도 더 이상 보이지 않아요.<br><b>삭제 버튼을 한 번 더</b> 누르면 지워집니다.');
+  }
+  mgDelArm=false;
+  const list=(DB.mingle||[]).filter(s=>s.id!==mgEdit.id);
+  const ok=await sSet(KEYS.mingle, list);
+  if(!ok) return mgMsg('⚠️ 지우지 못했어요. 선생님 계정으로 로그인했는지 확인해 주세요.');
+  DB.mingle=list;
+  toast('세트를 지웠어요');
+  mingleTeacher();
+}
+
+/* 실시간 현황 — 세트+학급이 같은 진행 문서만 구독한다 (mgKey 하나로 걸러 색인 추가가 필요 없다) */
+function mingleDash(){
+  mingleLeave();
+  const sets=mgSets();
+  if(!sets.length || !DB.classes.length){
+    app.innerHTML=`<button class="back" onclick="mingleTeacher()">← 카드 미션</button>
+      <div class="card empty"><span class="em">🃏</span>
+        ${!sets.length ? '먼저 미션 세트를 만들어 주세요.' : '먼저 학급을 만들어 주세요.'}</div>`;
+    return;
+  }
+  MG={ role:'teacher', setId:sets[0].id, cid:null, rows:[], tv:false };
+  app.innerHTML=`
+    <button class="back" onclick="mingleTeacher()">← 카드 미션</button>
+    <div class="card noanim">
+      <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap">
+        <h2 style="margin:2px 0; flex:1">📊 카드 미션 현황</h2>
+        <button class="btn ghost sm" id="mgTv">📺 TV로 크게</button>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <div><label>미션 세트</label><select id="mgDSet">
+          ${sets.map(s=>`<option value="${esc(s.id)}">${esc(s.title)}</option>`).join('')}</select></div>
+        <div><label>학급</label><select id="mgDCls"></select></div>
+      </div>
+      <p class="muted" id="mgDSub" style="margin:12px 0 0"></p>
+    </div>
+    <div class="card noanim"><div id="mgDList" style="display:flex; flex-direction:column; gap:8px"></div></div>`;
+  $('mgDSet').onchange = ()=>{ MG.setId=$('mgDSet').value; mgDashClsFill(); mgDashWatch(); };
+  $('mgDCls').onchange = ()=>{ MG.cid=$('mgDCls').value; mgDashWatch(); };
+  $('mgTv').onclick = ()=>{ MG.tv=!MG.tv; app.classList.toggle('mg-tv', MG.tv); mgWide(MG.tv); };
+  mgDashClsFill();
+  mgDashWatch();
+}
+/* 학급 목록은 그 세트를 배부한 학급만 — 안 준 반을 골라 빈 화면을 보는 일이 없게 */
+function mgDashClsFill(){
+  const sel=$('mgDCls'); if(!sel || !MG) return;
+  const list=mgClasses(mgSet(MG.setId));
+  sel.innerHTML = list.length
+    ? list.map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('')
+    : '<option value="">배부된 학급이 없어요</option>';
+  if(!list.some(c=>c.id===MG.cid)) MG.cid = list.length ? list[0].id : null;
+  sel.value = MG.cid || '';
+}
+function mgDashWatch(){
+  if(mgUnsub){ try{ mgUnsub(); }catch(e){} mgUnsub=null; }
+  if(!MG) return;
+  MG.rows=[]; mgDashDraw();
+  if(!MG.cid) return;
+  if(!(fbReady && window.__store && window.__store.watchWhere)) return;
+  mgUnsub = window.__store.watchWhere(colName('progress'), 'value.mgKey', MG.setId+'|'+MG.cid,
+    (rows)=>{ if(!MG || MG.role!=='teacher') return; MG.rows=rows||[]; mgDashDraw(); });
+}
+function mgDashDraw(){
+  if(!MG || MG.role!=='teacher') return;
+  const st=mgSet(MG.setId), cls=DB.classes.find(c=>c.id===MG.cid);
+  const sub=$('mgDSub'), box=$('mgDList');
+  if(!st || !box) return;
+  if(!cls){
+    if(sub) sub.textContent='';
+    box.innerHTML='<div class="empty"><span class="em">🏫</span>이 미션을 받은 학급이 없어요.<br>세트를 수정해 학급을 골라 주세요.</div>';
+    return;
+  }
+  const by={}; MG.rows.forEach(r=>{ if(r && r.sid) by[r.sid]=r; });
+  const rows=cls.students.map(s=>{
+    const r=by[s.id];
+    const total = r ? (mgTotal(r) || st.goal) : st.goal;
+    return { nm:s.name, n: r ? (r.stamps||[]).length : 0, total,
+             em: r ? ((st.cards[r.card]||{}).em || '🃏') : '—' };
+  }).sort((a,b)=> (b.n/b.total)-(a.n/a.total) || a.nm.localeCompare(b.nm,'ko'));
+  const fin=rows.filter(r=>r.n>=r.total).length;
+  sub.innerHTML=`${esc(cls.name)} · 목표 ${st.goal}명 · <b>${fin}</b>명 완료 / ${cls.students.length}명`;
+  box.innerHTML = cls.students.length ? rows.map(r=>{
+    const pct=Math.min(100, r.total ? r.n/r.total*100 : 0), done=r.n>0 && r.n>=r.total;
+    return `<div class="mg-row${done?' done':''}">
+      <div class="nm">${done?'🎉 ':''}${esc(r.nm)}</div>
+      <div class="cd">${r.em}</div>
+      <div class="bar"><div style="width:${pct}%"></div></div>
+      <div class="ct">${r.n}/${r.total}</div></div>`;
+  }).join('') : '<div class="empty">이 학급에는 학생이 없어요.</div>';
+}
+
 /* ============================ START ============================ */
 window.boot = boot;
 // 모듈 로드가 실패해도 화면은 뜨도록 안전장치 (4초)
@@ -2792,7 +3676,8 @@ setTimeout(()=>{ if(!window.__booted) boot(); }, 10000);
     const fsMod  = await imp([`https://cdn.jsdelivr.net/npm/firebase@${V}/firestore/+esm`, `https://www.gstatic.com/firebasejs/${V}/firebase-firestore.js`]);
     const auMod  = await imp([`https://cdn.jsdelivr.net/npm/firebase@${V}/auth/+esm`, `https://www.gstatic.com/firebasejs/${V}/firebase-auth.js`]);
     const { initializeApp } = appMod;
-    const { getFirestore, doc, getDoc, setDoc, deleteDoc, onSnapshot, collection, query, where } = fsMod;
+    const { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where,
+            runTransaction, arrayUnion } = fsMod;
     const { getAuth, onAuthStateChanged, signInAnonymously, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail } = auMod;
     const appFb = initializeApp(cfg.config);
     const db = cfg.dbId ? getFirestore(appFb, cfg.dbId) : getFirestore(appFb);
@@ -2812,6 +3697,23 @@ setTimeout(()=>{ if(!window.__booted) boot(); }, 10000);
       async del(col, id){ await deleteDoc(doc(db, col, id)); },
       // 문서 하나 구독. 반환값을 부르면 구독 해제(화면을 떠날 때 꼭 해제해야 요금이 새지 않음)
       watch(col, id, cb){ return onSnapshot(doc(db, col, id), s=> cb(s.exists()? s.data().value : undefined)); },
+      // 없거나 낡았을 때만 새로 쓴다 — 두 기기가 동시에 만들어도 하나만 남는다.
+      // resolve(현재값)이 null을 돌려주면 그대로 두고 쓰기도 하지 않는다. (카드 미션 배정)
+      async ensure(col, id, resolve){
+        return await runTransaction(db, async (tx)=>{
+          const ref = doc(db, col, id);
+          const s = await tx.get(ref);
+          const cur = s.exists() ? s.data().value : undefined;
+          const next = resolve(cur);
+          if(next===null || next===undefined) return cur;
+          tx.set(ref, { value: next });
+          return next;
+        });
+      },
+      // 배열에 한 칸만 덧붙인다 — 문서를 통째로 다시 쓰지 않는다 (도장 1개 = 1 write)
+      async push(col, id, field, item){
+        await updateDoc(doc(db, col, id), { ['value.'+field]: arrayUnion(item) });
+      },
       // 같은 필드값을 가진 문서들을 통째로 구독 (빙고 교사 대시보드용)
       watchWhere(col, field, val, cb){
         return onSnapshot(query(collection(db, col), where(field, '==', val)),
