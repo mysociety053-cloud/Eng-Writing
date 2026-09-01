@@ -371,8 +371,13 @@
   .bl-count.pop{animation:bl-pop .42s ease-out;}
   @keyframes bl-pop{0%{transform:scale(1.55); opacity:.55;} 60%{transform:scale(.97);} 100%{transform:scale(1);}}
   .bl-strip{display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin-bottom:10px;}
-  .bl-chip{min-width:34px; height:34px; border-radius:11px; background:#fff; border:2px solid var(--border);
+  .bl-chip{display:inline-flex; align-items:center; justify-content:center;
+    min-width:34px; height:34px; border-radius:11px; background:#fff; border:2px solid var(--border);
     box-shadow:0 3px 0 var(--shadow); font-family:'Jua'; font-size:.95rem; color:var(--ink-soft); padding:0 6px;}
+  .bl-num.lock{opacity:.6;}
+  .chip.off{opacity:.5;}
+  .mg-tv .bl-count{font-size:2rem;} .mg-tv .bl-timer.warn .bl-count{font-size:5rem;}
+  .mg-tv .bl-score{font-size:3.4rem;} .mg-tv .bl-qbar .q span{font-size:1.5rem;}
   .bl-chip.did{background:#EAF1E4; color:#4C7A34; border-color:#B7CFA6;}
   .bl-chip.on{border-color:var(--coral); color:var(--coral-d); box-shadow:0 3px 0 var(--coral-d);}
   .bl-score{font-family:'Jua'; font-size:2.6rem; color:var(--green-d); line-height:1.2;}
@@ -815,7 +820,7 @@ function missionRoomStudent(){
         <div class="tile" id="goMingle"><span class="emoji">🃏</span><div class="t">카드 미션</div><div class="s">친구를 찾아 말하기</div></div>
         <div class="tile" id="goBoard"><span class="emoji">🎲</span><div class="t">보드게임</div><div class="s">주사위 굴려 말판 가기</div></div>
         <div class="tile" id="goLand"><span class="emoji">🚩</span><div class="t">땅따먹기</div><div class="s">돌 던져 땅 넓히기</div></div>
-        <div class="tile" id="goBalance"><span class="emoji">⚖️</span><div class="t">밸런스 게임</div><div class="s">화면 보고 번호 고르기</div></div>
+        <div class="tile" id="goBalance"><span class="emoji">⚖️</span><div class="t">밸런스 게임</div><div class="s">선생님과 함께 번호 고르기</div></div>
       </div>
     </div>`;
   $('goBingo').onclick = ()=>{ studentMode='bingo'; studentPickClass(); };
@@ -1945,16 +1950,20 @@ function assignmentForm(){
         </select></div>
         <div><label>정답 알려주기</label><select id="blFb">
           <option value="end" ${q.fb!=='now'?'selected':''}>마지막에 한꺼번에</option>
-          <option value="now" ${q.fb==='now'?'selected':''}>고르자마자 바로</option>
+          <option value="now" ${q.fb==='now'?'selected':''}>문제가 끝날 때마다</option>
         </select></div>
       </div>
-      <p class="muted" style="margin:8px 0 0; font-size:.83rem">${q.limit
-        ? `⏱ 한 문제에 <b>${q.limit}초</b>씩 주고, 시간이 다 되면 <b>저절로 다음 문제</b>로 넘어가요.
-           <b>10초가 남으면</b> 화면에 큰 숫자가 뜨고 째깍 소리가 납니다.
-           그동안은 답을 몇 번이든 바꿀 수 있어요 — PPT 넘기는 속도에 맞추기 좋아요.`
-        : '제한시간이 없으면 학생이 스스로 문제를 오가며 풀고, 다 풀면 「다 풀었어요」를 눌러요.'}<br>${q.fb==='now'
-        ? (q.limit? '정답은 그 문제의 시간이 끝날 때 알려줘요.' : '학생이 번호를 고르면 그 자리에서 ⭕/❌ 를 보여줘요.')
-        : 'PPT로 정답을 설명할 수 있게, 다 풀기 전까지는 학생 화면에 정답을 보여주지 않아요.'}</p>
+      <p class="muted" style="margin:8px 0 0; font-size:.83rem">
+        🎬 진행은 <b>선생님이 잡아요</b> — 학생이 다 들어오면 <b>「시작하기」</b>를 누르고,
+        한 문제가 끝나면 <b>「다음 문제」</b>를 눌러야 넘어가요.
+        (미션 활동 → ⚖️ 밸런스 게임에서 진행)<br>${q.limit
+        ? `⏱ 한 문제에 <b>${q.limit}초</b>를 주고, 시간이 끝나면 <b>답이 잠겨요</b>.
+           <b>10초가 남으면</b> 화면에 큰 숫자가 뜨고 (선생님 기기에서) 째깍 소리가 납니다.
+           그 전까지는 답을 몇 번이든 바꿀 수 있어요.`
+        : '제한시간이 없으면 <b>선생님이 다음 문제를 열 때까지</b> 계속 답을 고칠 수 있어요.'}<br>${q.fb==='now'
+        ? (q.limit? '정답은 그 문제의 <b>시간이 끝날 때</b> 학생 화면에도 보여줘요.'
+                  : '제한시간이 없으면 정답은 마지막 결과에서 보여줘요.')
+        : 'PPT로 정답을 설명할 수 있게, 게임이 끝나기 전까지는 학생 화면에 정답을 보여주지 않아요.'}</p>
       <div class="hr"></div>
       <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap">
         <h3 style="margin:0; flex:1">🔑 정답표</h3>
@@ -1965,7 +1974,7 @@ function assignmentForm(){
       <div id="blKey"></div>
       <div class="hr"></div>
       <h3 style="margin-top:0">학생 화면 미리보기</h3>
-      <p class="muted" style="margin:0 0 10px">학생 태블릿에는 이렇게 나와요.</p>
+      <p class="muted" style="margin:0 0 10px">학생 태블릿에는 이렇게 나와요. (번호를 눌러 보세요)</p>
       <div id="blPreview"></div>
       <div id="blMsg"></div>
       <div class="hr"></div>
@@ -5238,17 +5247,25 @@ async function bdMicTry(){
 
 /* ============================ 밸런스 게임 (PPT 보고 번호 고르기) ============================
    문제는 선생님이 PPT로 보여 주고, 학생 태블릿에는 번호 버튼(①②③④)만 나온다.
-   그래서 이 활동은 ②의 낱말을 쓰지 않는다 — 대신 선생님이 라운드마다 정답 번호를 정해 둔다.
-   저장 위치 — 세트는 선생님만 쓰는 eng_app/balance, 학생 답안은 eng_progress (규칙 수정 불필요).
-   쓰기 횟수: 한 판을 끝냈을 때 딱 1회. 문제를 푸는 동안에는 저장하지 않는다. */
+   진행은 선생님이 잡는다 — 학생이 다 들어온 것을 보고 「시작」을 눌러야 1번 문제가 열리고,
+   한 문제가 끝나면 「다음 문제」를 누를 때까지 학생 화면은 그대로 멈춰 있다.
+   저장 위치
+   · 진행 상태 : v1:bls:<세트>:<학급>  → eng_app  (선생님만 쓰기, 학생은 구독만)
+   · 학생 답안 : v1:prog:bal:<세트>:<학급>:<학생> → eng_progress (학생 자기 것만 쓴다)
+   기존 보안 규칙을 그대로 쓴다. 규칙 수정 불필요.
+   소리는 선생님 기기 한 대만 낸다 — 태블릿마다 울리면 교실이 시끄럽다 (듣기 빙고와 같은 규칙). */
+const blSKey = (setId,cid)=> `v1:bls:${setId}:${cid}`;
 const blPKey = (setId,cid,sid)=> `v1:prog:bal:${setId}:${cid}:${sid}`;
 const BL_NUM = ['①','②','③','④'];
-const BL_FBS = { end:'마지막에 한꺼번에', now:'고르자마자 바로' };
-let BL=null, blUnsub=null;
+const BL_FBS = { end:'마지막에 한꺼번에', now:'문제가 끝날 때마다' };
+let BL=null;
 
 function blLeave(){
-  if(blUnsub){ try{ blUnsub(); }catch(e){} blUnsub=null; }
-  if(BL){ if(BL.t) clearTimeout(BL.t); if(BL.tick) clearInterval(BL.tick); }
+  if(BL){
+    (BL.unsubs||[]).forEach(u=>{ try{ u(); }catch(e){} });
+    if(BL.t) clearTimeout(BL.t);
+    if(BL.tick) clearInterval(BL.tick);
+  }
   BL=null;
 }
 function blSets(){ return (DB.balance||[]).slice().sort((a,b)=> (b.createdAt||0)-(a.createdAt||0)); }
@@ -5271,9 +5288,9 @@ function blAnswers(set){
   return a.map(v=> (v>=1 && v<=k) ? v : 1);
 }
 function blKeyText(set){ return blAnswers(set).map(v=> BL_NUM[v-1]).join(''); }
+function blScore(set, picks){ return blAnswers(set).filter((a,i)=> (picks||[])[i]===a).length; }
 
-/* ---------- 학생 화면 (미리보기와 같은 모양) ----------
-   PPT에 문제와 보기가 있으므로 태블릿에는 번호만 크게 띄운다. */
+/* ---------- 번호판 (학생 화면 · 선생님 미리보기가 같은 모양을 쓴다) ---------- */
 function blPadHTML(set, opts){
   const o=opts||{};
   const k=Math.max(2, Math.min(4, set.choices||4));
@@ -5281,28 +5298,29 @@ function blPadHTML(set, opts){
   const pick=picks[i]||0;
   const lim=set.limit||0;
   const left=(o.left===undefined? lim : o.left);
-  const strip=(set.rounds>1 && !o.preview)
+  const strip=(set.rounds>1)
     ? `<div class="bl-strip">${[...Array(set.rounds).keys()].map(r=>
-        `<button class="bl-chip ${r===i?'on':''} ${picks[r]?'did':''}"${lim?'':` data-blr="${r}"`}>${r+1}</button>`).join('')}</div>`
+        `<span class="bl-chip ${r===i?'on':''} ${picks[r]?'did':''}">${r+1}</span>`).join('')}</div>`
     : '';
-  /* ⏱ 남은 시간 — 10초 아래로 내려가면 숫자가 커지고 빨개진다 (소리는 blTickSound) */
+  /* ⏱ 남은 시간 — 10초 아래로 내려가면 숫자가 커지고 빨개진다 */
   const timer=lim? `<div class="bl-timer ${left<=10?'warn':''}" id="blTimer">
       <div class="bl-count" id="blCount">${left<=10? left : '⏱ '+left+'초'}</div>
       <div class="bl-tbar"><div id="blBar" style="width:${Math.round(left/lim*100)}%"></div></div>
     </div>` : '';
   const nums=[...Array(k).keys()].map(x=>{
     const v=x+1;
-    const mark = o.showAns ? (v===ans? 'ok' : (v===pick? 'no':'')) : (v===pick? 'sel':'');
-    return `<button class="bl-num ${mark}" data-bln="${v}">${BL_NUM[x]}</button>`;
+    const mark=[ o.showAns ? (v===ans? 'ok' : (v===pick? 'no':'')) : (v===pick? 'sel':''),
+                 o.lock? 'lock':'' ].filter(Boolean).join(' ');
+    return `<button class="bl-num ${mark}" data-bln="${v}" ${o.lock?'disabled':''}>${BL_NUM[x]}</button>`;
   }).join('');
-  const foot = o.over ? '⏰ 시간이 끝났어요!'
+  const foot = o.foot!==undefined ? o.foot
     : o.showAns ? (pick===ans? '정답이에요! 👍' : (pick? `아쉬워요. 정답은 ${BL_NUM[ans-1]}` : `정답은 ${BL_NUM[ans-1]}`))
-    : pick ? `${BL_NUM[pick-1]} 을(를) 골랐어요${lim? ' (시간 안에는 바꿀 수 있어요)':''}`
+    : pick ? `${BL_NUM[pick-1]} 을(를) 골랐어요${o.lock? '' : ' (바꿔도 돼요)'}`
     : '📺 화면을 보고 답을 골라요';
   return `${strip}${timer}
     <div class="bl-round">${i+1} <span class="muted" style="font-size:1rem">/ ${set.rounds}</span></div>
     <div class="bl-nums c${k}">${nums}</div>
-    <div class="bg-foot ${o.over? 'miss' : (o.showAns? (pick===ans?'hit':'miss') : '')}">${foot}</div>`;
+    <div class="bg-foot ${o.showAns? (pick===ans?'hit':'miss') : ''}">${foot}</div>`;
 }
 
 /* ---------- 제한시간 (소리는 파일 없이 그 자리에서 만든다) ---------- */
@@ -5319,29 +5337,41 @@ function blTimeUpSound(){                /* 삐— 시간 끝 */
   bgNote(ctx, 392.00, t,      0.22, 0.20, [['sawtooth',0.30],['triangle',0.5]]);
   bgNote(ctx, 293.66, t+0.20, 0.44, 0.20, [['sawtooth',0.30],['triangle',0.5]]);
 }
+function blGoSound(){                    /* 문제 시작 — 도미솔 */
+  const ctx=bgCtx(); if(!ctx) return;
+  const t=ctx.currentTime+0.01;
+  [[523.25,0],[659.25,0.09],[783.99,0.18]].forEach(([f,d])=>
+    bgNote(ctx, f, t+d, 0.3, 0.17, [['triangle',0.7],['sine',0.4]]));
+}
 function blTimerStop(){ if(BL && BL.tick){ clearInterval(BL.tick); BL.tick=0; } }
-function blTimerStart(){
+/* 시계는 각 기기가 스스로 잰다 — 선생님 기기와 시각이 달라도 어긋나지 않게 (듣기 빙고와 같은 방식) */
+function blTimerStart(sec, onEnd, full){
   blTimerStop();
-  if(!BL || BL.role!=='student') return;
-  const lim=(BL.set && BL.set.limit)||0;
-  BL.left=lim; BL.beeped=99; BL.shown=-1;
-  if(!lim) return;
-  BL.deadline=Date.now()+lim*1000;
+  if(!BL) return;
+  const lim=sec||0;
+  BL.lim=full||lim; BL.left=lim; BL.beeped=99; BL.shown=-1; BL.onEnd=onEnd||null;
+  if(!lim){ BL.endAt=0; return; }
+  BL.endAt=Date.now()+lim*1000;
   BL.tick=setInterval(blTimerStep, 100);
 }
 function blTimerStep(){
-  if(!BL || BL.role!=='student' || !BL.set || !BL.set.limit){ blTimerStop(); return; }
-  const rem=(BL.deadline-Date.now())/1000;
+  if(!BL || !BL.endAt){ blTimerStop(); return; }
+  const lim=BL.lim||1;
+  const rem=(BL.endAt-Date.now())/1000;
   const s=Math.max(0, Math.ceil(rem));
-  if(s<=10 && s>0 && s<BL.beeped){ BL.beeped=s; blTickSound(s); }
+  if(BL.sound && s<=10 && s>0 && s<BL.beeped){ BL.beeped=s; blTickSound(s); }
   BL.left=s;
-  blTimerPaint(rem);
-  if(rem<=0){ blTimerStop(); blTimeUp(); }
+  blTimerPaint(rem, lim);
+  if(rem<=0){
+    blTimerStop(); BL.endAt=0;
+    if(BL.sound) blTimeUpSound();
+    const f=BL.onEnd; BL.onEnd=null; if(f) f();
+  }
 }
 /* 숫자와 막대만 고쳐 그린다 — 화면 전체를 다시 그리면 누르던 버튼이 튄다 */
-function blTimerPaint(rem){
-  if(!BL || !BL.set || !BL.set.limit) return;
-  const lim=BL.set.limit, s=BL.left;
+function blTimerPaint(rem, lim){
+  if(!BL) return;
+  const s=BL.left;
   const box=$('blTimer'), c=$('blCount'), b=$('blBar');
   if(b) b.style.width=Math.max(0, Math.min(100, rem/lim*100))+'%';
   if(box) box.classList.toggle('warn', s<=10);
@@ -5351,21 +5381,8 @@ function blTimerPaint(rem){
   }
   BL.shown=s;
 }
-function blTimeUp(){
-  if(!BL || BL.role!=='student') return;
-  blTimeUpSound();
-  BL.over=true;
-  if(BL.set.fb==='now') BL.showAns=true;        /* 시간이 끝날 때 정답을 보여준다 */
-  const last=BL.i>=BL.set.rounds-1;
-  blPlayDraw();
-  BL.t=setTimeout(()=>{
-    if(!BL || BL.role!=='student') return;
-    BL.t=0; BL.over=false; BL.showAns=false;
-    if(last) blFinish(); else blGo(BL.i+1);
-  }, 1100);
-}
 
-/* ---------- 선생님 화면 ---------- */
+/* ============================ 선생님 — 진행 조종 ============================ */
 function balanceTeacher(){
   blLeave(); bingoLeave(); mingleLeave(); bdLeave(); ldLeave();
   session.role='teacher'; refreshWho();
@@ -5375,37 +5392,251 @@ function balanceTeacher(){
     <div class="card">
       <h2 style="margin-top:4px">⚖️ 밸런스 게임</h2>
       <p class="muted"><b>문제와 보기는 선생님이 PPT로</b> 보여 주고, 학생 태블릿에는
-        <b>번호 버튼(①②③④)만</b> 나와요. 문제마다 <b>제한시간</b>을 걸면 10초가 남을 때
-        큰 숫자와 소리로 알려주고 시간이 되면 저절로 다음 문제로 넘어갑니다. 학생이 고른 번호를 미리 정해 둔 <b>정답표</b>와 맞춰 채점합니다.
-        마지막 라운드까지 풀면 <b>몇 문제를 맞혔는지</b> 결과가 나와요.</p>
-      <p class="muted" style="margin-top:8px">보기 수·라운드 수·정답표는 <b>선생님 메뉴 → 📝 과제 만들기</b>에서
-        <b>③ 과제 유형 → ⚖️ 밸런스 게임</b>으로 정해요. 학생은 배부한 순간부터
-        <b>학생 → 미션 활동 → 밸런스 게임</b>에서 바로 풀 수 있어요.</p>
+        <b>번호 버튼(①②③④)만</b> 나와요. <b>진행은 선생님이 잡습니다</b> —
+        학생이 다 들어온 것을 보고 <b>「시작하기」</b>를 눌러야 1번 문제가 열리고,
+        한 문제가 끝나면 <b>「다음 문제」</b>를 누를 때까지 학생 화면은 기다려요.</p>
+      <p class="muted" style="margin-top:8px">보기 수·문제 수·정답표·제한시간은
+        <b>선생님 메뉴 → 📝 과제 만들기 → ③ 과제 유형 → ⚖️ 밸런스 게임</b>에서 정해요.</p>
       <div class="grid-cards" style="margin-top:14px">
-        <div class="tile" id="blDash"><span class="emoji">📊</span><div class="t">실시간 현황</div><div class="s">TV로 함께 보기</div></div>
+        <div class="tile" id="blRecs"><span class="emoji">📊</span><div class="t">지난 기록 보기</div><div class="s">학생별 점수·문항별 정답률</div></div>
         <div class="tile" id="blMake"><span class="emoji">📝</span><div class="t">문제 수·정답표 만들기</div><div class="s">과제 만들기로 가기</div></div>
       </div>
     </div>
     <div class="card">
-      <h3 style="margin-top:2px">배부된 밸런스 게임 <span class="muted" style="font-size:.82rem">(누르면 고치기)</span></h3>
+      <h3 style="margin-top:2px">게임 고르기 <span class="muted" style="font-size:.82rem">(누르면 진행 화면)</span></h3>
       ${sets.length ? sets.map(s=>`
-        <div class="mg-listcard" data-bledit="${esc(s.id)}">
+        <div class="mg-listcard" data-blrun="${esc(s.id)}">
           <div style="flex:1; min-width:0">
             <div class="t">${esc(s.title)}</div>
-            <div class="m">${esc(s.grade||'')} · ${s.choices}개 중 하나 · ${s.rounds}라운드 ·
-              ${s.limit? `⏱ ${s.limit}초` : '시간 제한 없음'} · 정답 알려주기 ${esc(BL_FBS[s.fb]||BL_FBS.end)}</div>
+            <div class="m">${esc(s.grade||'')} · ${s.choices}개 중 하나 · ${s.rounds}문제 ·
+              ${s.limit? `⏱ ${s.limit}초` : '시간 제한 없음'}</div>
             <div class="m">🔑 ${esc(blKeyText(s))}</div>
             <div class="m">🏫 ${esc(blClassNames(s))}</div>
-          </div><div class="ar">✏️</div>
+          </div><div class="ar">▶️</div>
         </div>`).join('')
         : '<div class="empty"><span class="em">⚖️</span>아직 만든 밸런스 게임이 없어요.<br>위 <b>문제 수·정답표 만들기</b>로 시작해요.</div>'}
     </div>`;
-  $('blDash').onclick=()=> balanceDash();
+  $('blRecs').onclick=()=> balanceDash();
   $('blMake').onclick=()=>{ draft={ items:[], repeat:3, classIds:[], mode:'balance' }; assignmentForm(); };
-  app.querySelectorAll('[data-bledit]').forEach(el=> el.onclick=()=> loadBalanceIntoDraft(el.dataset.bledit));
+  app.querySelectorAll('[data-blrun]').forEach(el=> el.onclick=()=> balancePickClass(el.dataset.blrun));
+}
+function balancePickClass(setId){
+  blLeave();
+  const set=blSet(setId); if(!set) return balanceTeacher();
+  const list=blClasses(set);
+  app.innerHTML=`
+    <button class="back" onclick="balanceTeacher()">← 밸런스 게임</button>
+    <div class="card">
+      <h2 style="margin-top:4px">⚖️ ${esc(set.title)} — 어느 반인가요?</h2>
+      <p class="muted">반을 고르면 <b>대기실</b>이 열려요. 학생은 <b>학생 → 미션 활동 → 밸런스 게임</b>으로 들어옵니다.</p>
+      ${list.length? `<div class="grid-cards" style="margin-top:14px">${list.map(c=>`
+        <div class="tile" data-blc="${esc(c.id)}"><span class="emoji">🏫</span>
+          <div class="t">${esc(c.name)}</div><div class="s">${c.students.length}명</div></div>`).join('')}</div>`
+        : '<div class="empty"><span class="em">🏫</span>이 게임을 받은 학급이 없어요.<br>과제 만들기에서 학급을 골라 주세요.</div>'}
+    </div>`;
+  app.querySelectorAll('[data-blc]').forEach(el=> el.onclick=()=> balanceRun(setId, el.dataset.blc));
 }
 
-/* 실시간 현황 — 세트+학급이 같은 답안 문서만 구독한다 (blKey 하나로 걸러 색인이 필요 없다) */
+async function balanceRun(setId, cid){
+  blLeave();
+  const set=blSet(setId), cls=DB.classes.find(c=>c.id===cid);
+  if(!set || !cls) return balanceTeacher();
+  BL={ role:'teacher', setId, cid, set, sess:null, rows:[], unsubs:[], sound:true, tv:false,
+       t:0, tick:0, endAt:0, lim:0, left:0, beeped:99, shown:-1 };
+  app.innerHTML=`<button class="back" onclick="balancePickClass('${esc(setId)}')">← 반 고르기</button>
+    <div id="blWrap" class="card empty"><span class="em">⏳</span>불러오는 중...</div>`;
+  const sess=await sGet(blSKey(setId,cid), null);
+  if(!BL || BL.role!=='teacher') return;
+  BL.sess = (sess && sess.ver===set.ver) ? sess : null;
+  /* 진행 중인 문제로 다시 들어왔으면 남은 시간부터 이어서 잰다 */
+  if(BL.sess && BL.sess.status==='playing' && set.limit){
+    const rem=Math.ceil(set.limit - (Date.now()-(BL.sess.startedAt||0))/1000);
+    if(rem>0) blRunTimer(rem, set.limit);
+  }
+  blRunWatch();
+  blRunDraw();
+}
+function blRunWatch(){
+  if(!BL || !(fbReady && window.__store)) return;
+  (BL.unsubs||[]).forEach(u=>{ try{ u(); }catch(e){} }); BL.unsubs=[];
+  BL.unsubs.push(window.__store.watch(colName('app'), keyRef(blSKey(BL.setId,BL.cid)).id, (v)=>{
+    if(!BL || BL.role!=='teacher') return;
+    BL.sess = v || null;
+    blRunDraw();
+  }));
+  if(window.__store.watchWhere){
+    BL.unsubs.push(window.__store.watchWhere(colName('progress'), 'value.blKey', BL.setId+'|'+BL.cid, (rows)=>{
+      if(!BL || BL.role!=='teacher') return;
+      BL.rows=rows||[];
+      blRunDraw();                       /* 누가 들어왔는지·몇 명이 답했는지 바로 보인다 */
+    }));
+  }
+}
+function blJoined(){                     /* 이번 판에 들어온 학생 */
+  const g=BL.sess && BL.sess.id;
+  return (BL.rows||[]).filter(r=> r && r.game===g);
+}
+async function blPut(patch){             /* 진행 상태 고치기 (선생님만) */
+  const rec=Object.assign({}, BL.sess||{}, patch, { at:Date.now() });
+  const ok=await sSet(blSKey(BL.setId, BL.cid), rec);
+  if(!ok) return false;
+  BL.sess=rec; blRunDraw();
+  return true;
+}
+async function blOpenLobby(){
+  const set=BL.set;
+  const rec={ id:'g'+Date.now().toString(36), setId:BL.setId, classId:BL.cid, ver:set.ver,
+    blKey:BL.setId+'|'+BL.cid, status:'ready', round:-1, at:Date.now() };
+  const btn=$('blOpen'); if(btn){ btn.disabled=true; btn.textContent='여는 중…'; }
+  const ok=await sSet(blSKey(BL.setId, BL.cid), rec);
+  if(!ok){ if(btn){ btn.disabled=false; btn.textContent='▶️ 대기실 열기'; } return; }
+  BL.sess=rec; blRunDraw();
+}
+async function blGoRound(i){
+  blTimerStop();
+  if(i>=BL.set.rounds) return blEndGame();
+  blRunTimer(BL.set.limit||0);      /* 시계를 먼저 건다 — 안 그러면 화면에 '시간 끝'이 한순간 잘못 뜬다 */
+  if(!await blPut({ status:'playing', round:i, startedAt:Date.now() })){ blTimerStop(); return; }
+  blGoSound();
+}
+function blRunTimer(sec, full){          /* 선생님 화면 카운트다운 (소리도 여기서만 난다) */
+  BL.sound=true;
+  blTimerStart(sec||0, ()=>{ if(BL && BL.role==='teacher') blRunDraw(); }, full);
+}
+async function blEndGame(){
+  blTimerStop();
+  await blPut({ status:'done' });
+}
+async function blCloseGame(){
+  if(!confirm('게임을 닫을까요?\n학생 화면에서도 내려가요. (점수 기록은 남습니다)')) return;
+  blTimerStop();
+  await sDel(blSKey(BL.setId, BL.cid));
+  BL.sess=null; blRunDraw();
+}
+function blRunDraw(){
+  if(!BL || BL.role!=='teacher') return;
+  const wrap=$('blWrap'); if(!wrap) return;
+  const set=BL.set, cls=DB.classes.find(c=>c.id===BL.cid);
+  if(!cls) return;
+  const s=BL.sess;
+  const total=cls.students.length;
+
+  if(!s){                                /* 아직 안 열림 */
+    wrap.className='card center';
+    wrap.innerHTML=`
+      <h2 style="margin-top:4px">⚖️ ${esc(set.title)}</h2>
+      <p class="muted"><b>${esc(cls.name)}</b> · ${set.choices}개 중 하나 · ${set.rounds}문제 ·
+        ${set.limit? `한 문제 ⏱ ${set.limit}초` : '시간 제한 없음'}</p>
+      <div style="font-size:3.2rem; margin:14px 0">🚪</div>
+      <button class="btn lg coral" id="blOpen">▶️ 대기실 열기</button>
+      <p class="muted" style="margin:12px 0 0; font-size:.83rem">대기실을 열면 학생 태블릿에 이 게임이 나타나요.<br>
+        모두 들어온 것을 확인하고 <b>시작하기</b>를 누르면 1번 문제가 열립니다.</p>`;
+    $('blOpen').onclick=blOpenLobby;
+    return;
+  }
+
+  const joined=blJoined();
+  const inNames=new Set(joined.map(r=>r.sid));
+  const roster=cls.students.map(st=>`<span class="chip ${inNames.has(st.id)?'':'off'}">${
+    inNames.has(st.id)?'🙋 ':'⌛ '}${esc(st.name)}</span>`).join('');
+
+  if(s.status==='ready'){
+    wrap.className='card center';
+    wrap.innerHTML=`
+      <h2 style="margin-top:4px">🚪 대기실</h2>
+      <p class="muted"><b>${esc(cls.name)}</b> · ${set.rounds}문제 · ${set.choices}개 중 하나
+        ${set.limit? ` · 한 문제 ⏱ ${set.limit}초` : ' · 시간 제한 없음'}</p>
+      <div class="bl-score" style="margin:10px 0 4px">${joined.length} <span class="muted" style="font-size:1rem">/ ${total}명 들어옴</span></div>
+      <div style="margin:10px 0 4px; line-height:2.1">${roster||'<span class="muted">학생이 없어요</span>'}</div>
+      <div class="hr"></div>
+      <button class="btn lg coral" id="blStart">▶️ 시작하기 (1번 문제)</button>
+      <div style="margin-top:12px"><button class="btn ghost sm" id="blClose">🔚 게임 닫기</button></div>
+      <p class="muted" style="margin:12px 0 0; font-size:.83rem">아직 안 들어온 학생이 있어도 시작할 수 있어요.
+        늦게 들어온 학생은 진행 중인 문제부터 함께 풀어요.</p>`;
+    $('blStart').onclick=()=> blGoRound(0);
+    $('blClose').onclick=blCloseGame;
+    return;
+  }
+
+  if(s.status==='done'){
+    const rows=cls.students.map(st=>{
+      const r=joined.find(x=>x.sid===st.id);
+      return { nm:st.name, n:r? blScore(set, r.picks||[]) : null };
+    }).sort((a,b)=> (b.n===null?-1:b.n)-(a.n===null?-1:a.n) || a.nm.localeCompare(b.nm,'ko'));
+    const done=rows.filter(r=>r.n!==null);
+    const avg=done.length? Math.round(done.reduce((x,r)=>x+r.n,0)/done.length*10)/10 : 0;
+    wrap.className='card';
+    wrap.innerHTML=`
+      <div class="center">
+        <div style="font-size:3rem">🏁</div>
+        <h2 style="margin:6px 0">게임 끝!</h2>
+        <p class="muted">${esc(cls.name)} · ${done.length}명 참여 · 평균 <b>${avg}</b> / ${set.rounds}점</p>
+      </div>
+      <div class="hr"></div>
+      <div style="display:flex; flex-direction:column; gap:8px">${rows.map(r=>`
+        <div class="mg-row${r.n===set.rounds?' done':''}">
+          <div class="nm">${r.n===set.rounds?'🏆 ':''}${esc(r.nm)}</div>
+          <div class="bar"><div style="width:${r.n===null?0:r.n/set.rounds*100}%"></div></div>
+          <div class="ct">${r.n===null? '미참여' : r.n+'/'+set.rounds}</div></div>`).join('')}</div>
+      <div class="hr"></div>
+      <div class="center" style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap">
+        <button class="btn" id="blAgainT">🔁 한 판 더 (대기실로)</button>
+        <button class="btn ghost" id="blClose">🔚 게임 닫기</button>
+      </div>`;
+    $('blAgainT').onclick=async ()=>{
+      await blPut({ id:'g'+Date.now().toString(36), status:'ready', round:-1, startedAt:0 });
+    };
+    $('blClose').onclick=blCloseGame;
+    return;
+  }
+
+  /* status==='playing' */
+  const i=s.round||0, key=blAnswers(set), ans=key[i];
+  const answered=joined.filter(r=> (r.picks||[])[i]);
+  const cnt=[0,0,0,0];
+  answered.forEach(r=>{ const v=(r.picks||[])[i]; if(v>=1&&v<=4) cnt[v-1]++; });
+  const waiting=cls.students.filter(st=>{
+    const r=joined.find(x=>x.sid===st.id); return !r || !((r.picks||[])[i]);
+  }).map(st=>st.name);
+  const last=i>=set.rounds-1;
+  const over=!!set.limit && !BL.endAt;         /* 제한시간이 다 됐다 */
+  wrap.className='card';
+  wrap.innerHTML=`
+    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:8px">
+      <b class="jua" style="flex:1; font-size:1.1rem">⚖️ ${esc(set.title)} · ${esc(cls.name)}</b>
+      <button class="btn ghost sm" id="blTv">📺 TV로 크게</button>
+    </div>
+    <div class="center">
+      <div class="bl-round">${i+1} <span class="muted" style="font-size:1rem">/ ${set.rounds}번 문제</span></div>
+      ${set.limit? `<div class="bl-timer ${BL.left<=10?'warn':''}" id="blTimer">
+        <div class="bl-count" id="blCount">${BL.left<=10? BL.left : '⏱ '+BL.left+'초'}</div>
+        <div class="bl-tbar"><div id="blBar" style="width:${Math.round(BL.left/(set.limit||1)*100)}%"></div></div>
+      </div>` : ''}
+      <p class="muted" style="margin:4px 0 10px">정답 <b style="font-size:1.2rem">${BL_NUM[ans-1]}</b>
+        ${over? ' · <b style="color:var(--coral-d)">⏰ 시간이 끝났어요</b>' : ''}</p>
+      <div class="bl-score">${answered.length} <span class="muted" style="font-size:1rem">/ ${joined.length}명 답함</span></div>
+    </div>
+    <div class="bl-qbar" style="justify-content:center; margin:12px 0 6px">${
+      [...Array(set.choices).keys()].map(x=>`<div class="q ${x+1===ans?'good':''}" style="min-width:56px">
+        <b>${BL_NUM[x]}</b><span>${cnt[x]}명</span></div>`).join('')}</div>
+    <p class="muted center" style="font-size:.82rem; margin:6px 0 0">${
+      waiting.length? '아직 안 한 학생: '+esc(waiting.slice(0,12).join(', '))+(waiting.length>12?' 외 '+(waiting.length-12)+'명':'')
+                    : '모두 답했어요! 🎉'}</p>
+    <div class="hr"></div>
+    <div class="center" style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap">
+      <button class="btn lg coral" id="blNextR">${last? '🏁 끝내고 결과 보기' : '⏭ 다음 문제 시작'}</button>
+      <button class="btn ghost" id="blRedo">🔄 이 문제 다시 (시간 초기화)</button>
+      <button class="btn ghost" id="blClose">🔚 게임 닫기</button>
+    </div>
+    <p class="muted center" style="margin:10px 0 0; font-size:.83rem">
+      학생 화면은 <b>「다음 문제 시작」을 누를 때까지</b> 이 문제에 머물러 있어요.</p>`;
+  $('blNextR').onclick=()=> blGoRound(i+1);
+  $('blRedo').onclick=()=> blGoRound(i);
+  $('blClose').onclick=blCloseGame;
+  $('blTv').onclick=()=>{ BL.tv=!BL.tv; app.classList.toggle('mg-tv', BL.tv); mgWide(BL.tv); };
+}
+
+/* ============================ 지난 기록 보기 ============================ */
 function balanceDash(){
   blLeave();
   const sets=blSets();
@@ -5415,12 +5646,12 @@ function balanceDash(){
         ${!sets.length ? '먼저 밸런스 게임을 만들어 주세요.' : '먼저 학급을 만들어 주세요.'}</div>`;
     return;
   }
-  BL={ role:'teacher', setId:sets[0].id, cid:null, rows:[], tv:false };
+  BL={ role:'dash', setId:sets[0].id, cid:null, rows:[], unsubs:[], tv:false };
   app.innerHTML=`
     <button class="back" onclick="balanceTeacher()">← 밸런스 게임</button>
     <div class="card noanim">
       <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap">
-        <h2 style="margin:2px 0; flex:1">📊 밸런스 게임 현황</h2>
+        <h2 style="margin:2px 0; flex:1">📊 밸런스 게임 기록</h2>
         <button class="btn ghost sm" id="blTv">📺 TV로 크게</button>
       </div>
       <div class="row" style="margin-top:10px">
@@ -5448,16 +5679,16 @@ function blDashClsFill(){
   sel.value = BL.cid || '';
 }
 function blDashWatch(){
-  if(blUnsub){ try{ blUnsub(); }catch(e){} blUnsub=null; }
   if(!BL) return;
+  (BL.unsubs||[]).forEach(u=>{ try{ u(); }catch(e){} }); BL.unsubs=[];
   BL.rows=[]; blDashDraw();
   if(!BL.cid) return;
   if(!(fbReady && window.__store && window.__store.watchWhere)) return;
-  blUnsub = window.__store.watchWhere(colName('progress'), 'value.blKey', BL.setId+'|'+BL.cid,
-    (rows)=>{ if(!BL || BL.role!=='teacher') return; BL.rows=rows||[]; blDashDraw(); });
+  BL.unsubs.push(window.__store.watchWhere(colName('progress'), 'value.blKey', BL.setId+'|'+BL.cid,
+    (rows)=>{ if(!BL || BL.role!=='dash') return; BL.rows=rows||[]; blDashDraw(); }));
 }
 function blDashDraw(){
-  if(!BL || BL.role!=='teacher') return;
+  if(!BL || BL.role!=='dash') return;
   const st=blSet(BL.setId), cls=DB.classes.find(c=>c.id===BL.cid);
   const sub=$('blDSub'), box=$('blDList'), qs=$('blDQs');
   if(!st || !box) return;
@@ -5475,7 +5706,7 @@ function blDashDraw(){
   }).sort((a,b)=> (b.plays? b.best/(b.total||1) : -1)-(a.plays? a.best/(a.total||1) : -1) || a.nm.localeCompare(b.nm,'ko'));
   const played=rows.filter(r=>r.plays>0);
   const avg=played.length ? Math.round(played.reduce((s,r)=>s+r.best/(r.total||1),0)/played.length*100) : 0;
-  sub.innerHTML=`${esc(cls.name)} · ${st.choices}개 중 하나 · ${st.rounds}라운드 ·
+  sub.innerHTML=`${esc(cls.name)} · ${st.choices}개 중 하나 · ${st.rounds}문제 ·
     ${st.limit? `⏱ ${st.limit}초` : '시간 제한 없음'} · 정답 ${esc(blKeyText(st))} ·
     <b>${played.length}</b>명 참여 / ${cls.students.length}명${played.length?` · 평균 정답률 <b>${avg}%</b>`:''}`;
   /* 문항별 정답 인원 — 어느 문제에서 많이 틀렸는지 한눈에 보고 그 자리에서 다시 설명할 수 있다 */
@@ -5497,122 +5728,131 @@ function blDashDraw(){
   }).join('') : '<div class="empty">이 학급에는 학생이 없어요.</div>';
 }
 
-/* ---------- 학생 화면 ---------- */
+/* ============================ 학생 — 번호만 고르기 ============================ */
 async function balanceStudent(){
   blLeave(); bingoLeave(); mingleLeave(); bdLeave(); ldLeave();
   session.role='student'; refreshWho();
-  BL={ role:'student', setId:null, set:null, i:0, picks:[], showAns:false, t:0 };
-  const mine=blSets().filter(s=> !s.classIds || !s.classIds.length || s.classIds.includes(session.classId));
+  BL={ role:'student', setId:null, set:null, sess:null, me:null, unsubs:[], sound:false,
+       seen:-2, lock:false, t:0, tick:0, endAt:0, lim:0, left:0, beeped:99, shown:-1 };
   app.innerHTML=`<button class="back" onclick="balanceStudentQuit()">← 이름 다시 고르기</button>
     <div id="blWrap" class="card empty"><span class="em">⏳</span>불러오는 중...</div>`;
+  const mine=blSets().filter(s=> !s.classIds || !s.classIds.length || s.classIds.includes(session.classId));
+  const open=[];
+  for(const s of mine){
+    const sess=await sGet(blSKey(s.id, session.classId), null);
+    if(!BL || BL.role!=='student') return;
+    if(sess && sess.ver===s.ver && sess.status!=='closed') open.push({ set:s, sess });
+  }
   const wrap=$('blWrap'); if(!wrap) return;
-  if(!mine.length){
+  if(!open.length){
     wrap.outerHTML=`<div id="blWrap" class="card empty"><span class="em">⚖️</span>
-      아직 받은 밸런스 게임이 없어요.<br>선생님이 배부하면 바로 나와요!
+      아직 열린 밸런스 게임이 없어요.<br>선생님이 <b>미션 활동 → 밸런스 게임</b>에서 대기실을 열면 바로 나와요!
       <div class="center" style="margin-top:12px"><button class="btn ghost sm" onclick="balanceStudent()">🔄 다시 확인</button></div></div>`;
     return;
   }
-  /* 지난 최고 점수를 같이 보여 주면 한 번 더 하고 싶어진다 */
-  const best={};
-  for(const s of mine){
-    const p=await sGet(blPKey(s.id, session.classId, session.studentId), null);
-    if(!BL || BL.role!=='student') return;
-    if(p) best[s.id]=p;
+  if(open.length>1){
+    wrap.outerHTML=`<div id="blWrap" class="card">
+      <h2 style="margin-top:4px">⚖️ 어느 게임에 들어갈까요?</h2>
+      <div class="grid-cards" style="margin-top:12px">${open.map(o=>`
+        <div class="tile" data-blpick="${esc(o.set.id)}"><span class="emoji">⚖️</span>
+          <div class="t">${esc(o.set.title)}</div>
+          <div class="s">${o.set.choices}개 중 하나 · ${o.set.rounds}문제</div></div>`).join('')}</div></div>`;
+    app.querySelectorAll('[data-blpick]').forEach(el=> el.onclick=()=> blJoin(el.dataset.blpick));
+    return;
   }
-  const w2=$('blWrap'); if(!w2) return;
-  w2.outerHTML=`<div id="blWrap" class="card">
-    <h2 style="margin-top:4px">⚖️ 어떤 게임을 할까요?</h2>
-    <p class="muted">앞 화면(TV·칠판)에 나온 문제를 보고 <b>번호</b>를 골라요.
-      끝까지 풀면 <b>몇 개 맞혔는지</b> 알려줄게요!</p>
-    <div class="grid-cards" style="margin-top:12px">${mine.map(s=>{
-      const p=best[s.id];
-      return `<div class="tile" data-blpick="${esc(s.id)}"><span class="emoji">⚖️</span>
-        <div class="t">${esc(s.title)}</div>
-        <div class="s">${s.choices}개 중 하나 · ${s.rounds}문제${s.limit? ` · ⏱ ${s.limit}초`:''}<br>${
-          p? `🏆 최고 ${p.best||0}/${p.rounds||s.rounds}` : '처음 도전!'}</div></div>`;
-    }).join('')}</div></div>`;
-  app.querySelectorAll('[data-blpick]').forEach(el=> el.onclick=()=> blStart(el.dataset.blpick));
+  blJoin(open[0].set.id);
 }
 function balanceStudentQuit(){ blLeave(); studentPickName(session.classId); }
 
-function blStart(setId){
-  const set=blSet(setId); if(!set) return balanceStudent();
-  blTimerStop();
-  BL={ role:'student', setId, set, i:0, picks:new Array(Math.max(1,set.rounds||1)).fill(0),
-       showAns:false, over:false, t:0, tick:0, deadline:0, left:set.limit||0, beeped:99, shown:-1 };
-  blPlayDraw();
-  blTimerStart();
-}
-function blGo(i){
+async function blJoin(setId){
+  const set=blSet(setId); if(!set) return;
+  BL.setId=setId; BL.set=set;
+  const saved=await sGet(blPKey(setId, session.classId, session.studentId), null);
   if(!BL || BL.role!=='student') return;
-  if(BL.t){ clearTimeout(BL.t); BL.t=0; }
-  BL.i=Math.max(0, Math.min(BL.set.rounds-1, i)); BL.showAns=false; BL.over=false;
-  blPlayDraw();
-  blTimerStart();
+  BL.me=saved;
+  if(fbReady && window.__store){
+    BL.unsubs.push(window.__store.watch(colName('app'), keyRef(blSKey(setId, session.classId)).id, (v)=>{
+      if(!BL || BL.role!=='student') return;
+      BL.sess=v||null; blStuSync();
+    }));
+  } else {
+    BL.sess=await sGet(blSKey(setId, session.classId), null); blStuSync();
+  }
 }
-function blPlayDraw(){
-  if(!BL || BL.role!=='student') return;
-  const set=BL.set, wrap=$('blWrap'); if(!wrap) return;
-  const timed=!!set.limit, last=BL.i>=set.rounds-1;
-  const undone=BL.picks.filter(p=>!p).length;
-  wrap.className='card';
-  wrap.innerHTML=`
-    <div style="display:flex; align-items:center; gap:10px; margin:2px 0 10px">
-      <b class="jua" style="flex:1">⚖️ ${esc(set.title)}</b>
-      <span class="pill ${undone?'not':'done'}">${BL.picks.filter(p=>p).length} / ${set.rounds} 답함</span>
-    </div>
-    ${blPadHTML(set, { i:BL.i, picks:BL.picks, showAns:BL.showAns, over:BL.over, left:BL.left })}
-    <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:14px">
-      ${timed
-        ? (last? '<button class="btn coral" id="blDone">✅ 다 풀었어요</button>':'')
-        : `<button class="btn ghost" id="blPrev" ${BL.i===0?'disabled':''}>← 앞 문제</button>
-           <button class="btn ghost" id="blNext" ${last?'disabled':''}>다음 문제 →</button>
-           <button class="btn coral" id="blDone">✅ 다 풀었어요</button>`}
-    </div>
-    <p class="muted center" style="margin:10px 0 0; font-size:.83rem">${timed
-      ? `시간이 끝나면 <b>저절로 다음 문제</b>로 넘어가요. 그전까지는 답을 다시 골라도 돼요.`
-      : `위의 번호 칸을 눌러 <b>다른 문제로 이동</b>할 수 있어요. 답은 몇 번이든 다시 고를 수 있어요.`}</p>`;
-  wrap.querySelectorAll('[data-bln]').forEach(b=> b.onclick=()=> blAnswer(+b.dataset.bln));
-  wrap.querySelectorAll('[data-blr]').forEach(b=> b.onclick=()=> blGo(+b.dataset.blr));
-  if($('blPrev')) $('blPrev').onclick=()=> blGo(BL.i-1);
-  if($('blNext')) $('blNext').onclick=()=> blGo(BL.i+1);
-  if($('blDone')) $('blDone').onclick=()=>{
-    if(undone && !confirm(`아직 답하지 않은 문제가 ${undone}개 있어요.\n그래도 끝낼까요?`)) return;
-    blFinish();
-  };
+/* 진행 상태가 바뀔 때마다 — 새 판이면 답을 비우고, 새 문제가 열리면 시계를 다시 잰다 */
+function blStuSync(){
+  const s=BL.sess, set=BL.set;
+  if(!s){ blTimerStop(); BL.seen=-2; return blStuDraw(); }
+  if(!BL.me || BL.me.game!==s.id){
+    BL.me={ blKey:set.id+'|'+session.classId, game:s.id, setId:set.id,
+      sid:session.studentId, sname:session.name, rounds:set.rounds,
+      picks:new Array(set.rounds).fill(0),
+      correct:0, best:(BL.me&&BL.me.best)||0, plays:(BL.me&&BL.me.plays)||0, at:Date.now() };
+    blSaveMe();                          /* 들어왔다는 것을 선생님 화면에 알린다 */
+  }
+  if(s.status==='playing' && s.round!==BL.seen){
+    BL.seen=s.round; BL.lock=false;
+    BL.sound=false;                      /* 소리는 선생님 기기에서만 */
+    blTimerStart(set.limit||0, ()=>{ if(BL && BL.role==='student'){ BL.lock=true; blStuDraw(); } });
+  }
+  if(s.status!=='playing'){ blTimerStop(); BL.seen=-2; }
+  if(s.status==='done') blStuFinish();
+  blStuDraw();
+}
+async function blSaveMe(){
+  if(!BL || !BL.me) return;
+  BL.me.at=Date.now();
+  await sSet(blPKey(BL.set.id, session.classId, session.studentId), BL.me);
 }
 function blAnswer(v){
-  if(!BL || BL.role!=='student' || BL.over) return;   /* 시간이 끝난 문제는 못 고친다 */
-  if(BL.t){ clearTimeout(BL.t); BL.t=0; }
-  const set=BL.set;
-  BL.picks[BL.i]=v;
-  /* 제한시간이 있으면 시간이 다 될 때까지 기다린다 — 그동안 답을 바꿔도 되고, 정답도 그때 알려준다 */
-  if(set.limit){ blPlayDraw(); return; }
-  BL.showAns = (set.fb==='now');          /* 바로 알려주기일 때만 정답 표시 */
-  blPlayDraw();
-  const last=BL.i>=set.rounds-1;
-  BL.t=setTimeout(()=>{                   /* 잠깐 보여준 뒤 다음 문제로 (마지막이면 그대로 둔다) */
-    if(!BL || BL.role!=='student') return;
-    BL.t=0; BL.showAns=false;
-    if(last){ blPlayDraw(); return; }
-    BL.i++; blPlayDraw();
-  }, BL.showAns? 900 : 420);
+  if(!BL || BL.role!=='student' || BL.lock) return;
+  const s=BL.sess;
+  if(!s || s.status!=='playing') return;
+  BL.me.picks[s.round]=v;
+  blStuDraw();
+  blSaveMe();
 }
-/* 다 풀면 — 몇 문제를 맞혔는지 보여주고, 이때 딱 한 번 저장한다 */
-async function blFinish(){
-  if(BL.t){ clearTimeout(BL.t); BL.t=0; }
-  blTimerStop();
-  const set=BL.set, key=blAnswers(set), total=set.rounds;
-  const picks=BL.picks.slice();
-  const ok=key.filter((a,i)=> picks[i]===a).length;
-  const pct=Math.round(ok/total*100);
-  const face = pct===100? '🏆' : pct>=80? '🎉' : pct>=60? '😊' : '💪';
-  const msg  = pct===100? '한 문제도 안 틀렸어요! 최고예요!'
-             : pct>=80 ? '아주 잘했어요!'
-             : pct>=60 ? '잘했어요! 한 번 더 해 볼까요?'
-             : '괜찮아요. 다시 하면 더 잘할 수 있어요!';
-  const wrap=$('blWrap');
-  if(wrap){
+/* 선생님이 끝내면 — 점수를 세어 화면에 보여주고, 이 판의 결과를 한 번만 저장한다 */
+async function blStuFinish(){
+  if(!BL || !BL.me) return;
+  if(BL.me.doneGame===BL.sess.id) return;
+  const ok=blScore(BL.set, BL.me.picks);
+  BL.me.doneGame=BL.sess.id;
+  BL.me.correct=ok;
+  BL.me.best=Math.max(ok, BL.me.best||0);
+  BL.me.plays=(BL.me.plays||0)+1;
+  await blSaveMe();
+  if(ok>=BL.set.rounds) mgConfetti();
+}
+function blStuDraw(){
+  if(!BL || BL.role!=='student') return;
+  const wrap=$('blWrap'); if(!wrap) return;
+  const set=BL.set, s=BL.sess;
+  if(!s){
+    wrap.className='card empty';
+    wrap.innerHTML=`<span class="em">🕰️</span>게임이 아직 열리지 않았어요.<br>선생님이 시작하면 바로 나와요!
+      <div class="center" style="margin-top:12px"><button class="btn ghost sm" onclick="balanceStudent()">🔄 다시 확인</button></div>`;
+    return;
+  }
+  if(s.status==='ready'){
+    wrap.className='card center';
+    wrap.innerHTML=`
+      <div style="font-size:3rem">🙌</div>
+      <h2 style="margin:6px 0">${esc(set.title)}</h2>
+      <p class="muted"><b>${esc(session.name)}</b> 님, 잘 들어왔어요!<br>
+        친구들을 기다리는 중이에요. <b>선생님이 시작하면</b> 1번 문제가 나와요.</p>
+      <div class="bl-strip" style="margin-top:14px">${[...Array(set.rounds).keys()].map(r=>
+        `<span class="bl-chip">${r+1}</span>`).join('')}</div>
+      <p class="muted" style="margin:10px 0 0; font-size:.83rem">
+        모두 ${set.rounds}문제 · ${set.choices}개 중 하나 고르기${set.limit? ` · 한 문제 ⏱ ${set.limit}초`:''}</p>`;
+    return;
+  }
+  if(s.status==='done'){
+    const key=blAnswers(set), picks=(BL.me&&BL.me.picks)||[];
+    const ok=blScore(set, picks), total=set.rounds, pct=Math.round(ok/total*100);
+    const face = pct===100? '🏆' : pct>=80? '🎉' : pct>=60? '😊' : '💪';
+    const msg  = pct===100? '한 문제도 안 틀렸어요! 최고예요!'
+               : pct>=80 ? '아주 잘했어요!' : pct>=60 ? '잘했어요!' : '괜찮아요. 다음에 더 잘할 수 있어요!';
     wrap.className='card center';
     wrap.innerHTML=`
       <div style="font-size:3.4rem">${face}</div>
@@ -5627,21 +5867,27 @@ async function blFinish(){
           <span class="mine">${p? BL_NUM[p-1] : '–'}</span>
           ${good? '<span class="mk">⭕</span>' : `<span class="mk">❌</span><span class="ans">${BL_NUM[a-1]}</span>`}</div>`;
       }).join('')}</div>
-      <p class="muted" style="margin:8px 0 0; font-size:.82rem">❌ 옆의 번호가 정답이에요.</p>
-      <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:16px">
-        <button class="btn lg" id="blAgain">🔁 다시 풀기</button>
-        <button class="btn ghost" id="blOther">⚖️ 다른 게임 고르기</button>
-      </div>`;
-    $('blAgain').onclick=()=> blStart(BL.setId);
-    $('blOther').onclick=()=> balanceStudent();
+      <p class="muted" style="margin:8px 0 0; font-size:.82rem">❌ 옆의 번호가 정답이에요.</p>`;
+    return;
   }
-  if(pct===100) mgConfetti();
-  /* 점수 저장 — 최고 점수·시도 횟수와 이번 답안을 남긴다 (한 판에 쓰기 1회) */
-  const pkey=blPKey(set.id, session.classId, session.studentId);
-  const prev=await sGet(pkey, null);
-  await sSet(pkey, { blKey:set.id+'|'+session.classId, setId:set.id, sid:session.studentId, sname:session.name,
-    rounds:total, correct:ok, best:Math.max(ok, (prev&&prev.best)||0),
-    plays:((prev&&prev.plays)||0)+1, picks, at:Date.now() });
+  /* playing */
+  const i=s.round||0;
+  const picks=(BL.me&&BL.me.picks)||[];
+  const showAns = BL.lock && set.fb==='now';
+  const foot = BL.lock
+    ? (showAns ? undefined : '⏰ 시간이 끝났어요. 다음 문제를 기다려요')
+    : undefined;
+  wrap.className='card';
+  wrap.innerHTML=`
+    <div style="display:flex; align-items:center; gap:10px; margin:2px 0 10px">
+      <b class="jua" style="flex:1">⚖️ ${esc(set.title)}</b>
+      <span class="pill ${picks[i]?'done':'not'}">${esc(session.name)}</span>
+    </div>
+    ${blPadHTML(set, { i, picks, left:BL.left, lock:BL.lock, showAns, foot })}
+    <p class="muted center" style="margin:12px 0 0; font-size:.83rem">${BL.lock
+      ? '선생님이 <b>다음 문제</b>를 열어 줄 때까지 기다려요.'
+      : (set.limit? '시간 안에는 답을 다시 골라도 돼요.' : '선생님이 다음 문제를 열 때까지 답을 바꿀 수 있어요.')}</p>`;
+  wrap.querySelectorAll('[data-bln]').forEach(b=> b.onclick=()=> blAnswer(+b.dataset.bln));
 }
 
 /* ============================ 모둠 발표 (짜잔!) ============================
