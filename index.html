@@ -1958,7 +1958,7 @@ function assignmentForm(){
         한 문제가 끝나면 <b>「다음 문제」</b>를 눌러야 넘어가요.
         (미션 활동 → ⚖️ 밸런스 게임에서 진행)<br>${q.limit
         ? `⏱ 한 문제에 <b>${q.limit}초</b>를 주고, 시간이 끝나면 <b>답이 잠겨요</b>.
-           <b>10초가 남으면</b> 화면에 큰 숫자가 뜨고 (선생님 기기에서) 째깍 소리가 납니다.
+           <b>5초가 남으면</b> 화면에 큰 숫자가 뜨고 (선생님 기기에서) 째깍 소리가 납니다.
            그 전까지는 답을 몇 번이든 바꿀 수 있어요.`
         : '제한시간이 없으면 <b>선생님이 다음 문제를 열 때까지</b> 계속 답을 고칠 수 있어요.'}<br>${q.fb==='now'
         ? (q.limit? '정답은 그 문제의 <b>시간이 끝날 때</b> 학생 화면에도 보여줘요.'
@@ -5258,6 +5258,7 @@ const blSKey = (setId,cid)=> `v1:bls:${setId}:${cid}`;
 const blPKey = (setId,cid,sid)=> `v1:prog:bal:${setId}:${cid}:${sid}`;
 const BL_NUM = ['①','②','③','④'];
 const BL_FBS = { end:'마지막에 한꺼번에', now:'문제가 끝날 때마다' };
+const BL_WARN = 5;      /* 남은 시간이 이 초 아래로 내려가면 큰 숫자 카운트다운 + 째깍 소리 */
 let BL=null;
 
 function blLeave(){
@@ -5302,9 +5303,9 @@ function blPadHTML(set, opts){
     ? `<div class="bl-strip">${[...Array(set.rounds).keys()].map(r=>
         `<span class="bl-chip ${r===i?'on':''} ${picks[r]?'did':''}">${r+1}</span>`).join('')}</div>`
     : '';
-  /* ⏱ 남은 시간 — 10초 아래로 내려가면 숫자가 커지고 빨개진다 */
-  const timer=lim? `<div class="bl-timer ${left<=10?'warn':''}" id="blTimer">
-      <div class="bl-count" id="blCount">${left<=10? left : '⏱ '+left+'초'}</div>
+  /* ⏱ 남은 시간 — 5초 아래로 내려가면 숫자가 커지고 빨개진다 */
+  const timer=lim? `<div class="bl-timer ${left<=BL_WARN?'warn':''}" id="blTimer">
+      <div class="bl-count" id="blCount">${left<=BL_WARN? left : '⏱ '+left+'초'}</div>
       <div class="bl-tbar"><div id="blBar" style="width:${Math.round(left/lim*100)}%"></div></div>
     </div>` : '';
   const nums=[...Array(k).keys()].map(x=>{
@@ -5324,7 +5325,7 @@ function blPadHTML(set, opts){
 }
 
 /* ---------- 제한시간 (소리는 파일 없이 그 자리에서 만든다) ---------- */
-function blTickSound(s){                 /* 10초부터 1초에 한 번 째깍 — 3초부터는 더 높고 크게 */
+function blTickSound(s){                 /* 5초부터 1초에 한 번 째깍 — 3초부터는 더 높고 크게 */
   const ctx=bgCtx(); if(!ctx) return;
   const t=ctx.currentTime+0.01;
   const f = s<=3 ? 1174.7 : (s<=5 ? 987.77 : 880);
@@ -5359,7 +5360,7 @@ function blTimerStep(){
   const lim=BL.lim||1;
   const rem=(BL.endAt-Date.now())/1000;
   const s=Math.max(0, Math.ceil(rem));
-  if(BL.sound && s<=10 && s>0 && s<BL.beeped){ BL.beeped=s; blTickSound(s); }
+  if(BL.sound && s<=BL_WARN && s>0 && s<BL.beeped){ BL.beeped=s; blTickSound(s); }
   BL.left=s;
   blTimerPaint(rem, lim);
   if(rem<=0){
@@ -5374,10 +5375,10 @@ function blTimerPaint(rem, lim){
   const s=BL.left;
   const box=$('blTimer'), c=$('blCount'), b=$('blBar');
   if(b) b.style.width=Math.max(0, Math.min(100, rem/lim*100))+'%';
-  if(box) box.classList.toggle('warn', s<=10);
+  if(box) box.classList.toggle('warn', s<=BL_WARN);
   if(c){
-    c.textContent = s<=10 ? String(s) : ('⏱ '+s+'초');
-    if(s<=10 && s!==BL.shown){ c.classList.remove('pop'); void c.offsetWidth; c.classList.add('pop'); }
+    c.textContent = s<=BL_WARN ? String(s) : ('⏱ '+s+'초');
+    if(s<=BL_WARN && s!==BL.shown){ c.classList.remove('pop'); void c.offsetWidth; c.classList.add('pop'); }
   }
   BL.shown=s;
 }
@@ -5608,8 +5609,8 @@ function blRunDraw(){
     </div>
     <div class="center">
       <div class="bl-round">${i+1} <span class="muted" style="font-size:1rem">/ ${set.rounds}번 문제</span></div>
-      ${set.limit? `<div class="bl-timer ${BL.left<=10?'warn':''}" id="blTimer">
-        <div class="bl-count" id="blCount">${BL.left<=10? BL.left : '⏱ '+BL.left+'초'}</div>
+      ${set.limit? `<div class="bl-timer ${BL.left<=BL_WARN?'warn':''}" id="blTimer">
+        <div class="bl-count" id="blCount">${BL.left<=BL_WARN? BL.left : '⏱ '+BL.left+'초'}</div>
         <div class="bl-tbar"><div id="blBar" style="width:${Math.round(BL.left/(set.limit||1)*100)}%"></div></div>
       </div>` : ''}
       <p class="muted" style="margin:4px 0 10px">정답 <b style="font-size:1.2rem">${BL_NUM[ans-1]}</b>
