@@ -26,12 +26,12 @@
   }
   h1,h2,h3,.jua{font-family:'Jua',sans-serif; font-weight:400; letter-spacing:.5px;}
   .wrap{max-width:920px; margin:0 auto; padding:18px 16px 80px;}
-  .topbar{display:flex; align-items:center; gap:12px; padding:12px 16px; margin:-4px 0 18px;
+  .topbar{display:flex; align-items:center; gap:12px; padding:12px 16px; margin:-4px 0 18px; flex-wrap:wrap;
     background:var(--paper2); border:2px solid var(--border); border-radius:18px; box-shadow:0 6px 0 var(--shadow);}
   .logo{font-family:'Jua'; font-size:1.45rem; color:var(--green-d);}
   .logo .pen{color:var(--coral);}
   .spacer{flex:1;}
-  .who{font-size:.9rem; color:var(--ink-soft);}
+  .who{font-size:.9rem; color:var(--ink-soft); word-break:break-all;}
   .who b{color:var(--ink);}
   button{font-family:'Jua',sans-serif; cursor:pointer; border:none; font-size:1rem;}
   .btn{background:var(--green); color:#fff; padding:11px 18px; border-radius:14px;
@@ -77,6 +77,22 @@
   .item-row input[type=checkbox]{width:20px; height:20px; accent-color:var(--green); flex:0 0 auto;}
   .item-row .txt{flex:1; font-family:'Andika'; font-size:1.05rem; word-break:break-word;}
   .item-row .ty{font-size:.72rem; color:var(--ink-soft); background:#F4EEDF; padding:2px 8px; border-radius:8px; flex:0 0 auto;}
+  /* 과제 항목 한 줄 = 낱말 하나 (카드 미션 편집기와 같은 방식) */
+  .asg-row{display:grid; grid-template-columns:26px 34px 1fr 1fr 32px; gap:7px; align-items:center; margin-bottom:8px;}
+  .asg-row input[type=checkbox]{width:20px; height:20px; accent-color:var(--green); margin:0 auto;}
+  .asg-row input[type=text]{margin:0;}
+  .asg-row input.en{font-family:'Andika';}
+  .asg-row .ty{font-size:.7rem; color:var(--ink-soft); background:#F4EEDF; border-radius:8px;
+    padding:6px 0; text-align:center; align-self:stretch; display:flex; align-items:center; justify-content:center;}
+  .asg-row.off input[type=text]{opacity:.5; background:#FAF6EC;}
+  @media (max-width:560px){
+    .asg-row{grid-template-columns:26px 34px 1fr 32px;}
+    .asg-row>*:nth-child(1){grid-area:1/1/3/2; align-self:center;}
+    .asg-row>*:nth-child(2){grid-area:1/2/3/3; align-self:stretch;}
+    .asg-row>*:nth-child(3){grid-area:1/3/2/4;}
+    .asg-row>*:nth-child(4){grid-area:2/3/3/4;}
+    .asg-row>*:nth-child(5){grid-area:1/4/3/5;}
+  }
   .del{background:none; color:var(--coral-d); font-size:1.2rem; padding:2px 6px; box-shadow:none;}
   .muted{color:var(--ink-soft); font-size:.9rem;}
   .center{text-align:center;}
@@ -266,6 +282,123 @@
   .emopick .ft{display:flex; gap:8px; padding:12px 18px; border-top:2px solid var(--border); flex-wrap:wrap;}
   .pill.bingo{background:#E7F0FA; color:#2C6FA8;}
   .chip.lib-g.bingo.on{background:#2C6FA8; border-color:#2C6FA8;}
+  .pill.mingle{background:#F3E9FA; color:#7A4CA8;}
+  .chip.lib-g.mingle.on{background:#7A4CA8; border-color:#7A4CA8;}
+  /* ===== 보드게임 (주사위 말판) ===== */
+  .bd-board{display:grid; gap:5px; margin:12px 0;}
+  .bd-cell{position:relative; aspect-ratio:1/1; border:2px solid var(--border); border-radius:11px; background:#fff;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; font-size:1.25rem; padding:2px; overflow:hidden;}
+  .bd-cell .no{position:absolute; top:1px; left:4px; font-size:.55rem; color:var(--ink-soft);}
+  .bd-cell .wd{font-size:.55rem; font-family:'Andika'; color:var(--ink-soft); line-height:1.05;
+    text-align:center; word-break:break-all; max-width:100%; max-height:2.2em; overflow:hidden;}
+  .bd-cell.mission{background:#FFFCF4;}
+  .bd-cell.again{background:#E7F0FA;} .bd-cell.rest{background:#F3E9FA;}
+  .bd-cell.jump{background:#E3F3ED;}  .bd-cell.back{background:#FCE6DF;} .bd-cell.lucky{background:#FCF7E6;}
+  .bd-cell.start,.bd-cell.goal{background:var(--green); color:#fff; border-color:var(--green-d);}
+  .bd-cell.start .no,.bd-cell.goal .no{color:#fff;}
+  .bd-cell.here{border-color:var(--coral); box-shadow:0 0 0 3px #FCE6DF;}
+  .bd-toks{position:absolute; bottom:0; display:flex; gap:1px; font-size:.95rem; line-height:1.1;}
+  .bd-dice{font-size:3.6rem; line-height:1.2;}
+  @keyframes bd-roll{0%{transform:rotate(0) scale(1)}25%{transform:rotate(-18deg) scale(1.15)}
+    50%{transform:rotate(14deg) scale(.95)}75%{transform:rotate(-8deg) scale(1.1)}100%{transform:rotate(0) scale(1)}}
+  .bd-dice.rolling{animation:bd-roll .45s ease-in-out infinite;}
+  .bd-seat{display:flex; align-items:center; gap:8px; padding:7px 11px; border:2px solid var(--border);
+    border-radius:12px; background:#fff; margin-bottom:6px;}
+  .bd-seat.on{border-color:var(--green); background:#E9F6F0;}
+  .bd-seat .tk{font-size:1.35rem; flex:0 0 auto;}
+  .bd-seat .nm{flex:1; font-family:'Jua'; min-width:0; word-break:keep-all;}
+  .bd-seat .ps{font-size:.8rem; color:var(--ink-soft); flex:0 0 auto;}
+  .pill.board{background:#FFF0E6; color:#B4642A;}
+  .chip.lib-g.board.on{background:#B4642A; border-color:#B4642A;}
+  /* ===== 모둠 발표 (짜잔!) ===== */
+  .grp-ov{position:fixed; inset:0; z-index:68; background:rgba(43,38,32,.93); display:flex;
+    align-items:center; justify-content:center; padding:20px; overflow:auto;}
+  .grp-box{width:100%; max-width:920px; text-align:center; color:#fff;}
+  .grp-title{font-family:'Jua'; font-size:2.1rem; line-height:1.3; margin-bottom:4px;}
+  .grp-sub{color:#EADFCB; font-size:.95rem; margin-bottom:14px;}
+  .grp-roll{font-family:'Jua'; font-size:2.4rem; min-height:1.5em; color:var(--gold); letter-spacing:.02em;}
+  .grp-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:13px; margin-top:6px;}
+  .grp-card{background:var(--paper2); border-radius:18px; padding:13px 11px; box-shadow:0 7px 0 rgba(0,0,0,.28);
+    opacity:0; transform:scale(.55) translateY(24px) rotate(-4deg);}
+  .grp-card.show{animation:grp-pop .48s cubic-bezier(.2,1.5,.4,1) forwards;}
+  @keyframes grp-pop{to{opacity:1; transform:scale(1) translateY(0) rotate(0);}}
+  .grp-card h3{margin:0 0 7px; font-family:'Jua'; color:var(--green-d); font-size:1.2rem;}
+  .grp-card .who{display:flex; align-items:center; justify-content:center; gap:7px;
+    color:var(--ink); font-size:1.05rem; margin:3px 0; word-break:keep-all;}
+  @media (max-width:520px){ .grp-title{font-size:1.6rem;} .grp-roll{font-size:1.8rem;} }
+  /* ===== 땅따먹기 ===== */
+  .ld-board{display:grid; gap:5px; margin:12px 0;}
+  .ld-cell{position:relative; aspect-ratio:1/1; border:2px solid var(--border); border-radius:11px; background:#fff;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; padding:2px; overflow:hidden;}
+  .ld-cell .em{font-size:1.35rem; line-height:1.1;}
+  .ld-cell .wd{font-size:.55rem; font-family:'Andika'; color:var(--ink-soft); line-height:1.05;
+    text-align:center; word-break:break-all; max-width:100%; max-height:2.2em; overflow:hidden;}
+  .ld-cell .fg{position:absolute; top:1px; right:3px; font-size:.72rem;}
+  .ld-cell .st{position:absolute; bottom:0; font-size:.95rem;}
+  .ld-cell.p0{background:#FDE7E7; border-color:#E4756F;}
+  .ld-cell.p1{background:#E4EEFB; border-color:#5D8FC9;}
+  .ld-cell.p2{background:#FDF3D8; border-color:#D9B441;}
+  .ld-cell.p3{background:#E4F4EA; border-color:#63B187;}
+  .ld-cell.from{box-shadow:0 0 0 3px #FBF3E0;}
+  .ld-cell.hit{border-color:var(--coral); box-shadow:0 0 0 3px #FCE6DF;}
+  .ld-aimwrap{width:96px; height:96px; margin:8px auto 2px; display:flex; align-items:center; justify-content:center;
+    border:2px dashed var(--border); border-radius:50%; background:#fff;}
+  .ld-arrow{font-size:2.4rem; line-height:1; transform-origin:50% 50%; color:var(--coral-d);}
+  .ld-power{height:18px; background:#F1E9D6; border-radius:9px; overflow:hidden; max-width:340px; margin:0 auto;}
+  .ld-power>div{height:100%; width:0%; border-radius:9px;
+    background:linear-gradient(90deg,var(--green),var(--gold),var(--coral)); transition:width .04s linear;}
+  .pill.land{background:#F4E9E0; color:#9A5B3C;}
+  .chip.lib-g.land.on{background:#9A5B3C; border-color:#9A5B3C;}
+  /* ===== 밸런스 게임 (PPT 보고 번호 고르기) ===== */
+  .bl-round{font-family:'Jua'; font-size:1.5rem; text-align:center; color:var(--ink-soft); margin:2px 0 8px;}
+  .bl-nums{display:grid; gap:12px; margin:0 auto; max-width:520px;}
+  .bl-nums.c2{grid-template-columns:repeat(2,1fr);} .bl-nums.c3{grid-template-columns:repeat(3,1fr);}
+  .bl-nums.c4{grid-template-columns:repeat(2,1fr);}
+  @media(min-width:560px){ .bl-nums.c4{grid-template-columns:repeat(4,1fr);} }
+  .bl-num{aspect-ratio:1; background:#fff; border:3px solid var(--border); border-radius:20px;
+    box-shadow:0 5px 0 var(--shadow); font-size:min(19vw,74px); line-height:1; color:var(--ink);
+    display:flex; align-items:center; justify-content:center; transition:transform .08s;}
+  .bl-num:active{transform:translateY(3px); box-shadow:0 2px 0 var(--shadow);}
+  .bl-num.sel{background:#FCF7E6; border-color:var(--gold); box-shadow:0 5px 0 #E8CC8A;}
+  .bl-num.ok{background:#E3F3ED; border-color:var(--green); box-shadow:0 5px 0 var(--green);}
+  .bl-num.no{background:#FCE6DF; border-color:var(--coral); box-shadow:0 5px 0 var(--coral); animation:bgshake .34s;}
+  .bl-timer{margin:0 auto 10px; max-width:520px; text-align:center;}
+  .bl-count{font-family:'Jua'; font-size:1.3rem; color:var(--ink-soft); line-height:1.1; margin-bottom:5px;}
+  .bl-tbar{height:14px; background:#F1E9D6; border-radius:8px; overflow:hidden;}
+  .bl-tbar>div{height:100%; width:100%; border-radius:8px; background:var(--green);}
+  .bl-timer.warn .bl-count{font-size:3.6rem; color:var(--coral-d);}
+  .bl-timer.warn .bl-tbar>div{background:var(--coral);}
+  .bl-count.pop{animation:bl-pop .42s ease-out;}
+  @keyframes bl-pop{0%{transform:scale(1.55); opacity:.55;} 60%{transform:scale(.97);} 100%{transform:scale(1);}}
+  .bl-strip{display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin-bottom:10px;}
+  .bl-chip{min-width:34px; height:34px; border-radius:11px; background:#fff; border:2px solid var(--border);
+    box-shadow:0 3px 0 var(--shadow); font-family:'Jua'; font-size:.95rem; color:var(--ink-soft); padding:0 6px;}
+  .bl-chip.did{background:#EAF1E4; color:#4C7A34; border-color:#B7CFA6;}
+  .bl-chip.on{border-color:var(--coral); color:var(--coral-d); box-shadow:0 3px 0 var(--coral-d);}
+  .bl-score{font-family:'Jua'; font-size:2.6rem; color:var(--green-d); line-height:1.2;}
+  .bl-result{display:flex; flex-wrap:wrap; gap:7px; justify-content:center;}
+  .bl-result .r{display:flex; align-items:center; gap:3px; background:#fff; border:2px solid var(--border);
+    border-radius:12px; padding:5px 9px; font-size:.95rem;}
+  .bl-result .r.ok{background:#E3F3ED; border-color:#9CCBBA;}
+  .bl-result .r.no{background:#FCE6DF; border-color:#E9AC99;}
+  .bl-result .r b{font-family:'Jua'; font-size:.8rem; color:var(--ink-soft); margin-right:2px;}
+  .bl-result .r .ans{font-weight:700; color:var(--green-d);}
+  /* 정답표 (선생님) */
+  .bl-krow{display:flex; align-items:center; gap:10px; padding:5px 0; border-bottom:1px dashed var(--border);}
+  .bl-krow>b{font-family:'Jua'; min-width:52px; color:var(--ink-soft);}
+  .bl-kopts{display:flex; gap:6px; flex-wrap:wrap;}
+  .bl-kb{width:44px; height:40px; border-radius:12px; background:#fff; border:2px solid var(--border);
+    box-shadow:0 3px 0 var(--shadow); font-size:1.15rem; color:var(--ink-soft);}
+  .bl-kb.on{background:var(--green); border-color:var(--green-d); color:#fff; box-shadow:0 3px 0 var(--green-d);}
+  .bl-qbar{display:flex; flex-wrap:wrap; gap:5px;}
+  .bl-qbar .q{min-width:38px; text-align:center; background:#fff; border:2px solid var(--border);
+    border-radius:10px; padding:3px 5px; line-height:1.15;}
+  .bl-qbar .q b{display:block; font-family:'Jua'; font-size:.72rem; color:var(--ink-soft);}
+  .bl-qbar .q span{font-family:'Jua'; font-size:.95rem;}
+  .bl-qbar .q.good{background:#E3F3ED; border-color:#9CCBBA;}
+  .bl-qbar .q.bad{background:#FCE6DF; border-color:#E9AC99;}
+  .pill.balance{background:#EAF1E4; color:#4C7A34;}
+  .chip.lib-g.balance.on{background:#4C7A34; border-color:#4C7A34;}
   /* ===== 카드 미션 (친구 찾기 말하기) ===== */
   .mg-warn{background:#FCE6DF; border:2px solid var(--coral); color:var(--coral-d);
     border-radius:14px; padding:12px 14px; font-family:'Jua'; line-height:1.6;}
@@ -430,7 +563,8 @@
     <div class="logo">✏️🗣️ 또박또박 <span class="pen">영어</span></div>
     <div class="spacer"></div>
     <div class="who" id="who"></div>
-    <button class="btn ghost sm" id="logoutBtn" style="display:none">처음으로</button>
+    <button class="btn ghost sm" id="homeBtn" style="display:none">처음으로</button>
+    <button class="btn ghost sm" id="signOutBtn" style="display:none" title="선생님 계정에서 로그아웃">로그아웃</button>
   </div>
   <div id="app"></div>
 </div>
@@ -468,7 +602,10 @@ window.__cfg = { config:FIREBASE_CONFIG, dbId:DATABASE_ID, ready:BACKEND_READY }
 
 /* ============================ STORAGE LAYER (Firestore) ============================ */
 const KEYS = { classes:'v1:classes', assignments:'v1:assignments', settings:'v1:settings', lists:'v1:lists',
-               mingle:'v1:mingle' };   /* 카드 미션 세트 모음 → eng_app/mingle (선생님만 쓰기) */
+               mingle:'v1:mingle',     /* 카드 미션 세트 모음 → eng_app/mingle (선생님만 쓰기) */
+               board:'v1:board',       /* 보드게임 세트 모음 → eng_app/board (선생님만 쓰기) */
+               land:'v1:land',         /* 땅따먹기 세트 모음 → eng_app/land (선생님만 쓰기) */
+               balance:'v1:balance' };  /* 밸런스 게임 세트 모음 → eng_app/balance (선생님만 쓰기) */
 let fbReady=false, backendError='';
 const mem={}; // 백엔드 연결 전/실패 시 임시 메모리(기기 간 공유 안 됨)
 function colName(name){ return COLLECTION_PREFIX+name; }
@@ -486,7 +623,7 @@ async function sSet(key, val){
     catch(e){ console.warn('sSet',key,e);
       const msg=(e&&(e.code||e.message))||'';
       if(/permission/i.test(msg)) toast('저장 권한이 없어요. 선생님 계정/보안 규칙의 이메일을 확인하세요.');
-      else toast('저장 중 오류가 발생했어요.');
+      else toast('저장 중 오류: '+String(msg).slice(0,60));
       return false; } }
   mem[key]=val; return true;
 }
@@ -502,11 +639,14 @@ function setupLiveSync(){
   window.__store.watch(c,'assignments', v=> DB.assignments=v||[]);
   window.__store.watch(c,'lists', v=> DB.lists=v||[]);
   window.__store.watch(c,'mingle', v=> DB.mingle=v||[]);
+  window.__store.watch(c,'board', v=> DB.board=v||[]);
+  window.__store.watch(c,'land', v=> DB.land=v||[]);
+  window.__store.watch(c,'balance', v=> DB.balance=v||[]);
   window.__store.watch(c,'settings', v=>{ if(v) applyVoiceSetting(v); });
 }
 
 /* ============================ APP STATE ============================ */
-let DB = { classes:[], assignments:[], lists:[], mingle:[] };
+let DB = { classes:[], assignments:[], lists:[], mingle:[], board:[], land:[], balance:[] };
 let session = { role:null, name:null, classId:null, studentId:null };
 const uid = ()=> Math.random().toString(36).slice(2,9);
 const $ = (id)=> document.getElementById(id);
@@ -521,6 +661,9 @@ async function boot(){
     DB.assignments = await sGet(KEYS.assignments, []);
     DB.lists = await sGet(KEYS.lists, []);
     DB.mingle = await sGet(KEYS.mingle, []);
+    DB.board = await sGet(KEYS.board, []);
+    DB.land = await sGet(KEYS.land, []);
+    DB.balance = await sGet(KEYS.balance, []);
     await loadVoiceSetting();     // 선생님이 정한 목소리·속도를 학생 기기도 그대로 쓴다
     setupLiveSync();
   }
@@ -530,7 +673,7 @@ async function boot(){
   renderHome();
 }
 function renderSetupNeeded(){
-  $('who').textContent=''; $('logoutBtn').style.display='none';
+  $('who').textContent=''; $('homeBtn').style.display='none'; $('signOutBtn').style.display='none';
   app.innerHTML = `
     <div class="card">
       <h2 style="margin-top:4px">⚙️ 백엔드 설정이 필요해요</h2>
@@ -582,44 +725,67 @@ function renderBackendError(){
     </div>`;
   $('goDiag3').onclick=diagnosticsScreen;
 }
+/* 선생님 계정으로 로그인돼 있는가 — 이 상태는 브라우저에 남아서 새로고침해도 풀리지 않는다 */
+function isTeacherSignedIn(){ return !!(window.__auth && window.__auth.isTeacher()); }
+function teacherEmail(){ return (window.__auth && window.__auth.email()) || ''; }
+
 function refreshWho(){
-  if(session.role==='teacher'){ $('who').innerHTML='<b>선생님</b> 모드'; $('logoutBtn').style.display=''; }
-  else if(session.role==='student'){ const c=DB.classes.find(c=>c.id===session.classId); $('who').innerHTML=`<b>${esc(session.name)}</b> · ${esc(c?c.name:'')}`; $('logoutBtn').style.display=''; }
-  else { $('who').textContent=''; $('logoutBtn').style.display='none'; }
+  const signed=isTeacherSignedIn();
+  if(session.role==='teacher'){ $('who').innerHTML=`<b>선생님</b> 모드${signed?` <span class="muted" style="font-size:.8rem">${esc(teacherEmail())}</span>`:''}`; }
+  else if(session.role==='student'){ const c=DB.classes.find(c=>c.id===session.classId); $('who').innerHTML=`<b>${esc(session.name)}</b> · ${esc(c?c.name:'')}`; }
+  else { $('who').innerHTML = signed? `<span class="muted">선생님 로그인됨 · ${esc(teacherEmail())}</span>` : ''; }
+  $('homeBtn').style.display = session.role? '' : 'none';
+  /* 로그아웃은 눌러서 계정을 끊고 싶을 때만 — '처음으로'로는 절대 풀리지 않는다 */
+  $('signOutBtn').style.display = signed? '' : 'none';
 }
-function logout(){
-  bingoLeave(); mingleLeave();
-  const wasTeacher = session.role==='teacher';
+/* '처음으로' — 화면만 시작 화면으로 되돌린다. 선생님 로그인은 그대로 둔다. */
+function goHome(){
+  bingoLeave(); mingleLeave(); bdLeave(); ldLeave(); blLeave();
   session={role:null,name:null,classId:null,studentId:null};
-  if(wasTeacher && window.__auth) window.__auth.signOutToAnon();
   renderHome();
 }
-$('logoutBtn').onclick = logout;
+/* '로그아웃' — 선생님 계정에서 정말 나갈 때만 (다음에 들어오려면 다시 로그인해야 한다) */
+async function signOutTeacher(){
+  if(!confirm('선생님 계정에서 로그아웃할까요?\n다음에 들어올 때 이메일과 비밀번호를 다시 입력해야 해요.\n(그냥 시작 화면으로 가려면 「처음으로」를 누르세요)')) return;
+  bingoLeave(); mingleLeave(); bdLeave(); ldLeave(); blLeave();
+  session={role:null,name:null,classId:null,studentId:null};
+  if(window.__auth) await window.__auth.signOutToAnon();
+  toast('로그아웃했어요');
+  renderHome();
+}
+$('homeBtn').onclick = goHome;
+$('signOutBtn').onclick = signOutTeacher;
 
 function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),1800); }
 function esc(s){ return (s==null?'':String(s)).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
 /* ============================ HOME / ROLE ============================ */
 function renderHome(){
-  bingoLeave(); mingleLeave();
+  bingoLeave(); mingleLeave(); bdLeave(); ldLeave(); blLeave();
   session.role=null; refreshWho();
+  const signed=isTeacherSignedIn();
   app.innerHTML = `
     <div class="card center">
       <h2 style="margin-top:4px">누구인가요?</h2>
       <p class="muted">선생님은 학급·과제를 관리하고, 학생은 쓰기·말하기 연습을 해요.</p>
       <div class="grid-cards" style="max-width:420px; margin:18px auto 4px">
-        <div class="tile" id="goTeacher"><span class="emoji">👩‍🏫</span><div class="t">선생님</div><div class="s">학급·과제 관리</div></div>
+        <div class="tile ${signed?'on':''}" id="goTeacher"><span class="emoji">👩‍🏫</span><div class="t">선생님</div>
+          <div class="s">${signed? '로그인됨 · 바로 들어가기' : '학급·과제 관리'}</div></div>
         <div class="tile" id="goStudent"><span class="emoji">🧒</span><div class="t">학생</div><div class="s">쓰기·말하기 연습</div></div>
       </div>
+      ${signed? `<p class="muted" style="margin:12px 0 0; font-size:.83rem">선생님 로그인은 이 기기에 남아 있어요. 학생 화면을 다녀와도 다시 로그인하지 않아도 됩니다.<br>
+        정말 끊고 싶을 때만 위쪽 <b>로그아웃</b>을 누르세요.</p>` : ''}
       <p class="center" style="margin:16px 0 0"><button class="back" id="goDiag" style="font-size:.85rem">🔧 연결 상태 확인</button></p>
     </div>`;
   $('goTeacher').onclick = teacherLogin;
   $('goStudent').onclick = studentMenu;
   $('goDiag').onclick = diagnosticsScreen;
 }
+/* 로그인 상태가 늦게(또는 다른 탭에서) 바뀌어도 시작 화면과 머리말이 따라오게 한다 */
+window.__onUser = ()=>{ try{ refreshWho(); if(!session.role && $('goTeacher')) renderHome(); }catch(e){} };
 
 function studentMenu(){
-  bingoLeave(); mingleLeave();
+  bingoLeave(); mingleLeave(); bdLeave(); ldLeave(); blLeave();
   app.innerHTML = `
     <button class="back" onclick="renderHome()">← 처음으로</button>
     <div class="card center">
@@ -628,14 +794,39 @@ function studentMenu(){
       <div class="grid-cards" style="max-width:640px; margin:18px auto 4px">
         <div class="tile" id="goWrite"><span class="emoji">✏️</span><div class="t">또박또박 영어 쓰기</div><div class="s">흐린 글자 따라쓰기</div></div>
         <div class="tile" id="goSpeak"><span class="emoji">🗣️</span><div class="t">또박또박 영어 말하기</div><div class="s">듣고 따라 말하기</div></div>
-        <div class="tile" id="goBingo"><span class="emoji">👂</span><div class="t">듣고 빙고</div><div class="s">선생님과 함께 하는 놀이</div></div>
-        <div class="tile" id="goMingle"><span class="emoji">🃏</span><div class="t">카드 미션</div><div class="s">친구를 찾아 말하기</div></div>
+        <div class="tile" id="goMission"><span class="emoji">🎯</span><div class="t">미션 활동</div><div class="s">빙고 · 카드 · 보드게임 · 땅따먹기 · 밸런스</div></div>
       </div>
     </div>`;
   $('goWrite').onclick = ()=>{ studentMode='write'; studentPickClass(); };
   $('goSpeak').onclick = ()=>{ studentMode='speak'; studentPickClass(); };
+  $('goMission').onclick = missionRoomStudent;
+}
+
+/* 미션 활동 방 — 선생님과 함께하는 놀이(듣기 빙고)와 친구와 하는 놀이(카드 미션)를 한곳에 모았다 */
+function missionRoomStudent(){
+  bingoLeave(); mingleLeave(); bdLeave(); ldLeave(); blLeave();
+  app.innerHTML = `
+    <button class="back" onclick="studentMenu()">← 뒤로</button>
+    <div class="card center">
+      <h2 style="margin-top:4px">🎯 미션 활동</h2>
+      <p class="muted">선생님·친구와 함께 하는 놀이예요. 하고 싶은 활동을 골라요.</p>
+      <div class="grid-cards" style="max-width:420px; margin:18px auto 4px">
+        <div class="tile" id="goBingo"><span class="emoji">👂</span><div class="t">듣고 빙고</div><div class="s">선생님과 함께 하는 놀이</div></div>
+        <div class="tile" id="goMingle"><span class="emoji">🃏</span><div class="t">카드 미션</div><div class="s">친구를 찾아 말하기</div></div>
+        <div class="tile" id="goBoard"><span class="emoji">🎲</span><div class="t">보드게임</div><div class="s">주사위 굴려 말판 가기</div></div>
+        <div class="tile" id="goLand"><span class="emoji">🚩</span><div class="t">땅따먹기</div><div class="s">돌 던져 땅 넓히기</div></div>
+        <div class="tile" id="goBalance"><span class="emoji">⚖️</span><div class="t">밸런스 게임</div><div class="s">화면 보고 번호 고르기</div></div>
+      </div>
+    </div>`;
   $('goBingo').onclick = ()=>{ studentMode='bingo'; studentPickClass(); };
   $('goMingle').onclick = ()=>{ studentMode='mingle'; studentPickClass(); };
+  $('goBoard').onclick = ()=>{ studentMode='board'; studentPickClass(); };
+  $('goLand').onclick = ()=>{ studentMode='land'; studentPickClass(); };
+  $('goBalance').onclick = ()=>{ studentMode='balance'; studentPickClass(); };
+}
+/* 반 고르기에서 '뒤로'는 들어온 문(연습 메뉴 / 미션 활동 방)으로 돌아간다 */
+function studentBackMenu(){
+  if(['bingo','mingle','board','land','balance'].includes(studentMode)) missionRoomStudent(); else studentMenu();
 }
 
 /* ============================ SPEAKING PRACTICE ============================ */
@@ -989,7 +1180,7 @@ async function teacherLogin(){
 
 /* ============================ TEACHER HOME ============================ */
 function teacherHome(){
-  bingoLeave(); mingleLeave();
+  bingoLeave(); mingleLeave(); bdLeave(); ldLeave(); blLeave();
   session.role='teacher'; refreshWho();
   app.innerHTML = `
     <div class="card">
@@ -998,17 +1189,39 @@ function teacherHome(){
         <div class="tile" id="mClass"><span class="emoji">🏫</span><div class="t">학급·학생</div><div class="s">${DB.classes.length}개 학급</div></div>
         <div class="tile" id="mNew"><span class="emoji">📝</span><div class="t">과제 만들기</div><div class="s">새로 만들기·다시 부여</div></div>
         <div class="tile" id="mDash"><span class="emoji">📊</span><div class="t">진행 현황</div><div class="s">학급별 완료 확인</div></div>
-        <div class="tile" id="mBingo"><span class="emoji">👂</span><div class="t">듣기 빙고</div><div class="s">TV로 들려주는 놀이</div></div>
-        <div class="tile" id="mMingle"><span class="emoji">🃏</span><div class="t">카드 미션</div><div class="s">교실을 돌며 말하기</div></div>
+        <div class="tile" id="mMission"><span class="emoji">🎯</span><div class="t">미션 활동</div><div class="s">듣기 빙고 · 카드 미션 · 보드게임 · 땅따먹기</div></div>
         <div class="tile" id="mVoice"><span class="emoji">🔊</span><div class="t">소리 설정</div><div class="s">${esc(voiceInfo().label)} · ${esc(speedLabel(VOICE.rate))}</div></div>
       </div>
     </div>`;
   $('mClass').onclick = manageClasses;
   $('mNew').onclick = ()=> createAssignment();
   $('mDash').onclick = dashboardList;
+  $('mMission').onclick = missionRoomTeacher;
+  $('mVoice').onclick = voiceSettings;
+}
+
+/* 미션 활동 방 — 교실에서 함께 하는 놀이(듣기 빙고·카드 미션)를 한곳에 모았다 */
+function missionRoomTeacher(){
+  bingoLeave(); mingleLeave(); bdLeave(); ldLeave(); blLeave();
+  session.role='teacher'; refreshWho();
+  app.innerHTML = `
+    <button class="back" onclick="teacherHome()">← 선생님 메뉴</button>
+    <div class="card">
+      <h2 style="margin-top:4px">🎯 미션 활동</h2>
+      <p class="muted">교실에서 함께 하는 놀이예요. 학생은 <b>학생 → 미션 활동</b>으로 들어옵니다.</p>
+      <div class="grid-cards" style="margin-top:14px">
+        <div class="tile" id="mBingo"><span class="emoji">👂</span><div class="t">듣기 빙고</div><div class="s">TV로 들려주는 놀이</div></div>
+        <div class="tile" id="mMingle"><span class="emoji">🃏</span><div class="t">카드 미션</div><div class="s">교실을 돌며 말하기</div></div>
+        <div class="tile" id="mBoard"><span class="emoji">🎲</span><div class="t">보드게임</div><div class="s">모둠끼리 주사위 놀이</div></div>
+        <div class="tile" id="mLand"><span class="emoji">🚩</span><div class="t">땅따먹기</div><div class="s">돌 던져 땅 차지하기</div></div>
+        <div class="tile" id="mBalance"><span class="emoji">⚖️</span><div class="t">밸런스 게임</div><div class="s">PPT 문제에 번호로 답하기</div></div>
+      </div>
+    </div>`;
   $('mBingo').onclick = bingoSetup;
   $('mMingle').onclick = mingleTeacher;
-  $('mVoice').onclick = voiceSettings;
+  $('mBoard').onclick = boardTeacher;
+  $('mLand').onclick = landTeacher;
+  $('mBalance').onclick = balanceTeacher;
 }
 
 /* ============================ 목소리·속도 설정 ============================ */
@@ -1091,16 +1304,20 @@ function createAssignment(){
         <button class="btn" id="newAsg">＋ 새 과제 만들기</button>
       </div>
       <p class="muted">새로 만들거나, 그동안 만든 과제를 골라 <b>다른 학급에도 그대로 부여</b>할 수 있어요.</p>
-      ${DB.lists.length? `<input type="text" id="libSearch" placeholder="🔎 제목·단어·뜻으로 검색 (예: color, 색깔)" style="margin-top:8px">
+      ${(DB.lists.length || (DB.mingle||[]).length || (DB.board||[]).length || (DB.land||[]).length || (DB.balance||[]).length)? `<input type="text" id="libSearch" placeholder="🔎 제목·단어·뜻으로 검색 (예: color, 색깔)" style="margin-top:8px">
       <p class="muted" style="font-size:.85rem; margin:10px 0 4px 2px">학년을 선택하세요</p>
-      <div id="gradeChips">${grades.map(g=>`<span class="chip lib-g" data-g="${esc(g)}">${esc(g)}</span>`).join('')}${DB.lists.some(l=>!(l.grade||'').trim())?'<span class="chip lib-g" data-g="__none__">미지정</span>':''}<span class="chip lib-g bingo" data-g="__bingo__">👂 빙고놀이</span></div>`:''}
+      <div id="gradeChips">${grades.map(g=>`<span class="chip lib-g" data-g="${esc(g)}">${esc(g)}</span>`).join('')}${DB.lists.some(l=>!(l.grade||'').trim())?'<span class="chip lib-g" data-g="__none__">미지정</span>':''}<span class="chip lib-g bingo" data-g="__bingo__">👂 빙고놀이</span><span class="chip lib-g mingle" data-g="__mingle__">🃏 카드 미션</span><span class="chip lib-g board" data-g="__board__">🎲 보드게임</span><span class="chip lib-g land" data-g="__land__">🚩 땅따먹기</span><span class="chip lib-g balance" data-g="__balance__">⚖️ 밸런스 게임</span></div>`:''}
     </div>
-    <p class="muted" style="margin:0 0 6px 6px">${DB.lists.length? '📋 그동안 만든 과제':''}</p>
+    <p class="muted" style="margin:0 0 6px 6px">${(DB.lists.length || (DB.mingle||[]).length || (DB.board||[]).length || (DB.land||[]).length || (DB.balance||[]).length)? '📋 그동안 만든 과제':''}</p>
     <div id="libList"></div>`;
   $('newAsg').onclick=()=>{ draft=null; assignmentForm(); };
   let curGrade=null, curQ='';
   const render=()=>{
     const el=$('libList');
+    if(curGrade==='__mingle__' && !curQ){ renderMingleSetList(el, render); return; }
+    if(curGrade==='__board__' && !curQ){ renderBoardSetList(el, render); return; }
+    if(curGrade==='__land__' && !curQ){ renderLandSetList(el, render); return; }
+    if(curGrade==='__balance__' && !curQ){ renderBalanceSetList(el, render); return; }
     if(!DB.lists.length){ el.innerHTML='<div class="card empty"><span class="em">🌱</span>아직 만든 과제가 없어요.<br>「＋ 새 과제 만들기」로 시작해요.</div>'; return; }
     let rows;
     if(curQ){ const q=curQ.toLowerCase();
@@ -1125,24 +1342,46 @@ function createAssignment(){
       const givenChips=givenClassIds.map(cid=>{ const c=DB.classes.find(x=>x.id===cid); if(!c) return '';
         return `<span class="chip">${esc(c.name)} <button class="del" data-revoke="${l.id}|${cid}" title="이 학급에서 배부 취소" style="font-size:1rem; padding:0 2px">×</button></span>`; }).filter(Boolean).join('');
       const emoCount=l.items.filter(i=>i.emoji && i.emoji!=='-').length;
+      /* 이 낱말이 지금 어디에 쓰이고 있는지 — 한 번 만든 낱말을 여러 활동에서 돌려 쓴다 */
+      const asgModes=new Set(DB.assignments.filter(a=>a.listId===l.id).map(a=>a.mode||'write'));
+      const ms=mgSetOfList(l), bs=bdSetOfList(l), gs=ldSetOfList(l);
+      const usedPills=[
+        asgModes.has('write')? '<span class="pill done">✏️ 쓰기</span>':'',
+        asgModes.has('speak')? '<span class="pill done">🗣️ 말하기</span>':'',
+        (l.bingo||asgModes.has('bingo'))? '<span class="pill bingo">👂 듣기 빙고</span>':'',
+        ms? '<span class="pill mingle">🃏 카드 미션</span>':'',
+        bs? '<span class="pill board">🎲 보드게임</span>':'',
+        gs? '<span class="pill land">🚩 땅따먹기</span>':''
+      ].filter(Boolean).join(' ');
       return `<div class="card" style="margin-bottom:12px">
         <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap">
-          <h3 style="margin:0; flex:1">${l.bingo?'👂':'📄'} ${esc(l.name)}</h3>
-          ${l.bingo?`<span class="pill bingo">빙고놀이</span>`:''}<span class="muted">${l.items.length}개</span>
+          <h3 style="margin:0; flex:1">${gs?'🚩':(bs?'🎲':(ms?'🃏':(l.bingo?'👂':'📄')))} ${esc(l.name)}</h3>
+          <span class="muted">낱말 ${l.items.length}개</span>
         </div>
         <p class="muted" style="margin:5px 0 6px">${tag||'학년 미지정'}${emoCount?` · 그림 ${emoCount}개 지정됨`:''}</p>
         <p style="font-family:'Andika'; font-size:.95rem; margin:0 0 8px; color:var(--ink-soft)">${preview}</p>
+        <p class="muted" style="font-size:.82rem; margin:0 0 4px">${usedPills? '지금 쓰이는 곳' : '아직 아무 활동에도 쓰지 않았어요'}</p>
+        ${usedPills? `<div style="margin:0 0 10px">${usedPills}</div>`:''}
         <p class="muted" style="font-size:.82rem; margin:0 0 4px">${givenChips? '✅ 부여한 학급 <span style="font-size:.78rem">(×로 배부 취소)</span>' : '아직 부여한 학급 없음'}</p>
         ${givenChips? `<div style="margin:0 0 10px">${givenChips}</div>` : ''}
+        <p class="muted" style="font-size:.82rem; margin:0 0 6px">📚 이 낱말로 만들기 <span style="font-size:.78rem">(그림과 대화문도 그대로 따라와요)</span></p>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px">
+          <button class="btn sm" data-load="${l.id}|write">✏️ 쓰기</button>
+          <button class="btn sm" data-load="${l.id}|speak">🗣️ 말하기</button>
+          <button class="btn sm" data-load="${l.id}|bingo">👂 듣기 빙고</button>
+          <button class="btn sm" data-load="${l.id}|mingle">🃏 카드 미션${ms?' (이어서 고치기)':''}</button>
+          <button class="btn sm" data-load="${l.id}|board">🎲 보드게임${bs?' (이어서 고치기)':''}</button>
+          <button class="btn sm" data-load="${l.id}|land">🚩 땅따먹기${gs?' (이어서 고치기)':''}</button>
+        </div>
         <div style="display:flex; gap:8px; flex-wrap:wrap">
-          <button class="btn sm" data-load="${l.id}">이 과제 부여 / 편집</button>
           <button class="btn ${l.bingo?'':'ghost'} sm" data-bingo="${l.id}">${l.bingo?'👂 빙고놀이용 ✓':'👂 빙고놀이용으로 표시'}</button>
           <button class="btn ghost sm" data-rename="${l.id}">이름 변경</button>
           <button class="btn ghost sm" data-dellist="${l.id}">삭제</button>
         </div>
       </div>`;
     }).join('');
-    el.querySelectorAll('[data-load]').forEach(b=> b.onclick=()=> loadListIntoDraft(b.dataset.load));
+    el.querySelectorAll('[data-load]').forEach(b=> b.onclick=()=>{
+      const [lid,md]=b.dataset.load.split('|'); loadListIntoDraft(lid, md); });
     el.querySelectorAll('[data-bingo]').forEach(b=> b.onclick=async ()=>{
       const l=DB.lists.find(x=>x.id===b.dataset.bingo); if(!l) return;
       l.bingo=!l.bingo; l.updatedAt=Date.now();
@@ -1186,13 +1425,302 @@ function createAssignment(){
     app.querySelectorAll('.lib-g').forEach(x=>x.classList.toggle('on', x===ch)); render(); });
   render();
 }
-function loadListIntoDraft(listId){
+/* 보관함 목록 = 하나의 원본. 여기서 쓰기·말하기·듣기 빙고·카드 미션 무엇이든 만들 수 있다.
+   그림(이모지)과 이 목록에 딸린 카드 미션 설정(대화문·인원)도 함께 따라온다. */
+function loadListIntoDraft(listId, mode){
   const l=DB.lists.find(x=>x.id===listId); if(!l) return;
-  draft = { items: l.items.map(i=>({id:uid(), text:i.text, meaning:i.meaning||'', type:i.type, sel:true})),
-            repeat: 3, inputMode:'bulk', classIds:[], sourceListId:l.id,
+  draft = { items: l.items.map(i=>({ id:uid(), text:i.text, meaning:i.meaning||'', type:i.type, sel:true,
+              emoji:i.emoji||'', emojiAuto:!i.emoji, emojiFor:i.text })),   /* 지정해 둔 그림은 그대로 지킨다 */
+            repeat: 3, classIds:[], sourceListId:l.id, mode: mode || 'write',
             loadMeta:{ grade:l.grade||'', unit:l.unit||'', lesson:l.lesson||'', title:l.name||'' } };
+  const ms = mgSetOfList(l);
+  if(ms){                                  /* 이 낱말로 만든 카드 미션이 있으면 대화문·인원을 그대로 이어 쓴다 */
+    draft.mingle={ id:ms.id, pub:ms.pub||MG_PUBS[0], goal:ms.goal, cap:ms.cap,
+      lines:(ms.lines||[]).map((x,i)=>({ role:x.role||(i%2?'B':'A'), en:x.en, ko:x.ko||'' })) };
+    if(mode==='mingle') draft.classIds=(ms.classIds||[]).slice();
+  }
+  const bs = bdSetOfList(l);
+  if(bs){                                  /* 이 낱말로 만든 보드게임이 있으면 인원·말판을 그대로 이어 쓴다 */
+    draft.board={ id:bs.id, players:bs.players, size:bs.size||bs.tiles.length, tiles:bs.tiles.slice() };
+    if(mode==='board') draft.classIds=(bs.classIds||[]).slice();
+  }
+  const gs = ldSetOfList(l);
+  if(gs){                                  /* 이 낱말로 만든 땅따먹기가 있으면 판을 그대로 이어 쓴다 */
+    draft.land={ id:gs.id, players:gs.players, n:gs.n, cells:gs.cells.map(c=>({i:c.i})) };
+    if(mode==='land') draft.classIds=(gs.classIds||[]).slice();
+  }
   assignmentForm();
-  toast('과제를 불러왔어요 📋');
+  const what={ write:'쓰기', speak:'말하기', bingo:'듣기 빙고', mingle:'카드 미션', board:'보드게임',
+               land:'땅따먹기', balance:'밸런스 게임' }[draft.mode];
+  toast(`낱말을 불러왔어요 📋 ${what? '· '+what+'로 만들기':''}`);
+}
+/* 이 목록으로 만든 카드 미션 찾기 — 연결이 없는 옛 세트는 학년+제목으로 맞춰 본다 */
+function mgSetOfList(l){
+  if(!l) return null;
+  if(l.mingleId){ const s=mgSet(l.mingleId); if(s) return s; }
+  const key=listMatchKey(l.grade,'',l.name);
+  return (DB.mingle||[]).find(s=> s.listId===l.id || listMatchKey(s.grade,'',s.title)===key) || null;
+}
+/* 이 목록으로 만든 보드게임 찾기 */
+function bdSetOfList(l){
+  if(!l) return null;
+  if(l.boardId){ const s=bdSet(l.boardId); if(s) return s; }
+  const key=listMatchKey(l.grade,'',l.name);
+  return (DB.board||[]).find(s=> s.listId===l.id || listMatchKey(s.grade,'',s.title)===key) || null;
+}
+function listOfBdSet(s){
+  if(!s) return null;
+  if(s.listId){ const l=DB.lists.find(x=>x.id===s.listId); if(l) return l; }
+  const key=listMatchKey(s.grade,'',s.title);
+  return DB.lists.find(l=> l.boardId===s.id || listMatchKey(l.grade,'',l.name)===key) || null;
+}
+/* 이 목록으로 만든 땅따먹기 찾기 */
+function ldSetOfList(l){
+  if(!l) return null;
+  if(l.landId){ const s=ldSet(l.landId); if(s) return s; }
+  const key=listMatchKey(l.grade,'',l.name);
+  return (DB.land||[]).find(s=> s.listId===l.id || listMatchKey(s.grade,'',s.title)===key) || null;
+}
+function listOfLdSet(s){
+  if(!s) return null;
+  if(s.listId){ const l=DB.lists.find(x=>x.id===s.listId); if(l) return l; }
+  const key=listMatchKey(s.grade,'',s.title);
+  return DB.lists.find(l=> l.landId===s.id || listMatchKey(l.grade,'',l.name)===key) || null;
+}
+/* 이 카드 미션이 쓰는 보관함 목록 찾기 (반대 방향) */
+function listOfMgSet(s){
+  if(!s) return null;
+  if(s.listId){ const l=DB.lists.find(x=>x.id===s.listId); if(l) return l; }
+  const key=listMatchKey(s.grade,'',s.title);
+  return DB.lists.find(l=> l.mingleId===s.id || listMatchKey(l.grade,'',l.name)===key) || null;
+}
+/* 만들어 둔 카드 미션 목록 — 듣기 빙고와 같은 자리(과제 만들기)에서 고치고 다시 배부한다 */
+function renderMingleSetList(el, redraw){
+  const sets=mgSets();
+  if(!sets.length){ el.innerHTML=`<div class="card empty"><span class="em">🃏</span>아직 만든 카드 미션이 없어요.<br>
+    「＋ 새 과제 만들기」에서 <b>③ 과제 유형 → 🃏 카드 미션</b>을 고르면 만들 수 있어요.</div>`; return; }
+  el.innerHTML = sets.map(s=>`
+    <div class="card" style="margin-bottom:12px">
+      <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap">
+        <h3 style="margin:0; flex:1">🃏 ${esc(s.title)}</h3>
+        <span class="pill mingle">카드 미션</span><span class="muted">카드 ${s.cards.length}종</span>
+      </div>
+      <p class="muted" style="margin:5px 0 6px">${esc(s.grade||'학년 미지정')}${s.pub?' / '+esc(s.pub):''}
+        · 만날 친구 ${s.goal}명 · 카드당 최대 ${s.cap}명 · 대화문 ${s.lines.length}문장</p>
+      <p style="font-family:'Andika'; font-size:.95rem; margin:0 0 8px; color:var(--ink-soft)">${
+        s.cards.slice(0,8).map(c=>esc((c.em||'')+' '+c.en)).join(', ')}${s.cards.length>8?' …':''}</p>
+      <p class="muted" style="font-size:.82rem; margin:0 0 10px">🏫 ${esc(mgClassNames(s))}</p>
+      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px">
+        <button class="btn sm" data-mgload="${esc(s.id)}">🃏 이 미션 고치기 / 다시 부여</button>
+        <button class="btn ghost sm" data-mgdel="${esc(s.id)}">삭제</button>
+      </div>
+      ${(()=>{ const l=listOfMgSet(s); return l? `
+      <p class="muted" style="font-size:.82rem; margin:0 0 6px">📚 같은 낱말로 다른 활동 만들기</p>
+      <div style="display:flex; gap:8px; flex-wrap:wrap">
+        <button class="btn sm" data-mguse="${esc(l.id)}|write">✏️ 쓰기</button>
+        <button class="btn sm" data-mguse="${esc(l.id)}|speak">🗣️ 말하기</button>
+        <button class="btn sm" data-mguse="${esc(l.id)}|bingo">👂 듣기 빙고</button>
+        <button class="btn sm" data-mguse="${esc(l.id)}|board">🎲 보드게임</button>
+        <button class="btn sm" data-mguse="${esc(l.id)}|land">🚩 땅따먹기</button>
+      </div>`
+      : `<p class="muted" style="font-size:.82rem; margin:0">📚 이 미션을 한 번 저장하면 낱말이 보관함에도 들어가서,
+           쓰기·말하기·듣기 빙고로 그대로 다시 쓸 수 있어요.</p>`; })()}
+    </div>`).join('');
+  el.querySelectorAll('[data-mgload]').forEach(b=> b.onclick=()=> loadMingleIntoDraft(b.dataset.mgload));
+  el.querySelectorAll('[data-mguse]').forEach(b=> b.onclick=()=>{
+    const [lid,md]=b.dataset.mguse.split('|'); loadListIntoDraft(lid, md); });
+  el.querySelectorAll('[data-mgdel]').forEach(b=> b.onclick=async ()=>{
+    const s=mgSet(b.dataset.mgdel); if(!s) return;
+    if(!confirm(`'${s.title}' 카드 미션을 지울까요?\n학생들이 더 이상 볼 수 없고, 진행 기록도 보이지 않아요.`)) return;
+    b.disabled=true; b.textContent='삭제 중...';
+    const list=(DB.mingle||[]).filter(x=>x.id!==s.id);
+    const ok=await sSet(KEYS.mingle, list);
+    if(!ok){ toast('지우지 못했어요. 선생님 계정인지 확인해 주세요'); b.disabled=false; b.textContent='삭제'; return; }
+    DB.mingle=list;
+    /* 낱말 목록은 보관함에 그대로 남긴다 — 쓰기·말하기·빙고로 계속 쓸 수 있게. 연결 표시만 지운다 */
+    const lk=DB.lists.filter(x=>x.mingleId===s.id);
+    if(lk.length){ lk.forEach(x=>{ delete x.mingleId; x.updatedAt=Date.now(); }); await sSet(KEYS.lists, DB.lists); }
+    toast('카드 미션을 지웠어요 (낱말은 보관함에 남아 있어요)'); redraw();
+  });
+}
+/* 만들어 둔 보드게임 목록 */
+function renderBoardSetList(el, redraw){
+  const sets=bdSets();
+  if(!sets.length){ el.innerHTML=`<div class="card empty"><span class="em">🎲</span>아직 만든 보드게임이 없어요.<br>
+    「＋ 새 과제 만들기」에서 <b>③ 과제 유형 → 🎲 보드게임</b>을 고르면 만들 수 있어요.</div>`; return; }
+  el.innerHTML = sets.map(s=>{
+    const c={}; s.tiles.forEach(t=>{ c[t.t]=(c[t.t]||0)+1; });
+    return `<div class="card" style="margin-bottom:12px">
+      <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap">
+        <h3 style="margin:0; flex:1">🎲 ${esc(s.title)}</h3>
+        <span class="pill board">보드게임</span><span class="muted">${s.tiles.length}칸</span>
+      </div>
+      <p class="muted" style="margin:5px 0 6px">${esc(s.grade||'학년 미지정')} · 낱말 ${s.items.length}개 ·
+        ${s.players}인 모둠 · 미션 ${c.mission||0}칸 · 재미 칸 ${s.tiles.length-2-(c.mission||0)}칸</p>
+      <p style="font-family:'Andika'; font-size:.95rem; margin:0 0 8px; color:var(--ink-soft)">${
+        s.items.slice(0,8).map(i=>esc((i.em||'')+' '+i.en)).join(', ')}${s.items.length>8?' …':''}</p>
+      <p class="muted" style="font-size:.82rem; margin:0 0 10px">🏫 ${esc(bdClassNames(s))}</p>
+      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px">
+        <button class="btn sm" data-bdload="${esc(s.id)}">🎲 이 보드게임 고치기 / 다시 부여</button>
+        <button class="btn ghost sm" data-bddel="${esc(s.id)}">삭제</button>
+      </div>
+      ${(()=>{ const l=listOfBdSet(s); return l? `
+      <p class="muted" style="font-size:.82rem; margin:0 0 6px">📚 같은 낱말로 다른 활동 만들기</p>
+      <div style="display:flex; gap:8px; flex-wrap:wrap">
+        <button class="btn sm" data-mguse="${esc(l.id)}|write">✏️ 쓰기</button>
+        <button class="btn sm" data-mguse="${esc(l.id)}|speak">🗣️ 말하기</button>
+        <button class="btn sm" data-mguse="${esc(l.id)}|bingo">👂 듣기 빙고</button>
+        <button class="btn sm" data-mguse="${esc(l.id)}|mingle">🃏 카드 미션</button>
+        <button class="btn sm" data-mguse="${esc(l.id)}|land">🚩 땅따먹기</button>
+      </div>` : ''; })()}
+    </div>`; }).join('');
+  el.querySelectorAll('[data-bdload]').forEach(b=> b.onclick=()=> loadBoardIntoDraft(b.dataset.bdload));
+  el.querySelectorAll('[data-mguse]').forEach(b=> b.onclick=()=>{
+    const [lid,md]=b.dataset.mguse.split('|'); loadListIntoDraft(lid, md); });
+  el.querySelectorAll('[data-bddel]').forEach(b=> b.onclick=async ()=>{
+    const s=bdSet(b.dataset.bddel); if(!s) return;
+    if(!confirm(`'${s.title}' 보드게임을 지울까요?\n학생들이 더 이상 볼 수 없고, 진행 중인 모둠 게임도 사라져요.`)) return;
+    b.disabled=true; b.textContent='삭제 중...';
+    /* 열려 있던 모둠 편성도 함께 내린다 (안 그러면 학생 태블릿에 그대로 남는다) */
+    for(const cid of (s.classIds||[])){
+      const sess=await sGet(bdKey(s.id,cid), null);
+      if(sess && Array.isArray(sess.groups)){ for(let g=0; g<sess.groups.length; g++) await sDel(bdRKey(s.id,cid,g)); }
+      await sDel(bdKey(s.id,cid));
+    }
+    const list=(DB.board||[]).filter(x=>x.id!==s.id);
+    const ok=await sSet(KEYS.board, list);
+    if(!ok){ toast('지우지 못했어요. 선생님 계정인지 확인해 주세요'); b.disabled=false; b.textContent='삭제'; return; }
+    DB.board=list;
+    const lk=DB.lists.filter(x=>x.boardId===s.id);
+    if(lk.length){ lk.forEach(x=>{ delete x.boardId; x.updatedAt=Date.now(); }); await sSet(KEYS.lists, DB.lists); }
+    toast('보드게임을 지웠어요 (낱말은 보관함에 남아 있어요)'); redraw();
+  });
+}
+/* 만들어 둔 땅따먹기 목록 */
+function renderLandSetList(el, redraw){
+  const sets=ldSets();
+  if(!sets.length){ el.innerHTML=`<div class="card empty"><span class="em">🚩</span>아직 만든 땅따먹기가 없어요.<br>
+    「＋ 새 과제 만들기」에서 <b>③ 과제 유형 → 🚩 땅따먹기</b>를 고르면 만들 수 있어요.</div>`; return; }
+  el.innerHTML = sets.map(s=>`
+    <div class="card" style="margin-bottom:12px">
+      <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap">
+        <h3 style="margin:0; flex:1">🚩 ${esc(s.title)}</h3>
+        <span class="pill land">땅따먹기</span><span class="muted">${s.n}×${s.n}칸</span>
+      </div>
+      <p class="muted" style="margin:5px 0 6px">${esc(s.grade||'학년 미지정')} · 낱말 ${s.items.length}개 · ${s.players}인 모둠</p>
+      <p style="font-family:'Andika'; font-size:.95rem; margin:0 0 8px; color:var(--ink-soft)">${
+        s.items.slice(0,8).map(i=>esc((i.em||'')+' '+i.en)).join(', ')}${s.items.length>8?' …':''}</p>
+      <p class="muted" style="font-size:.82rem; margin:0 0 10px">🏫 ${esc(ldClassNames(s))}</p>
+      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px">
+        <button class="btn sm" data-ldload="${esc(s.id)}">🚩 이 땅따먹기 고치기 / 다시 부여</button>
+        <button class="btn ghost sm" data-lddel="${esc(s.id)}">삭제</button>
+      </div>
+      ${(()=>{ const l=listOfLdSet(s); return l? `
+      <p class="muted" style="font-size:.82rem; margin:0 0 6px">📚 같은 낱말로 다른 활동 만들기</p>
+      <div style="display:flex; gap:8px; flex-wrap:wrap">
+        <button class="btn sm" data-mguse="${esc(l.id)}|write">✏️ 쓰기</button>
+        <button class="btn sm" data-mguse="${esc(l.id)}|speak">🗣️ 말하기</button>
+        <button class="btn sm" data-mguse="${esc(l.id)}|bingo">👂 듣기 빙고</button>
+        <button class="btn sm" data-mguse="${esc(l.id)}|mingle">🃏 카드 미션</button>
+        <button class="btn sm" data-mguse="${esc(l.id)}|board">🎲 보드게임</button>
+      </div>` : ''; })()}
+    </div>`).join('');
+  el.querySelectorAll('[data-ldload]').forEach(b=> b.onclick=()=> loadLandIntoDraft(b.dataset.ldload));
+  el.querySelectorAll('[data-mguse]').forEach(b=> b.onclick=()=>{
+    const [lid,md]=b.dataset.mguse.split('|'); loadListIntoDraft(lid, md); });
+  el.querySelectorAll('[data-lddel]').forEach(b=> b.onclick=async ()=>{
+    const s=ldSet(b.dataset.lddel); if(!s) return;
+    if(!confirm(`'${s.title}' 땅따먹기를 지울까요?\n학생들이 더 이상 볼 수 없고, 진행 중인 땅도 사라져요.`)) return;
+    b.disabled=true; b.textContent='삭제 중...';
+    for(const cid of (s.classIds||[])){
+      const sess=await sGet(ldKey(s.id,cid), null);
+      if(sess && Array.isArray(sess.groups)){ for(let g=0; g<sess.groups.length; g++) await sDel(ldRKey(s.id,cid,g)); }
+      await sDel(ldKey(s.id,cid));
+    }
+    const list=(DB.land||[]).filter(x=>x.id!==s.id);
+    const ok=await sSet(KEYS.land, list);
+    if(!ok){ toast('지우지 못했어요. 선생님 계정인지 확인해 주세요'); b.disabled=false; b.textContent='삭제'; return; }
+    DB.land=list;
+    const lk=DB.lists.filter(x=>x.landId===s.id);
+    if(lk.length){ lk.forEach(x=>{ delete x.landId; x.updatedAt=Date.now(); }); await sSet(KEYS.lists, DB.lists); }
+    toast('땅따먹기를 지웠어요 (낱말은 보관함에 남아 있어요)'); redraw();
+  });
+}
+/* 만들어 둔 밸런스 게임 목록 */
+function renderBalanceSetList(el, redraw){
+  const sets=blSets();
+  if(!sets.length){ el.innerHTML=`<div class="card empty"><span class="em">⚖️</span>아직 만든 밸런스 게임이 없어요.<br>
+    「＋ 새 과제 만들기」에서 <b>③ 과제 유형 → ⚖️ 밸런스 게임</b>을 고르면 만들 수 있어요.</div>`; return; }
+  el.innerHTML = sets.map(s=>`
+    <div class="card" style="margin-bottom:12px">
+      <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap">
+        <h3 style="margin:0; flex:1">⚖️ ${esc(s.title)}</h3>
+        <span class="pill balance">밸런스 게임</span><span class="muted">${s.rounds}문제</span>
+      </div>
+      <p class="muted" style="margin:5px 0 6px">${esc(s.grade||'학년 미지정')} · ${s.choices}개 중 하나 ·
+        ${s.limit? `⏱ 한 문제 ${s.limit}초` : '제한시간 없음'} · 정답 알려주기 ${esc(BL_FBS[s.fb]||BL_FBS.end)}</p>
+      <p style="font-family:'Jua'; font-size:1.05rem; margin:0 0 8px; color:var(--ink-soft); word-break:break-all">
+        🔑 ${esc(blKeyText(s))}</p>
+      <p class="muted" style="font-size:.82rem; margin:0 0 10px">🏫 ${esc(blClassNames(s))}</p>
+      <div style="display:flex; gap:8px; flex-wrap:wrap">
+        <button class="btn sm" data-blload="${esc(s.id)}">⚖️ 이 게임 고치기 / 다시 부여</button>
+        <button class="btn ghost sm" data-bldel="${esc(s.id)}">삭제</button>
+      </div>
+    </div>`).join('');
+  el.querySelectorAll('[data-blload]').forEach(b=> b.onclick=()=> loadBalanceIntoDraft(b.dataset.blload));
+  el.querySelectorAll('[data-bldel]').forEach(b=> b.onclick=async ()=>{
+    const s=blSet(b.dataset.bldel); if(!s) return;
+    if(!confirm(`'${s.title}' 밸런스 게임을 지울까요?\n학생들이 더 이상 풀 수 없어요. (점수 기록은 남아 있어요)`)) return;
+    b.disabled=true; b.textContent='삭제 중...';
+    const list=(DB.balance||[]).filter(x=>x.id!==s.id);
+    const ok=await sSet(KEYS.balance, list);
+    if(!ok){ toast('지우지 못했어요. 선생님 계정인지 확인해 주세요'); b.disabled=false; b.textContent='삭제'; return; }
+    DB.balance=list;
+    toast('밸런스 게임을 지웠어요'); redraw();
+  });
+}
+function loadBalanceIntoDraft(setId){
+  const s=blSet(setId); if(!s) return;
+  draft = { items:[], repeat:3, classIds:(s.classIds||[]).slice(), mode:'balance', sourceListId:null,
+            balance:{ id:s.id, choices:s.choices, rounds:s.rounds, answers:blAnswers(s),
+                      fb:s.fb||'end', limit:s.limit||0 },
+            loadMeta:{ grade:s.grade||'', unit:'', lesson:'', title:s.title||'' } };
+  assignmentForm();
+  toast('밸런스 게임을 불러왔어요 ⚖️');
+}
+function loadLandIntoDraft(setId){
+  const s=ldSet(setId); if(!s) return;
+  const l=listOfLdSet(s);
+  draft = { items: s.items.map(i=>({ id:uid(), text:i.en, meaning:i.ko||'', type:detectType(i.en), sel:true,
+              emoji:i.em||'', emojiAuto:false, emojiFor:i.en })),
+            repeat:3, classIds:(s.classIds||[]).slice(), mode:'land', sourceListId: l? l.id : null,
+            land:{ id:s.id, players:s.players, n:s.n, cells:s.cells.map(c=>({i:c.i})) },
+            loadMeta:{ grade:s.grade||'', unit:(l&&l.unit)||'', lesson:(l&&l.lesson)||'', title:s.title||'' } };
+  assignmentForm();
+  toast('땅따먹기를 불러왔어요 🚩');
+}
+function loadBoardIntoDraft(setId){
+  const s=bdSet(setId); if(!s) return;
+  const l=listOfBdSet(s);
+  draft = { items: s.items.map(i=>({ id:uid(), text:i.en, meaning:i.ko||'', type:detectType(i.en), sel:true,
+              emoji:i.em||'', emojiAuto:false, emojiFor:i.en })),
+            repeat:3, classIds:(s.classIds||[]).slice(), mode:'board', sourceListId: l? l.id : null,
+            board:{ id:s.id, players:s.players, size:s.size||s.tiles.length, tiles:s.tiles.slice() },
+            loadMeta:{ grade:s.grade||'', unit:(l&&l.unit)||'', lesson:(l&&l.lesson)||'', title:s.title||'' } };
+  assignmentForm();
+  toast('보드게임을 불러왔어요 🎲');
+}
+function loadMingleIntoDraft(setId){
+  const s=mgSet(setId); if(!s) return;
+  const l=listOfMgSet(s);                /* 같은 낱말을 보관함에서도 쓰므로 원본 목록을 이어 둔다 */
+  draft = { items: s.cards.map(c=>({ id:uid(), text:c.en, meaning:c.ko||'', type:detectType(c.en), sel:true,
+              emoji:c.em||'', emojiAuto:false, emojiFor:c.en })),
+            repeat:3, classIds:(s.classIds||[]).slice(), mode:'mingle', sourceListId: l? l.id : null,
+            mingle:{ id:s.id, pub:s.pub||MG_PUBS[0], goal:s.goal, cap:s.cap,
+                     lines:(s.lines||[]).map((x,i)=>({ role:x.role||(i%2?'B':'A'), en:x.en, ko:x.ko||'' })) },
+            loadMeta:{ grade:s.grade||'', unit:(l&&l.unit)||'', lesson:(l&&l.lesson)||'', title:s.title||'' } };
+  assignmentForm();
+  toast('카드 미션을 불러왔어요 🃏');
 }
 
 /* ============================ MANAGE CLASSES / STUDENTS ============================ */
@@ -1278,9 +1806,10 @@ function renderClassPick(){
     else { draft.classIds.push(id); t.classList.add('on'); } });
 }
 function assignmentForm(){
-  draft = draft || { items:[], repeat:3, inputMode:'bulk', classIds:[], mode:'write' };
+  draft = draft || { items:[], repeat:3, classIds:[], mode:'write' };
   if(!draft.classIds) draft.classIds=[];
   if(!draft.mode) draft.mode='write';
+  mgSaveArm=false;                       /* '한 번 더 눌러 주세요' 상태는 화면을 새로 열 때마다 푼다 */
   app.innerHTML = `
     <button class="back" onclick="createAssignment()">← 과제 만들기</button>
     <div class="card">
@@ -1293,24 +1822,23 @@ function assignmentForm(){
       <div style="margin-top:10px"><label>과제 제목</label><input type="text" id="aTitle" placeholder="예) 색깔 낱말 익히기"></div>
     </div>
 
-    <div class="card">
+    <div class="card" id="itemsCard">
       <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:6px">
         <h2 style="margin:4px 0; flex:1">② 낱말·문장 목록 만들기</h2>
-        <button class="btn ghost sm" id="saveList">💾 목록 저장</button>
+        <button class="btn ghost sm" id="saveList" title="여기 적은 낱말만 보관함에 저장해요. 과제·미션 배부는 아래 버튼으로 합니다">💾 낱말만 보관함에 저장</button>
       </div>
-      <div class="seg" id="modeSeg">
-        <button data-mode="bulk" class="${draft.inputMode==='bulk'?'on':''}">일괄 입력</button>
-        <button data-mode="one" class="${draft.inputMode==='one'?'on':''}">하나씩 추가</button>
-      </div>
-      <div id="inputArea"></div>
-      <div class="hr"></div>
-      <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap">
-        <h3 style="margin:0; flex:1">제시할 항목 고르기</h3>
+      <p class="legend">한 칸에 낱말(또는 문장) 하나씩 적어요. 영어를 적으면 <b>낱말/문장</b>은 저절로 정해져요.<br>
+        왼쪽 체크를 <b>켠 항목만</b> 학생에게 나가요. 빈 칸은 저장할 때 저절로 빠집니다.</p>
+      <div id="linkNote"></div>
+      <div id="itemList"></div>
+      <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:10px">
+        <button class="btn ghost sm" id="addItem">＋ 낱말 추가</button>
+        <button class="btn ghost sm" id="pasteToggle">📋 한꺼번에 붙여넣기</button>
+        <span style="flex:1"></span>
         <button class="btn ghost sm" id="selAll">전체 선택</button>
         <button class="btn ghost sm" id="selNone">전체 해제</button>
       </div>
-      <p class="legend">체크한 항목만 학생에게 제시돼요. (전체 또는 일부 선택 가능)</p>
-      <div id="itemList"></div>
+      <div id="pasteArea" style="display:none"></div>
     </div>
 
     <div class="card">
@@ -1321,6 +1849,10 @@ function assignmentForm(){
         <button data-mt="speak" class="${draft.mode==='speak'?'on':''}">🗣️ 말하기</button>
         <button data-mt="both" class="${draft.mode==='both'?'on':''}">✏️+🗣️ 둘 다</button>
         <button data-mt="bingo" class="${draft.mode==='bingo'?'on':''}">👂 듣기 빙고</button>
+        <button data-mt="mingle" class="${draft.mode==='mingle'?'on':''}">🃏 카드 미션</button>
+        <button data-mt="board" class="${draft.mode==='board'?'on':''}">🎲 보드게임</button>
+        <button data-mt="land" class="${draft.mode==='land'?'on':''}">🚩 땅따먹기</button>
+        <button data-mt="balance" class="${draft.mode==='balance'?'on':''}">⚖️ 밸런스 게임</button>
       </div>
       <p class="muted" style="font-size:.82rem; margin:-4px 0 12px 2px" id="modeHint"></p>
       <div class="hr"></div>
@@ -1335,6 +1867,10 @@ function assignmentForm(){
         </div>
       </div>
       <div id="bingoBox" style="display:none"></div>
+      <div id="mingleBox" style="display:none"></div>
+      <div id="boardBox" style="display:none"></div>
+      <div id="landBox" style="display:none"></div>
+      <div id="balBox" style="display:none"></div>
     </div>
 
     <div class="card">
@@ -1347,7 +1883,7 @@ function assignmentForm(){
 
     <div class="center"><button class="btn lg coral" id="saveAsg">📨 선택한 학급에 배부하기</button></div>`;
 
-  renderInputArea(); renderItemList();
+  renderItemList();
   // prefill info from a loaded list (once)
   if(draft.loadMeta){ const m=draft.loadMeta;
     if($('aGrade')) $('aGrade').value=m.grade||'';
@@ -1357,25 +1893,248 @@ function assignmentForm(){
     draft.loadMeta=null;
   }
   renderClassPick();
+  renderLinkNote();
   if($('aGrade')) $('aGrade').addEventListener('input', renderClassPick);
   const modeHints={ write:'학생이 흐린 글자 위에 따라 써요.', speak:'학생이 듣고 마이크로 따라 말해요(자동 채점).',
     both:'쓰기 과제와 말하기 과제가 각각 하나씩 배부돼요.',
-    bingo:'선생님이 들려주는 표현을 학생이 빙고판에서 찾는 놀이예요. 아래에서 판과 그림을 정하세요.' };
+    bingo:'선생님이 들려주는 표현을 학생이 빙고판에서 찾는 놀이예요. 아래에서 판과 그림을 정하세요.',
+    mingle:'학생이 카드를 한 장 뽑고 교실을 돌며 친구를 인터뷰하는 말하기 놀이예요. ②의 낱말이 그대로 주제 카드가 돼요.',
+    board:'모둠끼리 태블릿으로 주사위를 굴려 말판을 도는 놀이예요. ②의 낱말이 미션 칸에 들어가요.',
+    land:'방향과 힘을 조절해 돌을 던지고, 떨어진 칸의 낱말을 말하면 그 땅을 차지해요. ②의 낱말이 각 칸에 들어가요.',
+    balance:'문제는 선생님이 PPT로 보여 주고, 학생 태블릿에는 번호 버튼만 나와요. 아래 정답표대로 채점해 결과가 나옵니다.' };
   const cntText={ write:['쓰기 횟수','각 낱말·문장을 몇 번 따라 쓰게 할까요?'], speak:['말하기 횟수','각 낱말·문장을 몇 번 따라 말하게 할까요?'], both:['연습 횟수','각 낱말·문장을 쓰기·말하기 각각 몇 번씩 연습하게 할까요?'] };
   const updateModeUI=()=>{ const h=$('modeHint'); if(h) h.textContent=modeHints[draft.mode]||'';
     const t=cntText[draft.mode]||cntText.write; const ct=$('cntTitle'); if(ct) ct.textContent=t[0]; const cd=$('cntDesc'); if(cd) cd.textContent=t[1];
-    const isB=draft.mode==='bingo';
-    $('cntBox').style.display = isB? 'none':'';
+    const isB=draft.mode==='bingo', isM=draft.mode==='mingle', isD=draft.mode==='board',
+          isL=draft.mode==='land', isQ=draft.mode==='balance';
+    $('cntBox').style.display = (isB||isM||isD||isL||isQ)? 'none':'';
     $('bingoBox').style.display = isB? '':'none';
-    const sv=$('saveAsg'); if(sv) sv.textContent = isB? '👂 선택한 학급에 빙고 배부하기' : '📨 선택한 학급에 배부하기';
+    $('mingleBox').style.display = isM? '':'none';
+    $('boardBox').style.display = isD? '':'none';
+    $('landBox').style.display = isL? '':'none';
+    $('balBox').style.display = isQ? '':'none';
+    const ic=$('itemsCard'); if(ic) ic.style.display = isQ? 'none':'';   /* 밸런스 게임은 낱말을 쓰지 않는다 */
+    const sv=$('saveAsg'); if(sv) sv.textContent = isB? '👂 선택한 학급에 빙고 배부하기'
+      : isM? mgSaveLabel() : isD? bdSaveLabel() : isL? ldSaveLabel() : isQ? blSaveLabel() : '📨 선택한 학급에 배부하기';
     if(isB) renderBingoBox();
+    if(isM) renderMingleBox();
+    if(isD) renderBoardBox();
+    if(isL) renderLandBox();
+    if(isQ) renderBalanceBox();
   };
+  /* 밸런스 게임 설정 — 보기 수(2·3·4)·라운드 수·정답표. 문제는 PPT로 내므로 낱말은 쓰지 않는다 */
+  const renderBalanceBox=()=>{
+    draft.balance = draft.balance || { id:null, choices:4, rounds:10, answers:null, fb:'end', limit:20 };
+    const q=draft.balance;
+    blFitAnswers(q);
+    $('balBox').innerHTML=`
+      <div class="mg-note" style="margin:0 0 14px">🖥️ <b>문제와 보기는 선생님이 PPT로</b> 보여 주세요.
+        학생 태블릿에는 <b>번호 버튼(①②③④)만</b> 나옵니다.
+        그래서 이 활동은 <b>②의 낱말을 쓰지 않아요</b> — 대신 아래에 <b>정답표</b>를 정해 주세요.</div>
+      <h3 style="margin-top:0">밸런스 게임 설정</h3>
+      <div class="row">
+        <div><label>답을 몇 개 중에 고를까요?</label><select id="blChoices">
+          ${[2,3,4].map(v=>`<option value="${v}" ${v===q.choices?'selected':''}>${v}개 중에 하나</option>`).join('')}
+        </select></div>
+        <div><label>라운드 수 (문항 수)</label><select id="blRounds">
+          ${[3,5,8,10,12,15,20,25,30].map(v=>`<option value="${v}" ${v===q.rounds?'selected':''}>${v}문제</option>`).join('')}
+        </select></div>
+        <div><label>한 문제 제한시간</label><select id="blLimit">
+          <option value="0" ${!q.limit?'selected':''}>제한 없음</option>
+          ${[10,15,20,30,45,60].map(v=>`<option value="${v}" ${v===q.limit?'selected':''}>${v}초</option>`).join('')}
+        </select></div>
+        <div><label>정답 알려주기</label><select id="blFb">
+          <option value="end" ${q.fb!=='now'?'selected':''}>마지막에 한꺼번에</option>
+          <option value="now" ${q.fb==='now'?'selected':''}>고르자마자 바로</option>
+        </select></div>
+      </div>
+      <p class="muted" style="margin:8px 0 0; font-size:.83rem">${q.limit
+        ? `⏱ 한 문제에 <b>${q.limit}초</b>씩 주고, 시간이 다 되면 <b>저절로 다음 문제</b>로 넘어가요.
+           <b>10초가 남으면</b> 화면에 큰 숫자가 뜨고 째깍 소리가 납니다.
+           그동안은 답을 몇 번이든 바꿀 수 있어요 — PPT 넘기는 속도에 맞추기 좋아요.`
+        : '제한시간이 없으면 학생이 스스로 문제를 오가며 풀고, 다 풀면 「다 풀었어요」를 눌러요.'}<br>${q.fb==='now'
+        ? (q.limit? '정답은 그 문제의 시간이 끝날 때 알려줘요.' : '학생이 번호를 고르면 그 자리에서 ⭕/❌ 를 보여줘요.')
+        : 'PPT로 정답을 설명할 수 있게, 다 풀기 전까지는 학생 화면에 정답을 보여주지 않아요.'}</p>
+      <div class="hr"></div>
+      <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap">
+        <h3 style="margin:0; flex:1">🔑 정답표</h3>
+        <button class="btn ghost sm" id="blKeyRand">🎲 무작위로 채우기</button>
+      </div>
+      <p class="muted" style="margin:6px 0 10px">PPT 슬라이드 순서대로 <b>정답 번호를 하나씩</b> 눌러 주세요.
+        (지금 정답: <b id="blKeyNow">${blKeyText({rounds:q.rounds, choices:q.choices, answers:q.answers})}</b>)</p>
+      <div id="blKey"></div>
+      <div class="hr"></div>
+      <h3 style="margin-top:0">학생 화면 미리보기</h3>
+      <p class="muted" style="margin:0 0 10px">학생 태블릿에는 이렇게 나와요.</p>
+      <div id="blPreview"></div>
+      <div id="blMsg"></div>
+      <div class="hr"></div>
+      <div class="center">
+        <button class="btn lg coral" id="blSaveNow">${blSaveLabel()}</button>
+        <p class="muted" style="margin:8px 0 0; font-size:.83rem">
+          ${q.id? '고친 내용이 저장되고, ④에서 고른 학급에 그대로 다시 배부돼요.'
+                : '④에서 고를 학급에 이 문제로 밸런스 게임이 만들어져요.'}
+          <br>맨 아래 버튼과 같은 기능이라 둘 중 아무거나 누르면 돼요.</p>
+      </div>`;
+    $('blChoices').onchange = ev=>{ q.choices=+ev.target.value; renderBalanceBox(); };
+    $('blRounds').onchange = ev=>{ q.rounds=+ev.target.value; renderBalanceBox(); };
+    $('blFb').onchange = ev=>{ q.fb=ev.target.value; renderBalanceBox(); };
+    $('blLimit').onchange = ev=>{ q.limit=+ev.target.value; renderBalanceBox(); };
+    $('blKeyRand').onclick = ()=>{
+      q.answers=[...Array(q.rounds).keys()].map(()=> 1+Math.floor(Math.random()*q.choices));
+      renderBalanceBox(); toast('정답을 무작위로 채웠어요 🎲');
+    };
+    $('blSaveNow').onclick = saveAssignment;      /* 맨 아래 배부 버튼과 같은 동작 */
+    renderBalanceKey();
+    renderBalanceStuPreview();
+  };
+  window.__renderBalanceBox=renderBalanceBox;
+  /* 땅따먹기 설정 —  /* 땅따먹기 설정 — 모둠 인원·판 크기, 칸에 보일 그림, 땅 미리보기 */
+  const renderLandBox=()=>{
+    draft.land = draft.land || { id:null, players:2, n:5, cells:null };
+    const g=draft.land;
+    $('landBox').innerHTML=`
+      <h3 style="margin-top:0">땅따먹기 설정</h3>
+      <div class="row">
+        <div><label>한 모둠 인원</label><select id="ldPlayers">
+          ${[2,3,4].map(v=>`<option value="${v}" ${v===g.players?'selected':''}>${v}명씩</option>`).join('')}
+        </select></div>
+        <div><label>땅 크기</label><select id="ldN">
+          ${[4,5,6,7].map(v=>`<option value="${v}" ${v===g.n?'selected':''}>${v} × ${v} = ${v*v}칸</option>`).join('')}
+        </select></div>
+      </div>
+      <p class="muted" style="margin:8px 0 0; font-size:.83rem">모둠원은 <b>네 귀퉁이</b>에서 한 칸씩 갖고 시작해요.
+        빈 땅이 하나도 남지 않으면 게임이 끝나고 <b>가장 많은 땅</b>을 가진 사람이 이겨요.
+        칸이 많을수록 오래 걸리니 4×4 또는 5×5를 권해요.</p>
+      <div class="hr"></div>
+      <h3 style="margin-top:0">칸에 보일 그림</h3>
+      <p class="muted" style="margin:0 0 10px">위 ②에서 <b>체크한 낱말</b>이 칸마다 하나씩 들어가요 (3개 이상).
+        칸이 낱말보다 많으면 같은 낱말이 여러 칸에 나옵니다.</p>
+      <div id="ldEmoWrap"></div>
+      <div class="hr"></div>
+      <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap">
+        <h3 style="margin:0; flex:1">땅 미리보기</h3>
+        <button class="btn ghost sm" id="ldShuffleCells">🔀 낱말 다시 뿌리기</button>
+      </div>
+      <div id="ldPreview"></div>
+      <div id="ldMsg"></div>
+      <div class="hr"></div>
+      <div class="center">
+        <button class="btn lg coral" id="ldSaveNow">${ldSaveLabel()}</button>
+        <p class="muted" style="margin:8px 0 0; font-size:.83rem">
+          ${g.id? '고친 내용이 저장되고, ④에서 고른 학급에 그대로 다시 배부돼요.'
+                : '④에서 고를 학급에 이 땅으로 땅따먹기가 만들어져요.'}
+          <br>맨 아래 버튼과 같은 기능이라 둘 중 아무거나 누르면 돼요.</p>
+      </div>`;
+    $('ldPlayers').onchange = ev=> g.players=+ev.target.value;
+    $('ldN').onchange = ev=>{ g.n=+ev.target.value; g.cells=null; renderLandPreview(); };
+    $('ldShuffleCells').onclick = ()=>{ g.cells=null; renderLandPreview(); toast('낱말을 새로 뿌렸어요 🔀'); };
+    $('ldSaveNow').onclick = saveAssignment;
+    renderLandCards();
+  };
+  window.__renderLandBox=renderLandBox;
+  window.__renderLandCards=renderLandCards;
+  /* 보드게임 설정 — 모둠 인원·칸 수, 미션 칸 그림, 말판 미리보기 */
+  const renderBoardBox=()=>{
+    draft.board = draft.board || { id:null, players:2, size:30, tiles:null };
+    const b=draft.board;
+    $('boardBox').innerHTML=`
+      <h3 style="margin-top:0">보드게임 설정</h3>
+      <div class="row">
+        <div><label>한 모둠 인원</label><select id="bdPlayers">
+          ${[2,3,4].map(v=>`<option value="${v}" ${v===b.players?'selected':''}>${v}명씩</option>`).join('')}
+        </select></div>
+        <div><label>말판 칸 수</label><select id="bdSize">
+          ${[20,25,30,35,40].map(v=>`<option value="${v}" ${v===b.size?'selected':''}>${v}칸</option>`).join('')}
+        </select></div>
+      </div>
+      <p class="muted" style="margin:8px 0 0; font-size:.83rem">반 인원을 인원수대로 나눠 모둠을 짜요.
+        마지막에 1명이 남으면 앞 모둠에 함께 들어갑니다. (모둠 짜기는 <b>미션 활동 → 보드게임</b>에서)</p>
+      <div class="hr"></div>
+      <h3 style="margin-top:0">미션 칸에 보일 그림</h3>
+      <p class="muted" style="margin:0 0 10px">위 ②에서 <b>체크한 낱말</b>이 미션 칸에 들어가요 (3개 이상).
+        말판이 낱말보다 길면 같은 낱말이 여러 칸에 나옵니다.</p>
+      <div id="bdEmoWrap"></div>
+      <div class="hr"></div>
+      <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap">
+        <h3 style="margin:0; flex:1">말판 미리보기</h3>
+        <button class="btn ghost sm" id="bdShuffleTiles">🔀 말판 다시 만들기</button>
+      </div>
+      <div id="bdPreview"></div>
+      <div id="bdMsg"></div>
+      <div class="hr"></div>
+      <div class="center">
+        <button class="btn lg coral" id="bdSaveNow">${bdSaveLabel()}</button>
+        <p class="muted" style="margin:8px 0 0; font-size:.83rem">
+          ${b.id? '고친 내용이 저장되고, ④에서 고른 학급에 그대로 다시 배부돼요.'
+                : '④에서 고를 학급에 이 말판으로 보드게임이 만들어져요.'}
+          <br>맨 아래 버튼과 같은 기능이라 둘 중 아무거나 누르면 돼요.</p>
+      </div>`;
+    $('bdPlayers').onchange = ev=> b.players=+ev.target.value;
+    $('bdSize').onchange = ev=>{ b.size=+ev.target.value; b.tiles=null; renderBoardPreview(); };
+    $('bdShuffleTiles').onclick = ()=>{ b.tiles=null; renderBoardPreview(); toast('말판을 새로 만들었어요 🔀'); };
+    $('bdSaveNow').onclick = saveAssignment;
+    renderBoardCards();
+  };
+  window.__renderBoardBox=renderBoardBox;
+  window.__renderBoardCards=renderBoardCards;
+  /* 카드 미션 설정 — 출판사·대화문·인원, 그리고 카드에 붙일 그림 */
+  const renderMingleBox=()=>{
+    draft.mingle = draft.mingle || { id:null, pub:MG_PUBS[0], goal:6, cap:3,
+      lines:[{role:'A',en:'',ko:''},{role:'B',en:'',ko:''}] };
+    const m=draft.mingle;
+    $('mingleBox').innerHTML=`
+      <h3 style="margin-top:0">카드 미션 설정</h3>
+      <div class="row">
+        <div><label>출판사</label><select id="mgPub">
+          ${MG_PUBS.map(g=>`<option ${g===m.pub?'selected':''}>${esc(g)}</option>`).join('')}
+        </select></div>
+        <div><label>만날 친구 수 (카드 수 이상, 최대 25)</label>
+          <input type="number" id="mgGoal" min="2" max="25" inputmode="numeric" value="${m.goal}"></div>
+        <div><label>카드 하나에 몰릴 수 있는 최대 인원</label>
+          <select id="mgCap">${[2,3,4,5,6].map(v=>`<option ${v===m.cap?'selected':''}>${v}</option>`).join('')}</select></div>
+      </div>
+      <div class="hr"></div>
+      <h3 style="margin-top:0">기본 대화문</h3>
+      <p class="muted" style="margin:0 0 10px">A / B 를 눌러 말하는 사람을 정해요.
+        빈칸은 <b>___</b> 로 쓰면 각자의 카드 낱말이 채워져요.</p>
+      <div id="mgLines"></div>
+      <button class="btn ghost sm" id="mgAddLine">＋ 문장 추가</button>
+      <div class="hr"></div>
+      <h3 style="margin-top:0">카드에 보일 그림</h3>
+      <p class="muted" style="margin:0 0 10px">위 ②에서 <b>체크한 낱말</b>이 주제 카드가 돼요 (2종 이상).
+        <b>🔎</b>로 고르거나 칸에 <b>이모지를 직접</b> 넣으세요. 비우면 <b>🃏</b> 로 나옵니다.</p>
+      <div id="mgEmoWrap"></div>
+      <div id="mgMsg"></div>
+      <div class="hr"></div>
+      <div class="center">
+        <button class="btn lg coral" id="mgSaveNow">${mgSaveLabel()}</button>
+        <p class="muted" style="margin:8px 0 0; font-size:.83rem">
+          ${m.id? '고친 내용이 저장되고, ④에서 고른 학급에 그대로 다시 배부돼요.'
+                : '④에서 고를 학급에 이 내용으로 미션이 만들어져요.'}
+          <br>맨 아래 버튼과 같은 기능이라 둘 중 아무거나 누르면 돼요.</p>
+      </div>`;
+    $('mgPub').onchange = ev=> m.pub=ev.target.value;
+    $('mgGoal').oninput = ev=> m.goal=+ev.target.value;
+    $('mgCap').onchange = ev=> m.cap=+ev.target.value;
+    $('mgAddLine').onclick = ()=>{ m.lines.push({ role:m.lines.length%2?'B':'A', en:'', ko:'' }); mgLinesDraw(); };
+    $('mgSaveNow').onclick = saveAssignment;      /* 맨 아래 배부 버튼과 같은 동작 */
+    mgLinesDraw();
+    renderMingleCards();
+  };
+  window.__renderMingleBox=renderMingleBox;
+  window.__renderMingleCards=renderMingleCards;   /* 낱말 체크가 바뀌면 카드 그림만 다시 그린다 */
   /* 빙고 설정 — 판 크기·목표·자동 진행과 항목별 그림 */
   const renderBingoBox=()=>{
     draft.bingo = draft.bingo || { n:5, target:3, iv:14 };
     const b=draft.bingo;
-    const chosen=draft.items.filter(i=>i.sel);
-    chosen.forEach(i=>{ if(!i.emoji) i.emoji = bingoSuggest(i.text,1)[0] || '-'; });   /* 처음엔 자동 추천 */
+    const chosen=draft.items.filter(i=>i.sel && (i.text||'').trim());
+    /* 자동 추천 — 칸에서 영어를 고치면 그림도 따라 바뀐다. 선생님이 직접 고른 그림(emojiAuto=false)은 그대로 둔다. */
+    chosen.forEach(i=>{
+      if(!i.emoji || (i.emojiAuto!==false && i.emojiFor!==i.text)){
+        i.emoji = bingoSuggest(i.text,1)[0] || '-'; i.emojiAuto=true; i.emojiFor=i.text;
+      }
+    });
     $('bingoBox').innerHTML=`
       <h3 style="margin-top:0">빙고 설정</h3>
       <div class="row">
@@ -1406,17 +2165,20 @@ function assignmentForm(){
   window.__renderBingoBox=renderBingoBox;      /* 항목 체크가 바뀌면 다시 그린다 */
   updateModeUI();
   app.querySelectorAll('#modeType button').forEach(b=> b.onclick=()=>{ draft.mode=b.dataset.mt;
-    app.querySelectorAll('#modeType button').forEach(x=>x.classList.toggle('on',x.dataset.mt===draft.mode)); updateModeUI(); });
-  app.querySelectorAll('#modeSeg button').forEach(b=> b.onclick=()=>{ draft.inputMode=b.dataset.mode;
-    app.querySelectorAll('#modeSeg button').forEach(x=>x.classList.toggle('on',x.dataset.mode===draft.inputMode)); renderInputArea(); });
-  $('selAll').onclick=()=>{ draft.items.forEach(i=>i.sel=true); renderItemList(); if(window.__renderBingoBox && draft.mode==='bingo') window.__renderBingoBox(); };
-  $('selNone').onclick=()=>{ draft.items.forEach(i=>i.sel=false); renderItemList(); if(window.__renderBingoBox && draft.mode==='bingo') window.__renderBingoBox(); };
+    app.querySelectorAll('#modeType button').forEach(x=>x.classList.toggle('on',x.dataset.mt===draft.mode)); updateModeUI(); renderLinkNote(); });
+  $('addItem').onclick=()=> asgAddItem();
+  $('pasteToggle').onclick=asgPasteToggle;
+  $('selAll').onclick=()=>{ draft.items.forEach(i=>i.sel=true); renderItemList(); asgSyncBingo(); };
+  $('selNone').onclick=()=>{ draft.items.forEach(i=>i.sel=false); renderItemList(); asgSyncBingo(); };
   $('cMinus').onclick=()=>{ draft.repeat=Math.max(1,draft.repeat-1); $('cNum').textContent=draft.repeat; };
   $('cPlus').onclick=()=>{ draft.repeat=Math.min(10,draft.repeat+1); $('cNum').textContent=draft.repeat; };
   $('saveList').onclick=async ()=>{
-    if(!draft.items.length){ toast('저장할 항목이 없어요'); return; }
+    asgTrimItems();
+    const items=draft.items.slice();          /* 다시 그리면 빈 칸 한 줄이 새로 생기므로 먼저 떠 둔다 */
+    renderItemList();
+    if(!items.length){ toast('저장할 항목이 없어요'); return; }
     const id=await saveListToLibrary({ grade:$('aGrade').value.trim(), unit:$('aUnit').value.trim(),
-      lesson:$('aLesson').value.trim(), title:$('aTitle').value.trim(), sourceListId:draft.sourceListId }, draft.items);
+      lesson:$('aLesson').value.trim(), title:$('aTitle').value.trim(), sourceListId:draft.sourceListId }, items);
     if(id) draft.sourceListId=id;
   };
   const mk=$('goMakeClass'); if(mk) mk.onclick=()=> manageClasses();
@@ -1432,64 +2194,306 @@ function splitMeaning(line){
   if(idx>=0){ en=line.slice(0,idx); meaning=line.slice(idx+1); }
   return { en:en.trim(), meaning:meaning.trim() };
 }
-function renderInputArea(){
-  const area=$('inputArea');
-  if(draft.inputMode==='bulk'){
-    area.innerHTML = `
-      <label>한 줄에 하나씩 입력하세요. <b>영어 = 뜻</b> 형식으로 쓰면 뜻도 함께 등록돼요.<br>
-      <span class="muted" style="font-size:.82rem">(구분 기호는 <b>=</b> 또는 <b>/</b> 또는 엑셀에서 복사한 탭도 가능. 띄어쓰기가 있으면 자동으로 '문장')</span></label>
-      <textarea id="bulkBox" placeholder="red = 빨강&#10;blue = 파랑&#10;I like apples. = 나는 사과를 좋아해.&#10;How are you? = 어떻게 지내?"></textarea>
-      <button class="btn sm" id="bulkAdd" style="margin-top:8px">목록에 추가</button>`;
-    $('bulkAdd').onclick=()=>{
-      const lines=$('bulkBox').value.split('\n').map(x=>x.trim()).filter(Boolean);
-      if(!lines.length){toast('내용을 입력하세요');return;}
-      lines.forEach(line=>{ const {en,meaning}=splitMeaning(line); if(!en) return;
-        draft.items.push({id:uid(), text:en, meaning, type:detectType(en), sel:true}); });
-      $('bulkBox').value=''; renderItemList(); toast(`${lines.length}개 추가했어요`);
-    };
-  } else {
-    area.innerHTML = `
-      <div class="row" style="align-items:flex-end">
-        <div style="flex:3"><label>낱말 또는 문장 (영어)</label><input type="text" id="oneBox" placeholder="예) elephant / I have a pen."></div>
-        <div style="flex:1"><label>종류</label><select id="oneType"><option value="word">낱말</option><option value="sentence">문장</option></select></div>
-      </div>
-      <div class="row" style="align-items:flex-end; margin-top:10px">
-        <div style="flex:3"><label>뜻 (한국어)</label><input type="text" id="oneMean" placeholder="예) 코끼리 / 나는 펜이 있어요."></div>
-        <button class="btn sm" id="oneAdd" style="margin-bottom:2px">추가</button>
-      </div>`;
-    const add=()=>{ const t=$('oneBox').value.trim(); if(!t){toast('영어를 입력하세요');return;}
-      draft.items.push({id:uid(), text:t, meaning:$('oneMean').value.trim(), type:$('oneType').value, sel:true});
-      $('oneBox').value=''; $('oneMean').value=''; $('oneBox').focus(); renderItemList(); };
-    $('oneAdd').onclick=add;
-    $('oneBox').addEventListener('keydown',e=>{ if(e.key==='Enter') $('oneMean').focus(); });
-    $('oneMean').addEventListener('keydown',e=>{ if(e.key==='Enter') add(); });
-  }
+/* 그림 목록(듣기 빙고 칸 / 카드 미션 카드)은 항목이 바뀔 때마다 같이 갱신한다 */
+function asgSyncBingo(){
+  if(!draft) return;
+  if(draft.mode==='bingo' && window.__renderBingoBox) window.__renderBingoBox();
+  if(draft.mode==='mingle' && window.__renderMingleCards) window.__renderMingleCards();
+  if(draft.mode==='board' && window.__renderBoardCards) window.__renderBoardCards();
+  if(draft.mode==='land' && window.__renderLandCards) window.__renderLandCards();
 }
+/* 이 낱말이 다른 활동에도 쓰이고 있으면 알려 준다 — 낱말은 하나인데 활동은 여럿이기 때문 */
+function renderLinkNote(){
+  const box=$('linkNote'); if(!box || !draft) return;
+  const l = draft.sourceListId ? DB.lists.find(x=>x.id===draft.sourceListId) : null;
+  const ms = (draft.mingle && draft.mingle.id) ? mgSet(draft.mingle.id) : mgSetOfList(l);
+  const asgModes = l ? new Set(DB.assignments.filter(a=>a.listId===l.id).map(a=>a.mode||'write')) : new Set();
+  const spots=[];
+  if(asgModes.has('write')) spots.push('✏️ 쓰기');
+  if(asgModes.has('speak')) spots.push('🗣️ 말하기');
+  if(asgModes.has('bingo') || (l&&l.bingo)) spots.push('👂 듣기 빙고');
+  if(ms) spots.push(`🃏 카드 미션 「${esc(ms.title)}」`);
+  const bs = (draft.board && draft.board.id) ? bdSet(draft.board.id) : bdSetOfList(l);
+  if(bs) spots.push(`🎲 보드게임 「${esc(bs.title)}」`);
+  const gs = (draft.land && draft.land.id) ? ldSet(draft.land.id) : ldSetOfList(l);
+  if(gs) spots.push(`🚩 땅따먹기 「${esc(gs.title)}」`);
+  if(!spots.length){ box.innerHTML=''; return; }
+  const warn = (ms && draft.mode!=='mingle') || (bs && draft.mode!=='board') || (gs && draft.mode!=='land');
+  box.innerHTML = `<div class="mg-note" style="margin:0 0 12px">
+    📚 이 낱말은 <b>${spots.join('</b>, <b>')}</b> 에도 쓰이고 있어요.
+    ${warn? `<br><span style="font-size:.85rem">여기서 낱말을 고치면 보관함은 바뀌지만
+      <b>${[ms&&draft.mode!=='mingle'?'카드 미션의 카드':'', bs&&draft.mode!=='board'?'보드게임의 말판':'',
+             gs&&draft.mode!=='land'?'땅따먹기의 땅':''].filter(Boolean).join(' · ')}은 그대로</b>예요.
+      거기에도 반영하려면 ③에서 그 유형을 고른 뒤 한 번 더 저장해 주세요.</span>`:''}
+  </div>`;
+}
+/* 보드게임 — 저장 버튼 이름, 미션 칸 그림, 말판 미리보기 */
+function bdSaveLabel(){
+  return (draft && draft.board && draft.board.id)
+    ? '🎲 고친 내용 저장하기' : '🎲 선택한 학급에 보드게임 배부하기';
+}
+function bdChosen(){ return draft.items.filter(i=>i.sel && (i.text||'').trim()); }
+function renderBoardCards(){
+  const wrap=$('bdEmoWrap'); if(!wrap || !draft) return;
+  const chosen=bdChosen();
+  chosen.forEach(i=>{
+    if(!i.emoji || (i.emojiAuto!==false && i.emojiFor!==i.text)){
+      i.emoji = mgSuggest(i.text, i.meaning)[0] || '-'; i.emojiAuto=true; i.emojiFor=i.text;
+    }
+  });
+  wrap.innerHTML = chosen.length
+    ? `<div id="bdEmoRows">${emojiRowsHTML(chosen)}</div>
+       <p class="muted" style="margin-top:8px">${chosen.length<3
+         ? '⚠️ 미션 낱말이 <b>3개 이상</b>이어야 말판을 만들 수 있어요.' : `미션 낱말 ${chosen.length}개`}</p>`
+    : '<p class="muted">② 에서 낱말을 먼저 골라 주세요.</p>';
+  const rows=$('bdEmoRows');
+  if(rows) emojiRowsBind(rows, chosen, renderBoardCards, i=> mgSuggest(i.text, i.meaning).slice(0,4));
+  renderBoardPreview();
+}
+/* 미리보기용 말판 — 낱말이나 칸 수가 바뀌면 새로 만든다 */
+function bdDraftSet(){
+  const b=draft.board, items=bdChosen().map(i=>({ en:i.text, ko:i.meaning||'',
+    em:(i.emoji && i.emoji!=='-') ? i.emoji : (mgSuggest(i.text,i.meaning)[0] || '📝') }));
+  const sig=items.map(i=>i.en).join('|')+'#'+b.size;
+  /* 불러온 말판은 처음 한 번은 그대로 둔다. 그 뒤에 낱말·칸 수가 바뀌면 새로 만든다. */
+  if(!b.tiles || (b.sig!==undefined && b.sig!==sig)) b.tiles = items.length? bdMakeTiles(items, b.size) : null;
+  b.sig=sig;
+  return { items, tiles:b.tiles };
+}
+function renderBoardPreview(){
+  const box=$('bdPreview'); if(!box || !draft || !draft.board) return;
+  const d=bdDraftSet();
+  if(!d.tiles){ box.innerHTML='<p class="muted">낱말을 고르면 말판이 만들어져요.</p>'; return; }
+  const counts={};
+  d.tiles.forEach(t=>{ counts[t.t]=(counts[t.t]||0)+1; });
+  const legend=[['mission','📝 미션'],['again','🎲 한 번 더'],['rest','😴 쉬어가기'],
+    ['jump','🚀 앞으로'],['back','🪃 뒤로'],['lucky','🍀 행운']]
+    .filter(([k])=>counts[k]).map(([k,n])=>`<span class="chip">${n} ${counts[k]}칸</span>`).join(' ');
+  box.innerHTML = bdBoardHTML({ items:d.items, tiles:d.tiles }, null) +
+    `<div style="margin-top:6px">${legend}</div>`;
+}
+/* 땅따먹기 — 저장 버튼 이름, 칸 그림, 땅 미리보기 */
+function ldSaveLabel(){
+  return (draft && draft.land && draft.land.id)
+    ? '🚩 고친 내용 저장하기' : '🚩 선택한 학급에 땅따먹기 배부하기';
+}
+function renderLandCards(){
+  const wrap=$('ldEmoWrap'); if(!wrap || !draft) return;
+  const chosen=bdChosen();
+  chosen.forEach(i=>{
+    if(!i.emoji || (i.emojiAuto!==false && i.emojiFor!==i.text)){
+      i.emoji = mgSuggest(i.text, i.meaning)[0] || '-'; i.emojiAuto=true; i.emojiFor=i.text;
+    }
+  });
+  wrap.innerHTML = chosen.length
+    ? `<div id="ldEmoRows">${emojiRowsHTML(chosen)}</div>
+       <p class="muted" style="margin-top:8px">${chosen.length<3
+         ? '⚠️ 낱말이 <b>3개 이상</b>이어야 땅을 만들 수 있어요.' : `낱말 ${chosen.length}개`}</p>`
+    : '<p class="muted">② 에서 낱말을 먼저 골라 주세요.</p>';
+  const rows=$('ldEmoRows');
+  if(rows) emojiRowsBind(rows, chosen, renderLandCards, i=> mgSuggest(i.text, i.meaning).slice(0,4));
+  renderLandPreview();
+}
+/* 미리보기용 땅 — 낱말이나 크기가 바뀌면 새로 뿌린다 */
+function ldDraftSet(){
+  const g=draft.land, items=bdChosen().map(i=>({ en:i.text, ko:i.meaning||'',
+    em:(i.emoji && i.emoji!=='-') ? i.emoji : (mgSuggest(i.text,i.meaning)[0] || '📝') }));
+  const sig=items.map(i=>i.en).join('|')+'#'+g.n;
+  /* 불러온 땅은 처음 한 번은 그대로 둔다. 그 뒤에 낱말·크기가 바뀌면 새로 뿌린다. */
+  if(!g.cells || (g.sig!==undefined && g.sig!==sig)) g.cells = items.length? ldMakeCells(items, g.n) : null;
+  g.sig=sig;
+  return { items, cells:g.cells, n:g.n };
+}
+function renderLandPreview(){
+  const box=$('ldPreview'); if(!box || !draft || !draft.land) return;
+  const d=ldDraftSet();
+  if(!d.cells){ box.innerHTML='<p class="muted">낱말을 고르면 땅이 만들어져요.</p>'; return; }
+  const bases=ldBases(d.n, draft.land.players);
+  const shown={ n:d.n, items:d.items, cells:d.cells.map((c,i)=>({ i:c.i, o:bases.indexOf(i)>=0? bases.indexOf(i) : null })) };
+  box.innerHTML = ldBoardHTML(shown, null, {flat:true}) +
+    `<p class="muted" style="margin-top:6px; font-size:.82rem">색칠된 네 귀퉁이가 <b>시작 땅</b>이에요
+      (${draft.land.players}명이면 ${draft.land.players}칸). 나머지 ${d.n*d.n-draft.land.players}칸을 놓고 겨뤄요.</p>`;
+}
+/* 밸런스 게임 — 저장 버튼 이름, 정답표, 학생 화면 미리보기 */
+function blSaveLabel(){
+  return (draft && draft.balance && draft.balance.id)
+    ? '⚖️ 고친 내용 저장하기' : '⚖️ 선택한 학급에 밸런스 게임 배부하기';
+}
+/* 라운드 수·보기 수를 바꿔도 정답표가 어긋나지 않게 길이와 값을 맞춘다 */
+function blFitAnswers(q){
+  const n=Math.max(1, q.rounds||1), k=Math.max(2, Math.min(4, q.choices||4));
+  const a=(q.answers||[]).slice(0,n);
+  while(a.length<n) a.push(1);
+  q.answers=a.map(v=> (v>=1 && v<=k) ? v : 1);
+  return q.answers;
+}
+function renderBalanceKey(){
+  const box=$('blKey'); if(!box || !draft || !draft.balance) return;
+  const q=draft.balance, k=q.choices;
+  box.innerHTML = q.answers.map((v,r)=>`
+    <div class="bl-krow">
+      <b>${r+1}번</b>
+      <div class="bl-kopts">${[...Array(k).keys()].map(x=>
+        `<button class="bl-kb ${v===x+1?'on':''}" data-ka="${r}|${x+1}">${BL_NUM[x]}</button>`).join('')}</div>
+    </div>`).join('');
+  box.querySelectorAll('[data-ka]').forEach(b=> b.onclick=()=>{
+    const [r,v]=b.dataset.ka.split('|').map(Number);
+    q.answers[r]=v;
+    renderBalanceKey();                       /* 표만 다시 그린다 — 화면이 튀지 않게 */
+    const now=$('blKeyNow'); if(now) now.textContent=blKeyText({rounds:q.rounds, choices:q.choices, answers:q.answers});
+    renderBalanceStuPreview();
+  });
+}
+function renderBalanceStuPreview(){
+  const box=$('blPreview'); if(!box || !draft || !draft.balance) return;
+  const q=draft.balance;
+  const set={ title:'', rounds:q.rounds, choices:q.choices, answers:q.answers, fb:q.fb, limit:q.limit };
+  const draw=(state)=>{
+    box.innerHTML=blPadHTML(set, Object.assign({ preview:true, i:0, picks:[] }, state||{}));
+    box.querySelectorAll('[data-bln]').forEach(b=> b.onclick=()=>{
+      const v=+b.dataset.bln;
+      draw({ preview:true, i:0, picks:[v], showAns:q.fb==='now' });
+    });
+  };
+  draw();
+}
+/* 이미 만든 미션을 고치는 중인지에 따라 저장 버튼 이름이 달라진다 *//* 이미 만든 미션을 고치는 중인지에 따라 저장 버튼 이름이 달라진다 */
+function mgSaveLabel(){
+  return (draft && draft.mingle && draft.mingle.id)
+    ? '🃏 고친 내용 저장하기' : '🃏 선택한 학급에 카드 미션 배부하기';
+}
+/* 카드 미션 — 대화문 줄. 글자를 칠 때는 다시 그리지 않는다(커서가 튄다). */
+function mgLinesDraw(){
+  const box=$('mgLines'); if(!box || !draft || !draft.mingle) return;
+  const m=draft.mingle;
+  box.innerHTML = m.lines.map((l,i)=>`
+    <div class="mg-drow">
+      <button class="mg-rb ${l.role}" data-lrole="${i}" title="말하는 사람 바꾸기">${l.role}</button>
+      <input type="text" data-len="${i}" placeholder="영어 문장 (빈칸은 ___)" value="${esc(l.en)}">
+      <input type="text" data-lko="${i}" placeholder="한국어 뜻" value="${esc(l.ko)}">
+      <button class="del" data-ldel="${i}" title="문장 지우기">✕</button>
+    </div>`).join('');
+  box.querySelectorAll('[data-len]').forEach(el=> el.oninput=()=> m.lines[+el.dataset.len].en=el.value);
+  box.querySelectorAll('[data-lko]').forEach(el=> el.oninput=()=> m.lines[+el.dataset.lko].ko=el.value);
+  box.querySelectorAll('[data-ldel]').forEach(el=> el.onclick=()=>{ m.lines.splice(+el.dataset.ldel,1); mgLinesDraw(); });
+  box.querySelectorAll('[data-lrole]').forEach(el=> el.onclick=()=>{
+    const l=m.lines[+el.dataset.lrole];
+    l.role = l.role==='A' ? 'B' : 'A';
+    el.textContent=l.role; el.className='mg-rb '+l.role;
+  });
+}
+/* 카드 미션 — 체크한 낱말마다 카드 그림 한 줄 (듣기 빙고와 같은 고르기 UI, 추천은 한글 뜻까지 본다) */
+function renderMingleCards(){
+  const wrap=$('mgEmoWrap'); if(!wrap || !draft) return;
+  const chosen=draft.items.filter(i=>i.sel && (i.text||'').trim());
+  chosen.forEach(i=>{
+    if(!i.emoji || (i.emojiAuto!==false && i.emojiFor!==i.text)){
+      i.emoji = mgSuggest(i.text, i.meaning)[0] || '-'; i.emojiAuto=true; i.emojiFor=i.text;
+    }
+  });
+  wrap.innerHTML = chosen.length
+    ? `<div id="mgEmoRows">${emojiRowsHTML(chosen)}</div>
+       <p class="muted" style="margin-top:8px">${chosen.length<2
+         ? '⚠️ 주제 카드가 <b>2종 이상</b>이어야 미션을 만들 수 있어요.'
+         : `주제 카드 ${chosen.length}종`}</p>`
+    : '<p class="muted">② 에서 낱말을 먼저 골라 주세요.</p>';
+  const rows=$('mgEmoRows');
+  if(rows) emojiRowsBind(rows, chosen, renderMingleCards, i=> mgSuggest(i.text, i.meaning).slice(0,4));
+}
+/* 빈 칸(영어를 안 쓴 줄)은 저장 대상에서 뺀다 — 항상 빈 줄 하나를 띄워 두기 때문 */
+function asgTrimItems(){ draft.items=draft.items.filter(i=>(i.text||'').trim()); }
+
+function asgAddItem(focus){
+  draft.items.push({ id:uid(), text:'', meaning:'', type:'word', sel:true });
+  renderItemList();
+  if(focus!==false){ const rows=$('itemList').querySelectorAll('input.en'); const last=rows[rows.length-1]; if(last) last.focus(); }
+}
+
+/* 항목 목록 — 한 줄이 낱말 하나. 카드 미션 편집기와 같이 칸에 바로 고쳐 쓴다.
+   글자를 칠 때는 다시 그리지 않는다(커서가 튄다). 모델만 고치고 칸을 나갈 때 갱신한다. */
 function renderItemList(){
   const list=$('itemList');
-  if(!draft.items.length){ list.innerHTML='<p class="muted">아직 등록된 항목이 없어요.</p>'; return; }
+  if(!draft.items.length) draft.items.push({ id:uid(), text:'', meaning:'', type:'word', sel:true });
   list.innerHTML = draft.items.map(i=>`
-    <div class="item-row">
-      <input type="checkbox" data-sel="${i.id}" ${i.sel?'checked':''}>
-      <span class="ty">${i.type==='word'?'낱말':'문장'}</span>
-      <span class="txt"><span style="font-family:'Andika'">${esc(i.text)}</span>${i.meaning?` <span class="muted" style="font-size:.85rem">— ${esc(i.meaning)}</span>`:''}</span>
-      <button class="del" data-deli="${i.id}">×</button>
+    <div class="asg-row ${i.sel?'':'off'}" data-row="${i.id}">
+      <input type="checkbox" data-sel="${i.id}" ${i.sel?'checked':''} title="학생에게 낼 항목">
+      <span class="ty" data-ty="${i.id}">${(i.text||'').trim()? (i.type==='word'?'낱말':'문장') : '–'}</span>
+      <input class="en" type="text" data-itext="${i.id}" placeholder="영어 (예: pizza / I like apples.)" value="${esc(i.text)}">
+      <input type="text" data-imean="${i.id}" placeholder="한글 뜻 (예: 피자)" value="${esc(i.meaning||'')}">
+      <button class="del" data-deli="${i.id}" title="이 줄 지우기">✕</button>
     </div>`).join('');
-  list.querySelectorAll('[data-sel]').forEach(c=> c.onchange=()=>{ const it=draft.items.find(x=>x.id===c.dataset.sel); it.sel=c.checked;
-    if(draft.mode==='bingo' && window.__renderBingoBox) window.__renderBingoBox(); });   /* 빙고 그림 목록도 같이 갱신 */
-  list.querySelectorAll('[data-deli]').forEach(b=> b.onclick=()=>{ draft.items=draft.items.filter(x=>x.id!==b.dataset.deli); renderItemList();
-    if(draft.mode==='bingo' && window.__renderBingoBox) window.__renderBingoBox(); });
+  const find=id=> draft.items.find(x=>x.id===id);
+
+  list.querySelectorAll('[data-itext]').forEach(el=> {
+    const it=find(el.dataset.itext);
+    el.oninput=()=>{ it.text=el.value; it.type=detectType(el.value);
+      const ty=list.querySelector(`[data-ty="${it.id}"]`);
+      if(ty) ty.textContent = it.text.trim()? (it.type==='word'?'낱말':'문장') : '–'; };
+    el.onchange=asgSyncBingo;                       /* 칸을 나갈 때 빙고 그림을 다시 맞춘다 */
+    el.onkeydown=e=>{ if(e.key!=='Enter') return; e.preventDefault();
+      const m=list.querySelector(`[data-imean="${it.id}"]`); if(m) m.focus(); };
+  });
+  list.querySelectorAll('[data-imean]').forEach(el=> {
+    const it=find(el.dataset.imean);
+    el.oninput=()=>{ it.meaning=el.value; };
+    el.onchange=asgSyncBingo;
+    el.onkeydown=e=>{ if(e.key!=='Enter') return; e.preventDefault();
+      const idx=draft.items.indexOf(it);
+      if(idx===draft.items.length-1) asgAddItem();   /* 마지막 줄에서 엔터 = 다음 줄 만들기 */
+      else { const nx=list.querySelector(`[data-itext="${draft.items[idx+1].id}"]`); if(nx) nx.focus(); } };
+  });
+  list.querySelectorAll('[data-sel]').forEach(c=> c.onchange=()=>{
+    const it=find(c.dataset.sel); it.sel=c.checked;
+    const row=list.querySelector(`[data-row="${it.id}"]`); if(row) row.classList.toggle('off', !it.sel);
+    asgSyncBingo(); });
+  list.querySelectorAll('[data-deli]').forEach(b=> b.onclick=()=>{
+    draft.items=draft.items.filter(x=>x.id!==b.dataset.deli); renderItemList(); asgSyncBingo(); });
+}
+
+/* 교과서·엑셀에서 여러 개를 한 번에 가져올 때만 쓰는 보조 칸 — 붙여넣으면 한 줄씩 칸으로 흩어진다 */
+function asgPasteToggle(){
+  const area=$('pasteArea');
+  if(area.style.display!=='none'){ area.style.display='none'; area.innerHTML=''; return; }
+  area.style.display='';
+  area.innerHTML=`
+    <div class="hr"></div>
+    <label>여러 개를 한꺼번에 가져오기 — 한 줄에 하나씩 붙여넣으면 <b>낱말마다 한 칸씩</b> 만들어져요.<br>
+      <span class="muted" style="font-size:.82rem">(<b>영어 = 뜻</b> 형식. 구분 기호는 <b>=</b> 또는 <b>/</b> 또는 엑셀에서 복사한 탭)</span></label>
+    <textarea id="bulkBox" placeholder="red = 빨강&#10;blue = 파랑&#10;I like apples. = 나는 사과를 좋아해."></textarea>
+    <button class="btn sm" id="bulkAdd" style="margin-top:8px">칸으로 옮기기</button>`;
+  $('bulkAdd').onclick=()=>{
+    const lines=$('bulkBox').value.split('\n').map(x=>x.trim()).filter(Boolean);
+    if(!lines.length){ toast('내용을 입력하세요'); return; }
+    asgTrimItems();
+    let n=0;
+    lines.forEach(line=>{ const {en,meaning}=splitMeaning(line); if(!en) return;
+      draft.items.push({id:uid(), text:en, meaning, type:detectType(en), sel:true}); n++; });
+    renderItemList(); asgSyncBingo(); asgPasteToggle();
+    toast(`${n}개를 칸으로 옮겼어요`);
+  };
 }
 async function saveAssignment(){
   const title=$('aTitle').value.trim() || '영어 과제';
   const isBingo = draft.mode==='bingo';
-  const chosen = draft.items.filter(i=>i.sel).map(i=>({id:i.id,text:i.text,meaning:i.meaning||'',type:i.type,emoji:i.emoji||''}));
+  asgTrimItems();                                   /* 빈 칸은 빼고 배부한다 */
+  const items=draft.items.slice();                  /* 다시 그리면 빈 칸 한 줄이 새로 생기므로 먼저 떠 둔다 */
+  renderItemList();
+  /* 밸런스 게임은 문제를 PPT로 내므로 낱말이 없어도 배부할 수 있다 — 낱말 검사보다 먼저 처리한다 */
+  if(draft.mode==='balance'){
+    return saveBalanceSet({ grade:$('aGrade').value.trim(), unit:$('aUnit').value.trim(),
+                            lesson:$('aLesson').value.trim(), title });
+  }
+  const chosen = items.filter(i=>i.sel).map(i=>({id:i.id,text:i.text.trim(),meaning:(i.meaning||'').trim(),type:i.type,emoji:i.emoji||''}));
   if(!chosen.length){ toast('제시할 항목을 1개 이상 선택하세요'); return; }
   if(isBingo && chosen.length<3){ toast('빙고는 표현이 3개 이상이어야 해요'); return; }
+  const grade=$('aGrade').value.trim(), unit=$('aUnit').value.trim(), lesson=$('aLesson').value.trim();
+  /* 카드 미션은 과제(assignments)가 아니라 미션 세트로 저장된다 — 배부 학급도 세트가 들고 있다 */
+  if(draft.mode==='mingle'){ return saveMingleSet(items, chosen, { grade, unit, lesson, title }); }
+  if(draft.mode==='board'){ return saveBoardSet(items, chosen, { grade, unit, lesson, title }); }
+  if(draft.mode==='land'){ return saveLandSet(items, chosen, { grade, unit, lesson, title }); }
   if(!draft.classIds.length){ toast('배부할 학급을 1개 이상 선택하세요'); return; }
   if(isBingo && draft.bingo.target>draft.bingo.n){ toast(`${draft.bingo.n}×${draft.bingo.n} 판에서는 ${draft.bingo.n}빙고까지 가능해요`); return; }
-  const grade=$('aGrade').value.trim(), unit=$('aUnit').value.trim(), lesson=$('aLesson').value.trim();
-  const listId = await saveListToLibrary({ grade, unit, lesson, title, sourceListId:draft.sourceListId }, draft.items, {silent:true});
+  const listId = await saveListToLibrary({ grade, unit, lesson, title, sourceListId:draft.sourceListId }, items, {silent:true});
   if(isBingo){                       /* 보관함에서도 빙고용으로 구분되게 */
     const l=DB.lists.find(x=>x.id===listId);
     if(l){ l.bingo=true; l.updatedAt=Date.now(); await sSet(KEYS.lists, DB.lists); }
@@ -1511,7 +2515,208 @@ async function saveAssignment(){
   createAssignment();
 }
 
-/* ============================ DASHBOARD ============================ */
+/* 카드 미션 배부 — ②의 낱말이 주제 카드, ③의 설정이 대화문·인원, ④가 배부 학급이 된다.
+   저장 형식은 예전 '미션 세트 만들기'와 똑같아서 학생 화면·현황판은 손댈 것이 없다. */
+async function saveMingleSet(items, chosen, meta){
+  const m = draft.mingle || {};
+  const title = meta.title;
+  const cards = chosen.map(i=>({ en:i.text, ko:i.meaning||'',
+    em: (i.emoji && i.emoji!=='-') ? i.emoji : (mgSuggest(i.text, i.meaning)[0] || '🃏') }));
+  const lines = (m.lines||[]).map(l=>({ role:l.role||'A', en:(l.en||'').trim(), ko:(l.ko||'').trim() })).filter(l=>l.en);
+  const goal=+m.goal, cap=+m.cap;
+  const classIds=(draft.classIds||[]).filter(id=> DB.classes.some(c=>c.id===id));
+
+  if(cards.length<2 || !lines.length){
+    mgSaveArm=false; return mgMsg('⚠️ ②에서 <b>주제 카드 2종 이상</b>을 고르고, <b>대화문을 1문장 이상</b> 채워 주세요.'); }
+  if(!classIds.length){
+    mgSaveArm=false; return mgMsg('⚠️ ④에서 이 미션을 받을 <b>학급을 한 곳 이상</b> 골라 주세요.'); }
+  if(!goal || goal<2 || goal>25){
+    mgSaveArm=false; return mgMsg('⚠️ 만날 친구 수는 2~25명 사이로 정해 주세요.'); }
+  if(goal<cards.length){
+    mgSaveArm=false; return mgMsg(`⚠️ 모든 카드에 최소 1명씩 배정되므로, 만날 친구 수는 카드 수(${cards.length}명) 이상이어야 해요.`); }
+  if(goal>cards.length*cap){
+    mgSaveArm=false;
+    return mgMsg(`⚠️ 지금 설정으로는 카드 ${cards.length}종 × 최대 ${cap}명 = <b>${cards.length*cap}명</b>까지만 가능해요.<br>
+      👉 '카드당 최대 인원'을 <b>${Math.ceil(goal/cards.length)} 이상</b>으로 올리거나 카드를 늘려 주세요.`); }
+
+  const prev = m.id ? mgSet(m.id) : null;
+  /* 카드·인원이 바뀌면 예전 배정은 더 이상 맞지 않는다 → ver를 올려 학생이 다시 뽑게 한다.
+     제목이나 대화문만 고칠 때는 ver를 그대로 두어 진행 중인 기록을 지킨다 */
+  const reset = !!prev && (prev.goal!==goal || prev.cap!==cap ||
+                           JSON.stringify(prev.cards)!==JSON.stringify(cards));
+  /* 중복 도장 금지라 '만날 친구 수'가 반 인원 − 1보다 많으면 아무도 끝낼 수 없다 */
+  const small=DB.classes.filter(c=> classIds.includes(c.id) && c.students.length-1 < goal);
+  const warns=[];
+  if(reset) warns.push(`카드나 인원이 바뀌었어요. 배부하면 <b>이미 시작한 학생의 카드와 도장이 초기화</b>되고
+    다음에 들어올 때 새로 뽑게 됩니다.`);
+  if(small.length) warns.push(`${small.map(c=>`<b>${esc(c.name)}</b>(${c.students.length}명)`).join(', ')}
+    은 만날 수 있는 친구가 ${Math.min(...small.map(c=>c.students.length))-1}명뿐이라
+    <b>${goal}명을 다 채울 수 없어요.</b> 만날 친구 수를 줄이거나 학생을 더 등록해 주세요.`);
+  if(warns.length && !mgSaveArm){
+    mgSaveArm=true;
+    return mgMsg('⚠️ '+warns.join('<br><br>⚠️ ')+'<br><br>그래도 배부하려면 <b>배부 버튼을 한 번 더</b> 눌러 주세요.');
+  }
+  mgSaveArm=false;
+
+  /* 낱말은 보관함에도 남겨 두어 쓰기·말하기·듣기 빙고로 그대로 다시 쓸 수 있게 한다 (그림도 함께 저장된다) */
+  const listId = await saveListToLibrary({ grade:meta.grade, unit:meta.unit, lesson:meta.lesson, title,
+    sourceListId: draft.sourceListId || (prev && prev.listId) || null }, items, {silent:true});
+
+  const rec={ id: m.id || ('m'+uid()), title, grade:meta.grade||'', pub:m.pub||MG_PUBS[0],
+    classIds, cards, lines, goal, cap, listId: listId || (prev && prev.listId) || null,
+    ver: prev ? ((prev.ver||1) + (reset?1:0)) : 1,
+    createdAt: prev ? prev.createdAt : Date.now() };
+  const list=(DB.mingle||[]).slice();
+  const i=list.findIndex(s=>s.id===rec.id);
+  if(i>=0) list[i]=rec; else list.unshift(rec);
+  const ok=await sSet(KEYS.mingle, list);
+  if(!ok) return mgMsg('⚠️ 저장하지 못했어요. 선생님 계정으로 로그인했는지 확인해 주세요.');
+  DB.mingle=list;
+  /* 목록 쪽에도 되돌아오는 표시를 남긴다 — 보관함에서 이 미션을 바로 이어서 고칠 수 있다 */
+  const lrec=DB.lists.find(x=>x.id===listId);
+  if(lrec && lrec.mingleId!==rec.id){ lrec.mingleId=rec.id; lrec.updatedAt=Date.now(); await sSet(KEYS.lists, DB.lists); }
+  draft=null;
+  toast(`${classIds.length}개 학급에 카드 미션을 배부했어요! 🃏`);
+  createAssignment();
+}
+
+/* 보드게임 배부 — ②의 낱말이 미션 칸, ③의 설정이 인원·칸 수, ④가 배부 학급이 된다.
+   낱말·칸 수·인원이 바뀌면 ver를 올려서 이미 열려 있던 모둠 게임을 처음부터 다시 시작하게 한다. */
+async function saveBoardSet(items, chosen, meta){
+  const b = draft.board || {};
+  const title = meta.title;
+  const bItems = chosen.map(i=>({ en:i.text, ko:i.meaning||'',
+    em:(i.emoji && i.emoji!=='-') ? i.emoji : (mgSuggest(i.text, i.meaning)[0] || '📝') }));
+  const players = Math.max(2, Math.min(4, +b.players||2));
+  const size = Math.max(12, Math.min(48, +b.size||30));
+  const classIds=(draft.classIds||[]).filter(id=> DB.classes.some(c=>c.id===id));
+
+  if(bItems.length<3){
+    mgSaveArm=false; return mgMsg('⚠️ ②에서 <b>미션 낱말을 3개 이상</b> 골라 주세요.'); }
+  if(!classIds.length){
+    mgSaveArm=false; return mgMsg('⚠️ ④에서 이 보드게임을 할 <b>학급을 한 곳 이상</b> 골라 주세요.'); }
+
+  const prev = b.id ? bdSet(b.id) : null;
+  const tiles = (b.tiles && b.tiles.length===size) ? b.tiles : bdMakeTiles(bItems, size);
+  const reset = !!prev && (prev.players!==players ||
+    JSON.stringify(prev.items)!==JSON.stringify(bItems) || JSON.stringify(prev.tiles)!==JSON.stringify(tiles));
+  /* 인원보다 학생이 적으면 모둠이 안 만들어진다 */
+  const small=DB.classes.filter(c=> classIds.includes(c.id) && c.students.length<2);
+  const warns=[];
+  if(reset) warns.push(`낱말·말판·인원이 바뀌었어요. 배부하면 <b>진행 중인 모둠 게임이 처음부터</b> 다시 시작됩니다.`);
+  if(small.length) warns.push(`${small.map(c=>`<b>${esc(c.name)}</b>(${c.students.length}명)`).join(', ')}
+    은 학생이 너무 적어 모둠을 짤 수 없어요. 학생을 더 등록해 주세요.`);
+  if(warns.length && !mgSaveArm){
+    mgSaveArm=true;
+    return mgMsg('⚠️ '+warns.join('<br><br>⚠️ ')+'<br><br>그래도 배부하려면 <b>배부 버튼을 한 번 더</b> 눌러 주세요.');
+  }
+  mgSaveArm=false;
+
+  /* 낱말은 보관함에도 남겨 두어 쓰기·말하기·듣기 빙고·카드 미션으로 그대로 다시 쓸 수 있게 한다 */
+  const listId = await saveListToLibrary({ grade:meta.grade, unit:meta.unit, lesson:meta.lesson, title,
+    sourceListId: draft.sourceListId || (prev && prev.listId) || null }, items, {silent:true});
+
+  const rec={ id: b.id || ('b'+uid()), title, grade:meta.grade||'', classIds,
+    items:bItems, tiles, players, size, listId: listId || (prev && prev.listId) || null,
+    ver: prev ? ((prev.ver||1) + (reset?1:0)) : 1,
+    createdAt: prev ? prev.createdAt : Date.now() };
+  const list=(DB.board||[]).slice();
+  const i=list.findIndex(x=>x.id===rec.id);
+  if(i>=0) list[i]=rec; else list.unshift(rec);
+  const ok=await sSet(KEYS.board, list);
+  if(!ok) return mgMsg('⚠️ 저장하지 못했어요. 선생님 계정으로 로그인했는지 확인해 주세요.');
+  DB.board=list;
+  const lrec=DB.lists.find(x=>x.id===listId);
+  if(lrec && lrec.boardId!==rec.id){ lrec.boardId=rec.id; lrec.updatedAt=Date.now(); await sSet(KEYS.lists, DB.lists); }
+  draft=null;
+  toast(`${classIds.length}개 학급에 보드게임을 배부했어요! 🎲`);
+  createAssignment();
+}
+
+/* 땅따먹기 배부 — ②의 낱말이 각 칸, ③의 설정이 인원·판 크기, ④가 배부 학급이 된다. */
+async function saveLandSet(items, chosen, meta){
+  const g = draft.land || {};
+  const title = meta.title;
+  const lItems = chosen.map(i=>({ en:i.text, ko:i.meaning||'',
+    em:(i.emoji && i.emoji!=='-') ? i.emoji : (mgSuggest(i.text, i.meaning)[0] || '📝') }));
+  const players = Math.max(2, Math.min(4, +g.players||2));
+  const n = Math.max(4, Math.min(7, +g.n||5));
+  const classIds=(draft.classIds||[]).filter(id=> DB.classes.some(c=>c.id===id));
+
+  if(lItems.length<3){
+    mgSaveArm=false; return mgMsg('⚠️ ②에서 <b>낱말을 3개 이상</b> 골라 주세요.'); }
+  if(!classIds.length){
+    mgSaveArm=false; return mgMsg('⚠️ ④에서 이 땅따먹기를 할 <b>학급을 한 곳 이상</b> 골라 주세요.'); }
+
+  const prev = g.id ? ldSet(g.id) : null;
+  const cells = (g.cells && g.cells.length===n*n) ? g.cells.map(c=>({i:c.i})) : ldMakeCells(lItems, n).map(c=>({i:c.i}));
+  const reset = !!prev && (prev.players!==players || prev.n!==n ||
+    JSON.stringify(prev.items)!==JSON.stringify(lItems) ||
+    JSON.stringify((prev.cells||[]).map(c=>c.i))!==JSON.stringify(cells.map(c=>c.i)));
+  const small=DB.classes.filter(c=> classIds.includes(c.id) && c.students.length<2);
+  const warns=[];
+  if(reset) warns.push(`낱말·땅·인원이 바뀌었어요. 배부하면 <b>진행 중인 모둠의 땅이 처음부터</b> 다시 시작됩니다.`);
+  if(small.length) warns.push(`${small.map(c=>`<b>${esc(c.name)}</b>(${c.students.length}명)`).join(', ')}
+    은 학생이 너무 적어 모둠을 짤 수 없어요. 학생을 더 등록해 주세요.`);
+  if(warns.length && !mgSaveArm){
+    mgSaveArm=true;
+    return mgMsg('⚠️ '+warns.join('<br><br>⚠️ ')+'<br><br>그래도 배부하려면 <b>배부 버튼을 한 번 더</b> 눌러 주세요.');
+  }
+  mgSaveArm=false;
+
+  /* 낱말은 보관함에도 남겨 두어 다른 활동으로 그대로 다시 쓸 수 있게 한다 */
+  const listId = await saveListToLibrary({ grade:meta.grade, unit:meta.unit, lesson:meta.lesson, title,
+    sourceListId: draft.sourceListId || (prev && prev.listId) || null }, items, {silent:true});
+
+  const rec={ id: g.id || ('g'+uid()), title, grade:meta.grade||'', classIds,
+    items:lItems, cells, n, players, listId: listId || (prev && prev.listId) || null,
+    ver: prev ? ((prev.ver||1) + (reset?1:0)) : 1,
+    createdAt: prev ? prev.createdAt : Date.now() };
+  const list=(DB.land||[]).slice();
+  const i=list.findIndex(x=>x.id===rec.id);
+  if(i>=0) list[i]=rec; else list.unshift(rec);
+  const ok=await sSet(KEYS.land, list);
+  if(!ok) return mgMsg('⚠️ 저장하지 못했어요. 선생님 계정으로 로그인했는지 확인해 주세요.');
+  DB.land=list;
+  const lrec=DB.lists.find(x=>x.id===listId);
+  if(lrec && lrec.landId!==rec.id){ lrec.landId=rec.id; lrec.updatedAt=Date.now(); await sSet(KEYS.lists, DB.lists); }
+  draft=null;
+  toast(`${classIds.length}개 학급에 땅따먹기를 배부했어요! 🚩`);
+  createAssignment();
+}
+
+/* 밸런스 게임 배부 — 문제는 PPT로 내므로 낱말은 저장하지 않는다.
+   ③의 설정(보기 수·라운드 수·정답표)과 ④의 배부 학급만 있으면 된다. */
+async function saveBalanceSet(meta){
+  const q = draft.balance || {};
+  const title = meta.title;
+  const choices = Math.max(2, Math.min(4, +q.choices||4));
+  const rounds = Math.max(1, Math.min(50, +q.rounds||10));
+  const fb = q.fb==='now' ? 'now' : 'end';
+  const limit = [0,10,15,20,30,45,60].includes(+q.limit) ? +q.limit : 0;
+  const answers = blFitAnswers({ choices, rounds, answers:q.answers });
+  const classIds=(draft.classIds||[]).filter(id=> DB.classes.some(c=>c.id===id));
+
+  if(!classIds.length){
+    mgSaveArm=false; return mgMsg('⚠️ ④에서 이 게임을 할 <b>학급을 한 곳 이상</b> 골라 주세요.'); }
+
+  const prev = q.id ? blSet(q.id) : null;
+  const rec={ id: q.id || ('q'+uid()), title, grade:meta.grade||'', classIds,
+    choices, rounds, answers, fb, limit,
+    ver: prev ? ((prev.ver||1)+1) : 1,
+    createdAt: prev ? prev.createdAt : Date.now() };
+  const list=(DB.balance||[]).slice();
+  const i=list.findIndex(x=>x.id===rec.id);
+  if(i>=0) list[i]=rec; else list.unshift(rec);
+  const ok=await sSet(KEYS.balance, list);
+  if(!ok) return mgMsg('⚠️ 저장하지 못했어요. 선생님 계정으로 로그인했는지 확인해 주세요.');
+  DB.balance=list;
+  draft=null;
+  toast(`${classIds.length}개 학급에 밸런스 게임을 배부했어요! ⚖️`);
+  createAssignment();
+}
+
+/* ============================ DASHBOARD ============================ *//* ============================ DASHBOARD ============================ */
 function dashboardList(){
   if(!DB.classes.length){ app.innerHTML=`<button class="back" onclick="teacherHome()">← 선생님 메뉴</button>
     <div class="card empty"><span class="em">🏫</span>먼저 학급을 만들어 주세요.</div>`; return; }
@@ -1597,9 +2802,9 @@ async function dashboardDetail(aid){
 
 /* ============================ STUDENT FLOW ============================ */
 function studentPickClass(){
-  if(!DB.classes.length){ app.innerHTML=`<button class="back" onclick="studentMenu()">← 뒤로</button>
+  if(!DB.classes.length){ app.innerHTML=`<button class="back" onclick="studentBackMenu()">← 뒤로</button>
     <div class="card empty"><span class="em">🏫</span>아직 만들어진 학급이 없어요.<br>선생님께 학급 등록을 부탁해요.</div>`; return; }
-  app.innerHTML=`<button class="back" onclick="studentMenu()">← 뒤로</button>
+  app.innerHTML=`<button class="back" onclick="studentBackMenu()">← 뒤로</button>
     <div class="card"><h2 style="margin-top:4px">우리 반을 골라요</h2>
     <div class="grid-cards">${DB.classes.map(c=>`<div class="tile" data-c="${c.id}"><span class="emoji">🏫</span><div class="t">${esc(c.name)}</div><div class="s">${c.students.length}명</div></div>`).join('')}</div></div>`;
   app.querySelectorAll('[data-c]').forEach(el=> el.onclick=()=> studentPickName(el.dataset.c));
@@ -1615,6 +2820,9 @@ function studentPickName(cid){
     session={role:'student', name:s.name, classId:cid, studentId:s.id};
     if(studentMode==='bingo') bingoStudent();
     else if(studentMode==='mingle') mingleStudent();
+    else if(studentMode==='board') boardStudent();
+    else if(studentMode==='land') landStudent();
+    else if(studentMode==='balance') balanceStudent();
     else studentAssignments(); });
 }
 async function studentAssignments(){
@@ -2338,11 +3546,11 @@ async function bingoSay(text, twice){
 /* ---------- 선생님: 준비 ---------- */
 function bingoSetup(){
   bingoLeave();
-  if(!DB.classes.length){ app.innerHTML=`<button class="back" onclick="teacherHome()">← 선생님 메뉴</button>
+  if(!DB.classes.length){ app.innerHTML=`<button class="back" onclick="missionRoomTeacher()">← 미션 활동</button>
     <div class="card empty"><span class="em">🏫</span>먼저 <b>학급·학생</b>에서 학급을 만들어 주세요.</div>`; return; }
-  app.innerHTML=`<button class="back" onclick="teacherHome()">← 선생님 메뉴</button>
+  app.innerHTML=`<button class="back" onclick="missionRoomTeacher()">← 미션 활동</button>
     <div class="card"><h2 style="margin-top:4px">👂 듣기 빙고 — 어느 반인가요?</h2>
-      <p class="muted">한 반에 한 게임이 열려요. 학생들은 <b>학생 → 듣고 빙고</b>로 들어옵니다.</p>
+      <p class="muted">한 반에 한 게임이 열려요. 학생들은 <b>학생 → 미션 활동 → 듣고 빙고</b>로 들어옵니다.</p>
       <div class="grid-cards" style="margin-top:14px">${DB.classes.map(c=>`
         <div class="tile" data-c="${c.id}"><span class="emoji">🏫</span><div class="t">${esc(c.name)}</div>
         <div class="s">${c.students.length}명</div></div>`).join('')}</div></div>`;
@@ -2549,12 +3757,17 @@ function emojiRowsHTML(items){
     </div>`;
   }).join('');
 }
-function emojiRowsBind(root, items, redraw){
+/* sugg: 추천 후보를 뽑는 방법 (기본은 듣기 빙고, 카드 미션은 한글 뜻까지 본다) */
+function emojiRowsBind(root, items, redraw, sugg){
+  const cand = sugg || (i=> bingoSuggest(i.text,4));
+  /* 선생님이 손대면 emojiAuto=false — 낱말 칸을 고쳐도 이 그림은 그대로 둔다 */
   root.querySelectorAll('[data-emoin]').forEach(inp=> inp.oninput=()=>{
-    const v=inp.value.trim(); items[+inp.dataset.emoin].emoji = v || '-';   /* 다시 그리지 않는다(커서 유지) */
+    const i=items[+inp.dataset.emoin]; const v=inp.value.trim();
+    i.emoji = v || '-'; i.emojiAuto=false;                                  /* 다시 그리지 않는다(커서 유지) */
   });
   root.querySelectorAll('[data-emocyc]').forEach(b=> b.onclick=()=>{
-    const i=items[+b.dataset.emocyc], cands=bingoSuggest(i.text,4);
+    const i=items[+b.dataset.emocyc], cands=cand(i);
+    i.emojiAuto=false;
     if(!cands.length){ i.emoji='-'; return redraw(); }
     const cur=i.emoji==='-'? '' : (i.emoji||'');
     const at=cands.indexOf(cur);
@@ -2563,9 +3776,9 @@ function emojiRowsBind(root, items, redraw){
   });
   root.querySelectorAll('[data-emopick]').forEach(b=> b.onclick=()=>{
     const k=+b.dataset.emopick, i=items[k];
-    emojiPickOpen({ text:i.text, meaning:i.meaning||'', cands:bingoSuggest(i.text,4),
+    emojiPickOpen({ text:i.text, meaning:i.meaning||'', cands:cand(i),
       cur:(i.emoji==='-'?'':(i.emoji||'')),
-      onPick:(e)=>{ i.emoji = e || '-'; redraw(); } });
+      onPick:(e)=>{ i.emoji = e || '-'; i.emojiAuto=false; redraw(); } });
   });
 }
 /* ---------- 선생님: 진행 ---------- */
@@ -2750,7 +3963,7 @@ function bingoRunDraw(){
   on('bgAuto', ()=> bingoAutoSet(14));
   bingoAutoTick();
 }
-function bingoQuitTeacher(){ bingoLeave(); teacherHome(); }
+function bingoQuitTeacher(){ bingoLeave(); missionRoomTeacher(); }
 /* ---------- 게임 전 단계: TV로 표현 익히기 (Listen and Repeat) ---------- */
 function bingoLearn(i){
   BG.learn={ i:Math.max(0, Math.min(BG.sess.items.length-1, i||0)) };
@@ -3017,7 +4230,7 @@ function bingoStudentDraw(){
 const mgPKey = (setId,cid,sid)=> `v1:prog:mingle:${setId}:${cid}:${sid}`;
 const MG_INKS = ['#D8543A','#2C6FA8','#2F8F77','#8E5AA8','#D9A324'];
 const MG_PUBS = ['천재(함)','천재(윤)','YBM(김)','YBM(최)','대교','동아','지학사','미래엔'];
-let MG=null, mgUnsub=null, mgEdit=null, mgSaveArm=false, mgDelArm=false;
+let MG=null, mgUnsub=null, mgSaveArm=false;
 
 /* 화면을 떠날 때 구독·오버레이를 정리한다 (안 하면 요금이 계속 샌다) */
 function mingleLeave(){
@@ -3389,22 +4602,24 @@ function mgConfetti(){
 
 /* ---------------- 선생님 ---------------- */
 function mingleTeacher(){
-  mingleLeave(); bingoLeave();
+  mingleLeave(); bingoLeave(); bdLeave(); ldLeave(); blLeave();
   session.role='teacher'; refreshWho();
   const sets=mgSets();
   app.innerHTML=`
-    <button class="back" onclick="teacherHome()">← 선생님 메뉴</button>
+    <button class="back" onclick="missionRoomTeacher()">← 미션 활동</button>
     <div class="card">
       <h2 style="margin-top:4px">🃏 카드 미션</h2>
       <p class="muted">학생이 카드를 한 장 뽑고, 교실을 돌아다니며 친구를 인터뷰하는 말하기 놀이예요.
         필요한 카드를 가진 친구를 만나 대화하면 도장을 하나 받아요.</p>
+      <p class="muted" style="margin-top:8px">카드와 대화문은 <b>선생님 메뉴 → 📝 과제 만들기</b>에서
+        <b>③ 과제 유형 → 🃏 카드 미션</b>으로 정해요. (듣기 빙고와 같은 방식) 여기서는 <b>실행과 현황</b>만 봅니다.</p>
       <div class="grid-cards" style="margin-top:14px">
-        <div class="tile" id="mgNew"><span class="emoji">✏️</span><div class="t">미션 세트 만들기</div><div class="s">카드·대화문 정하기</div></div>
         <div class="tile" id="mgDash"><span class="emoji">📊</span><div class="t">실시간 현황</div><div class="s">TV로 함께 보기</div></div>
+        <div class="tile" id="mgMake"><span class="emoji">📝</span><div class="t">카드·대화문 만들기</div><div class="s">과제 만들기로 가기</div></div>
       </div>
     </div>
     <div class="card">
-      <h3 style="margin-top:2px">만든 세트 <span class="muted" style="font-size:.82rem">(누르면 수정)</span></h3>
+      <h3 style="margin-top:2px">배부된 미션 <span class="muted" style="font-size:.82rem">(고치려면 과제 만들기로)</span></h3>
       ${sets.length ? sets.map(s=>`
         <div class="mg-listcard" data-edit="${esc(s.id)}">
           <div style="flex:1; min-width:0">
@@ -3414,217 +4629,21 @@ function mingleTeacher(){
             <div class="m">🏫 ${esc(mgClassNames(s))}</div>
           </div><div class="ar">✏️</div>
         </div>`).join('')
-        : '<div class="empty"><span class="em">🃏</span>아직 만든 세트가 없어요.</div>'}
+        : '<div class="empty"><span class="em">🃏</span>아직 만든 미션이 없어요.<br>위 <b>카드·대화문 만들기</b>로 시작해요.</div>'}
     </div>`;
-  $('mgNew').onclick = ()=> mingleEditor(null);
   $('mgDash').onclick = ()=> mingleDash();
-  app.querySelectorAll('[data-edit]').forEach(el=> el.onclick=()=> mingleEditor(el.dataset.edit));
-}
-
-function mingleEditor(id){
-  mingleLeave();
-  mgSaveArm=false; mgDelArm=false;
-  const st = id ? mgSet(id) : null;
-  mgEdit = {
-    id: id||null,
-    title: st? st.title : '', grade: st? st.grade : '5학년', pub: st? st.pub : MG_PUBS[0],
-    goal: st? st.goal : 6, cap: st? st.cap : 3,
-    classIds: st ? (st.classIds||[]).slice() : [],
-    cards: st ? st.cards.map(c=>({ en:c.en, ko:c.ko||'', em:c.em||'', lock:!!c.em }))
-              : [0,0,0,0].map(()=>({ en:'', ko:'', em:'', lock:false })),
-    lines: st ? st.lines.map((l,i)=>({ role:l.role||(i%2?'B':'A'), en:l.en, ko:l.ko||'' }))
-              : [{role:'A',en:'',ko:''},{role:'B',en:'',ko:''}]
-  };
-  mgEditorDraw();
-}
-function mgEditorDraw(){
-  const e=mgEdit;
-  app.innerHTML=`
-    <button class="back" onclick="mingleTeacher()">← 카드 미션</button>
-    <div class="card">
-      <h2 style="margin-top:4px">${e.id? '미션 세트 수정' : '미션 세트 만들기'}</h2>
-      <label>제목</label>
-      <input type="text" id="mgTitle" placeholder="예) 5학년 5단원 – What's your favorite food?" value="${esc(e.title)}">
-      <div class="row" style="margin-top:10px">
-        <div><label>학년</label><select id="mgGrade">
-          ${['3학년','4학년','5학년','6학년'].map(g=>`<option ${g===e.grade?'selected':''}>${g}</option>`).join('')}
-        </select></div>
-        <div><label>출판사</label><select id="mgPub">
-          ${MG_PUBS.map(g=>`<option ${g===e.pub?'selected':''}>${esc(g)}</option>`).join('')}
-        </select></div>
-      </div>
-      <div class="hr"></div>
-      <label>어느 학급에 줄까요? (여러 학급을 고를 수 있어요)</label>
-      <div class="grid-cards" id="mgCls"></div>
-      <p class="muted" id="mgClsNote" style="margin:8px 0 0"></p>
-      <div class="hr"></div>
-      <label>주제 카드 — 영어와 한글을 쓰면 그림이 저절로 붙어요 (그림을 누르면 바꿀 수 있어요)</label>
-      <div id="mgCards"></div>
-      <button class="btn ghost sm" id="mgAddCard">＋ 카드 추가</button>
-      <div class="hr"></div>
-      <label>기본 대화문 — A / B 를 눌러 말하는 사람을 정해요 (빈칸은 <b>___</b> , 각자의 카드 낱말이 채워져요)</label>
-      <div id="mgLines"></div>
-      <button class="btn ghost sm" id="mgAddLine">＋ 문장 추가</button>
-      <div class="hr"></div>
-      <div class="row">
-        <div><label>만날 친구 수 (카드 수 이상, 최대 25)</label>
-          <input type="number" id="mgGoal" min="2" max="25" inputmode="numeric" value="${e.goal}"></div>
-        <div><label>카드 하나에 몰릴 수 있는 최대 인원</label>
-          <select id="mgCap">${[2,3,4,5,6].map(v=>`<option ${v===e.cap?'selected':''}>${v}</option>`).join('')}</select></div>
-      </div>
-      <div id="mgMsg"></div>
-      <div class="row" style="margin-top:16px">
-        <button class="btn lg" id="mgSave" style="flex:2 1 200px">${e.id? '수정 저장' : '세트 저장'}</button>
-        ${e.id? '<button class="btn ghost lg" id="mgDel" style="flex:1 1 120px">🗑️ 삭제</button>' : ''}
-      </div>
-    </div>`;
-  mgRowsDraw();
-  mgClsDraw();
-  $('mgTitle').oninput = ev=> e.title=ev.target.value;
-  $('mgGrade').onchange = ev=>{ e.grade=ev.target.value; mgClsDraw(); };
-  $('mgPub').onchange = ev=> e.pub=ev.target.value;
-  $('mgGoal').oninput = ev=> e.goal=+ev.target.value;
-  $('mgCap').onchange = ev=> e.cap=+ev.target.value;
-  $('mgAddCard').onclick = ()=>{ e.cards.push({en:'',ko:'',em:'',lock:false}); mgRowsDraw(); };
-  $('mgAddLine').onclick = ()=>{ e.lines.push({ role:e.lines.length%2?'B':'A', en:'', ko:'' }); mgRowsDraw(); };
-  $('mgSave').onclick = mgSaveSet;
-  if($('mgDel')) $('mgDel').onclick = mgDelSet;
-}
-function mgRowsDraw(){
-  const e=mgEdit;
-  $('mgCards').innerHTML = e.cards.map((c,i)=>`
-    <div class="mg-crow">
-      <button class="mg-em ${c.lock?'':'auto'}" data-cem="${i}" title="그림 고르기">${mgRowEm(c)}</button>
-      <input type="text" data-cen="${i}" placeholder="영어 (예: pizza)" value="${esc(c.en)}">
-      <input type="text" data-cko="${i}" placeholder="한글 뜻 (예: 피자)" value="${esc(c.ko)}">
-      <button class="del" data-cdel="${i}" title="카드 지우기">✕</button>
-    </div>`).join('');
-  $('mgLines').innerHTML = e.lines.map((l,i)=>`
-    <div class="mg-drow">
-      <button class="mg-rb ${l.role}" data-lrole="${i}" title="말하는 사람 바꾸기">${l.role}</button>
-      <input type="text" data-len="${i}" placeholder="영어 문장 (빈칸은 ___)" value="${esc(l.en)}">
-      <input type="text" data-lko="${i}" placeholder="한국어 뜻" value="${esc(l.ko)}">
-      <button class="del" data-ldel="${i}" title="문장 지우기">✕</button>
-    </div>`).join('');
-  app.querySelectorAll('[data-cen]').forEach(el=> el.oninput=()=>{
-    const i=+el.dataset.cen; e.cards[i].en=el.value; mgRefreshEm(i); });
-  app.querySelectorAll('[data-cko]').forEach(el=> el.oninput=()=>{
-    const i=+el.dataset.cko; e.cards[i].ko=el.value; mgRefreshEm(i); });
-  app.querySelectorAll('[data-cdel]').forEach(el=> el.onclick=()=>{ e.cards.splice(+el.dataset.cdel,1); mgRowsDraw(); });
-  app.querySelectorAll('[data-cem]').forEach(el=> el.onclick=()=>{
-    const i=+el.dataset.cem, c=e.cards[i];
-    emojiPickOpen({ text: c.en||'카드 그림', meaning: c.ko, cands: mgSuggest(c.en,c.ko), cur: c.em,
-      onPick:(em)=>{ c.em=em; c.lock=!!em; mgRefreshEm(i); } });   /* '글자로 표시'를 고르면 다시 자동 추천 */
-  });
-  app.querySelectorAll('[data-len]').forEach(el=> el.oninput=()=> e.lines[+el.dataset.len].en=el.value);
-  app.querySelectorAll('[data-lko]').forEach(el=> el.oninput=()=> e.lines[+el.dataset.lko].ko=el.value);
-  app.querySelectorAll('[data-ldel]').forEach(el=> el.onclick=()=>{ e.lines.splice(+el.dataset.ldel,1); mgRowsDraw(); });
-  app.querySelectorAll('[data-lrole]').forEach(el=> el.onclick=()=>{
-    const l=e.lines[+el.dataset.lrole];
-    l.role = l.role==='A' ? 'B' : 'A';
-    el.textContent=l.role; el.className='mg-rb '+l.role;
-  });
-}
-/* 배부할 학급 고르기 — 학년을 바꾸면 그 학년 학급만 보여 준다(과제 만들기와 같은 방식).
-   이미 고른 학급은 학년 밖이라도 계속 보여 줘서 실수로 빠지지 않게 한다. */
-function mgClsDraw(){
-  const wrap=$('mgCls'), note=$('mgClsNote'), e=mgEdit;
-  if(!wrap) return;
-  if(!DB.classes.length){
-    wrap.innerHTML='<div class="empty" style="grid-column:1/-1"><span class="em">🏫</span>아직 학급이 없어요. 먼저 학급을 만들어 주세요.</div>';
-    if(note) note.textContent=''; return;
-  }
-  const {list, none}=classesForGrade(e.grade);
-  const shown=list.slice();
-  DB.classes.forEach(c=>{ if(e.classIds.includes(c.id) && !shown.some(x=>x.id===c.id)) shown.push(c); });
-  wrap.innerHTML=shown.map(c=>`<div class="tile ${e.classIds.includes(c.id)?'on':''}" data-mgc="${esc(c.id)}">
-      <span class="emoji">🏫</span>
-      <div class="t">${esc(c.name)}</div><div class="s">${c.students.length}명</div></div>`).join('');
-  if(note) note.textContent = none ? `'${e.grade}' 학급을 찾지 못해 전체 학급을 보여줘요.`
-    : `'${e.grade}' 학급만 보여주는 중이에요. 고른 학급의 학생에게만 이 미션이 보여요.`;
-  wrap.querySelectorAll('[data-mgc]').forEach(t=> t.onclick=()=>{
-    const id=t.dataset.mgc;
-    if(e.classIds.includes(id)){ e.classIds=e.classIds.filter(x=>x!==id); t.classList.remove('on'); }
-    else { e.classIds.push(id); t.classList.add('on'); }
-  });
-}
-function mgRowEm(c){ return (c.lock && c.em) ? c.em : (mgSuggest(c.en,c.ko)[0] || '🃏'); }
-function mgRefreshEm(i){
-  const c=mgEdit.cards[i], btn=app.querySelector(`[data-cem="${i}"]`);
-  if(!btn) return;
-  btn.textContent=mgRowEm(c);
-  btn.classList.toggle('auto', !c.lock);
+  $('mgMake').onclick = ()=>{ draft={ items:[], repeat:3, classIds:[], mode:'mingle' }; assignmentForm(); };
+  /* 목록을 눌러도 편집은 과제 만들기 화면에서 한다 — 세팅하는 곳을 한 군데로 모았다 */
+  app.querySelectorAll('[data-edit]').forEach(el=> el.onclick=()=> loadMingleIntoDraft(el.dataset.edit));
 }
 function mgMsg(html, kind){
-  const el=$('mgMsg'); if(!el) return;
+  /* 카드 미션·보드게임 상자가 둘 다 화면에 있어서, 지금 고르고 있는 쪽에 띄운다 */
+  const el = (draft && draft.mode==='board')   ? $('bdMsg')
+           : (draft && draft.mode==='land')    ? $('ldMsg')
+           : (draft && draft.mode==='balance') ? $('blMsg') : $('mgMsg');
+  if(!el) return;
   el.innerHTML = html ? `<div class="${kind==='note'?'mg-note':'mg-warn'}" style="margin:16px 0 0">${html}</div>` : '';
   if(html) try{ el.scrollIntoView({block:'center'}); }catch(e){}
-}
-async function mgSaveSet(){
-  const e=mgEdit;
-  const title=(e.title||'').trim();
-  const cards=e.cards.map(c=>({ en:(c.en||'').trim(), ko:(c.ko||'').trim(),
-      em: (c.lock && c.em) ? c.em : (mgSuggest(c.en,c.ko)[0] || '🃏') })).filter(c=>c.en);
-  const lines=e.lines.map(l=>({ role:l.role||'A', en:(l.en||'').trim(), ko:(l.ko||'').trim() })).filter(l=>l.en);
-  const goal=+e.goal, cap=+e.cap;
-  const classIds=(e.classIds||[]).filter(id=> DB.classes.some(c=>c.id===id));
-  if(!title || cards.length<2 || !lines.length){
-    mgSaveArm=false; return mgMsg('⚠️ 제목, 카드 2개 이상(영어는 꼭), 대화문 1문장 이상을 채워 주세요.'); }
-  if(!classIds.length){
-    mgSaveArm=false; return mgMsg('⚠️ 이 미션을 받을 <b>학급을 한 곳 이상</b> 골라 주세요.'); }
-  if(!goal || goal<2 || goal>25){
-    mgSaveArm=false; return mgMsg('⚠️ 만날 친구 수는 2~25명 사이로 정해 주세요.'); }
-  if(goal<cards.length){
-    mgSaveArm=false; return mgMsg(`⚠️ 모든 카드에 최소 1명씩 배정되므로, 만날 친구 수는 카드 수(${cards.length}명) 이상이어야 해요.`); }
-  if(goal>cards.length*cap){
-    mgSaveArm=false;
-    return mgMsg(`⚠️ 지금 설정으로는 카드 ${cards.length}종 × 최대 ${cap}명 = <b>${cards.length*cap}명</b>까지만 가능해요.<br>
-      👉 '카드당 최대 인원'을 <b>${Math.ceil(goal/cards.length)} 이상</b>으로 올리거나 카드를 늘려 주세요.`); }
-
-  const prev = e.id ? mgSet(e.id) : null;
-  /* 카드·인원이 바뀌면 예전 배정은 더 이상 맞지 않는다 → ver를 올려 학생이 다시 뽑게 한다.
-     제목이나 대화문만 고칠 때는 ver를 그대로 두어 진행 중인 기록을 지키다 */
-  const reset = !!prev && (prev.goal!==goal || prev.cap!==cap ||
-                           JSON.stringify(prev.cards)!==JSON.stringify(cards));
-  /* 중복 도장 금지라 '만날 친구 수'가 반 인원 − 1보다 많으면 아무도 끝낼 수 없다 */
-  const small=DB.classes.filter(c=> classIds.includes(c.id) && c.students.length-1 < goal);
-  const warns=[];
-  if(reset) warns.push(`카드나 인원이 바뀌었어요. 저장하면 <b>이미 시작한 학생의 카드와 도장이 초기화</b>되고
-    다음에 들어올 때 새로 뽑게 됩니다.`);
-  if(small.length) warns.push(`${small.map(c=>`<b>${esc(c.name)}</b>(${c.students.length}명)`).join(', ')}
-    ${small.length>1?'은':'은'} 만날 수 있는 친구가 ${Math.min(...small.map(c=>c.students.length))-1}명뿐이라
-    <b>${goal}명을 다 채울 수 없어요.</b> 만날 친구 수를 줄이거나 학생을 더 등록해 주세요.`);
-  if(warns.length && !mgSaveArm){
-    mgSaveArm=true;
-    return mgMsg('⚠️ '+warns.join('<br><br>⚠️ ')+'<br><br>그래도 저장하려면 <b>저장 버튼을 한 번 더</b> 눌러 주세요.');
-  }
-  mgSaveArm=false;
-  const rec={ id: e.id || ('m'+uid()), title, grade:e.grade, pub:e.pub, classIds, cards, lines, goal, cap,
-    ver: prev ? ((prev.ver||1) + (reset?1:0)) : 1,
-    createdAt: prev ? prev.createdAt : Date.now() };
-  const list=(DB.mingle||[]).slice();
-  const i=list.findIndex(s=>s.id===rec.id);
-  if(i>=0) list[i]=rec; else list.unshift(rec);
-  const ok=await sSet(KEYS.mingle, list);
-  if(!ok) return mgMsg('⚠️ 저장하지 못했어요. 선생님 계정으로 로그인했는지 확인해 주세요.');
-  DB.mingle=list;
-  toast(e.id? '세트를 수정했어요 ✏️' : '세트를 만들었어요 🃏');
-  mingleTeacher();
-}
-async function mgDelSet(){
-  if(!mgEdit || !mgEdit.id) return;
-  if(!mgDelArm){
-    mgDelArm=true;
-    setTimeout(()=>{ mgDelArm=false; }, 5000);
-    return mgMsg('🗑️ 이 세트를 지울까요? 학생 기록도 더 이상 보이지 않아요.<br><b>삭제 버튼을 한 번 더</b> 누르면 지워집니다.');
-  }
-  mgDelArm=false;
-  const list=(DB.mingle||[]).filter(s=>s.id!==mgEdit.id);
-  const ok=await sSet(KEYS.mingle, list);
-  if(!ok) return mgMsg('⚠️ 지우지 못했어요. 선생님 계정으로 로그인했는지 확인해 주세요.');
-  DB.mingle=list;
-  toast('세트를 지웠어요');
-  mingleTeacher();
 }
 
 /* 실시간 현황 — 세트+학급이 같은 진행 문서만 구독한다 (mgKey 하나로 걸러 색인 추가가 필요 없다) */
@@ -3706,6 +4725,1575 @@ function mgDashDraw(){
       <div class="ct">${r.n}/${r.total}</div></div>`;
   }).join('') : '<div class="empty">이 학급에는 학생이 없어요.</div>';
 }
+
+/* ============================ 보드게임 (주사위 말판) ============================
+   태블릿만으로 하는 모둠 보드게임. 실물 주사위·말·카드가 하나도 필요 없다.
+   · 선생님: 과제 만들기에서 낱말·인원·칸 수를 정하고 → 미션 활동에서 학급을 골라 모둠을 짠다
+   · 학생: 같은 모둠끼리 한 말판을 나눠 보며 차례로 주사위를 굴린다 (모든 기기가 실시간 동기화)
+   저장 위치 — 모둠 편성은 선생님만 쓰는 eng_app, 게임판은 학생도 쓰므로 eng_progress. */
+const BD_TOKENS=['🐰','🐻','🐼','🦊','🐯','🐨'];
+const bdKey  = (setId,cid)=> `v1:bd:${setId}:${cid}`;                 /* 모둠 편성 (선생님이 씀) */
+const bdRKey = (setId,cid,g)=> `v1:prog:bd:${setId}:${cid}:${g}`;     /* 모둠별 게임판 (학생이 씀) */
+let BD=null, bdUnsubs=[];
+
+function bdLeave(){
+  groupRevealClose();
+  bdUnsubs.forEach(u=>{ try{ u(); }catch(e){} });
+  bdUnsubs=[];
+  if(BD && BD.rollT){ clearTimeout(BD.rollT); }
+  BD=null;
+}
+function bdSets(){ return (DB.board||[]).slice().sort((a,b)=> (b.createdAt||0)-(a.createdAt||0)); }
+function bdSet(id){ return (DB.board||[]).find(s=>s.id===id) || null; }
+function bdClasses(set){
+  if(!set) return [];
+  if(!set.classIds || !set.classIds.length) return DB.classes.slice();
+  return DB.classes.filter(c=> set.classIds.includes(c.id));
+}
+function bdClassNames(set){
+  if(!set.classIds || !set.classIds.length) return '전체 학급';
+  const l=bdClasses(set);
+  return l.length ? l.map(c=>c.name).join(', ') : '배부된 학급 없음(지워진 학급)';
+}
+
+/* ---------- 말판 만들기 ---------- */
+const BD_SPECIAL=[
+  { t:'again', em:'🎲', name:'한 번 더!', msg:'와! 주사위를 <b>한 번 더</b> 굴려요 🎲' },
+  { t:'rest',  em:'😴', name:'쉬어가기',  msg:'쿨쿨… <b>한 번 쉬어요</b> 😴' },
+  { t:'jump',  em:'🚀', name:'앞으로',    msg:'슝! <b>앞으로</b> 더 나아가요 🚀' },
+  { t:'back',  em:'🪃', name:'뒤로',      msg:'앗! <b>뒤로</b> 돌아가요 🪃' },
+  { t:'lucky', em:'🍀', name:'행운 칸',   msg:'행운! <b>미션 없이 통과</b>예요 🍀' }
+];
+function bdSpecial(t){ return BD_SPECIAL.find(s=>s.t===t) || null; }
+function bdShuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+/* 출발–도착 사이를 미션 칸과 재미 칸으로 채운다. 재미 칸이 연달아 나오지 않게 한다. */
+function bdMakeTiles(items, size){
+  const n=Math.max(12, Math.min(48, +size||30));
+  const tiles=[{ t:'start', em:'🏁' }];
+  let bag=[];
+  const nextItem=()=>{ if(!bag.length) bag=bdShuffle(items.map((_,i)=>i)); return bag.pop(); };
+  for(let i=1;i<n-1;i++){
+    const prev=tiles[i-1];
+    const canSpecial = prev.t!=='start' && !bdSpecial(prev.t);      /* 재미 칸은 붙여 놓지 않는다 */
+    if(canSpecial && Math.random()<0.34){
+      const s=BD_SPECIAL[Math.floor(Math.random()*BD_SPECIAL.length)];
+      tiles.push({ t:s.t, em:s.em, d:(s.t==='jump'||s.t==='back') ? (2+Math.floor(Math.random()*2)) : 0 });
+    } else {
+      tiles.push({ t:'mission', i:nextItem() });
+    }
+  }
+  tiles.push({ t:'goal', em:'🏆' });
+  return tiles;
+}
+/* 모둠 한 칸에서 학생 id 목록 꺼내기.
+   Firestore 는 '배열 안의 배열'을 저장하지 못해서 {ids:[...]} 로 감싸 둔다.
+   메모리 모드에서 만들어진 옛 모양(그냥 배열)도 그대로 읽을 수 있게 한다. */
+function grpIds(g){ return Array.isArray(g) ? g : ((g && g.ids) || []); }
+function grpWrap(gs){ return gs.map(ids=> ({ ids })); }
+/* 모둠 나누기 — 섞은 뒤 인원수대로 자르고, 마지막에 1명만 남으면 앞 모둠에 붙인다 */
+function bdMakeGroups(students, per){
+  const ids=bdShuffle(students.map(s=>s.id));
+  const p=Math.max(2, Math.min(4, +per||2));
+  const gs=[];
+  for(let i=0;i<ids.length;i+=p) gs.push(ids.slice(i,i+p));
+  if(gs.length>1 && gs[gs.length-1].length===1){ gs[gs.length-2]=gs[gs.length-2].concat(gs.pop()); }
+  return gs;
+}
+
+/* ---------- 말판 그리기 (뱀처럼 지그재그로 이어진다) ---------- */
+function bdBoardHTML(set, room, opt){
+  opt=opt||{};
+  const cols = opt.cols || (set.tiles.length>28 ? 6 : 5);
+  const cells = set.tiles.map((t,i)=>{
+    const row=Math.floor(i/cols);
+    const col=(row%2===0) ? (i%cols) : (cols-1 - (i%cols));
+    const here=(room? room.players.filter(p=>p.pos===i) : []);
+    const toks=here.map(p=>`<span>${BD_TOKENS[room.players.indexOf(p)%BD_TOKENS.length]}</span>`).join('');
+    const cur = room && room.players[room.turn] && room.players[room.turn].pos===i;
+    let face='', word='';
+    if(t.t==='mission'){ const it=set.items[t.i]||{}; face=(it.em||'📝'); word=esc(it.en||''); }
+    else { const s=bdSpecial(t.t); face = t.em || (s? s.em : '·'); if(t.d) word=(t.t==='back'?'-':'+')+t.d; }
+    return `<div class="bd-cell ${t.t}${cur?' here':''}" style="grid-row:${row+1}; grid-column:${col+1}"
+        title="${t.t==='mission'? esc((set.items[t.i]||{}).en||'') : (bdSpecial(t.t)||{}).name||''}">
+      <span class="no">${i===0?'출발':(i===set.tiles.length-1?'도착':i)}</span>
+      <span>${face}</span>${word?`<span class="wd">${word}</span>`:''}
+      ${toks?`<span class="bd-toks">${toks}</span>`:''}
+    </div>`;
+  }).join('');
+  return `<div class="bd-board" style="grid-template-columns:repeat(${cols},1fr)">${cells}</div>`;
+}
+function bdSeatsHTML(set, room){
+  return room.players.map((p,i)=>`
+    <div class="bd-seat ${i===room.turn?'on':''}">
+      <span class="tk">${BD_TOKENS[i%BD_TOKENS.length]}</span>
+      <span class="nm">${esc(p.name)}${p.sid===session.studentId?' (나)':''}</span>
+      <span class="ps">${p.skip?'😴 쉬는 중 · ':''}${p.pos}칸 / ${set.tiles.length-1}</span>
+    </div>`).join('');
+}
+
+/* ============================ 보드게임 — 선생님 ============================ */
+function boardTeacher(){
+  bdLeave(); mingleLeave(); bingoLeave(); ldLeave(); blLeave();
+  session.role='teacher'; refreshWho();
+  const sets=bdSets();
+  app.innerHTML=`
+    <button class="back" onclick="missionRoomTeacher()">← 미션 활동</button>
+    <div class="card">
+      <h2 style="margin-top:4px">🎲 보드게임</h2>
+      <p class="muted">모둠끼리 태블릿 하나씩 들고 주사위를 굴려요. 도착한 칸의 낱말을 말해야 그 자리에 남을 수 있어요.
+        중간에 <b>한 번 더 🎲 · 쉬어가기 😴 · 앞으로 🚀 · 뒤로 🪃 · 행운 🍀</b> 칸이 숨어 있어요.</p>
+      <p class="muted" style="margin-top:8px">낱말·모둠 인원·칸 수는 <b>선생님 메뉴 → 📝 과제 만들기</b>에서
+        <b>③ 과제 유형 → 🎲 보드게임</b>으로 정해요. 여기서는 <b>모둠을 짜고 진행을 보는 일</b>만 합니다.</p>
+      <div class="grid-cards" style="margin-top:14px">
+        <div class="tile" id="bdMake"><span class="emoji">📝</span><div class="t">낱말·말판 만들기</div><div class="s">과제 만들기로 가기</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:2px">만든 보드게임 <span class="muted" style="font-size:.82rem">(누르면 모둠 짜기)</span></h3>
+      ${sets.length ? sets.map(s=>`
+        <div class="mg-listcard" data-bdset="${esc(s.id)}">
+          <div style="flex:1; min-width:0">
+            <div class="t">${esc(s.title)}</div>
+            <div class="m">${esc(s.grade||'')} · 낱말 ${s.items.length}개 · ${s.tiles.length}칸 · ${s.players}인 모둠</div>
+            <div class="m">🏫 ${esc(bdClassNames(s))}</div>
+          </div><div class="ar">▶️</div>
+        </div>`).join('')
+        : '<div class="empty"><span class="em">🎲</span>아직 만든 보드게임이 없어요.<br>위 <b>낱말·말판 만들기</b>로 시작해요.</div>'}
+    </div>`;
+  $('bdMake').onclick=()=>{ draft={ items:[], repeat:3, classIds:[], mode:'board' }; assignmentForm(); };
+  app.querySelectorAll('[data-bdset]').forEach(el=> el.onclick=()=> boardPickClass(el.dataset.bdset));
+}
+
+function boardPickClass(setId){
+  bdLeave();
+  const set=bdSet(setId); if(!set) return boardTeacher();
+  const list=bdClasses(set);
+  app.innerHTML=`
+    <button class="back" onclick="boardTeacher()">← 보드게임</button>
+    <div class="card">
+      <h2 style="margin-top:4px">🎲 ${esc(set.title)} — 어느 반인가요?</h2>
+      <p class="muted">반을 고르면 <b>${set.players}명씩</b> 모둠을 짜 줘요. 학생은 <b>학생 → 미션 활동 → 보드게임</b>으로 들어옵니다.</p>
+      ${list.length? `<div class="grid-cards" style="margin-top:14px">${list.map(c=>`
+        <div class="tile" data-bdc="${esc(c.id)}"><span class="emoji">🏫</span>
+          <div class="t">${esc(c.name)}</div><div class="s">${c.students.length}명</div></div>`).join('')}</div>`
+        : '<div class="empty"><span class="em">🏫</span>이 보드게임을 받은 학급이 없어요.<br>과제 만들기에서 학급을 골라 주세요.</div>'}
+    </div>`;
+  app.querySelectorAll('[data-bdc]').forEach(el=> el.onclick=()=> boardGroups(setId, el.dataset.bdc));
+}
+
+async function boardGroups(setId, cid){
+  bdLeave();
+  const set=bdSet(setId), cls=DB.classes.find(c=>c.id===cid);
+  if(!set || !cls) return boardTeacher();
+  BD={ role:'teacher', setId, cid, sess:null, rooms:{} };
+  app.innerHTML=`<button class="back" onclick="boardPickClass('${esc(setId)}')">← 반 고르기</button>
+    <div id="bdWrap" class="card empty"><span class="em">⏳</span>불러오는 중...</div>`;
+  const sess=await sGet(bdKey(setId,cid), null);
+  if(!BD || BD.role!=='teacher') return;
+  /* 모둠은 선생님이 「모둠 뽑기」를 눌러야 짜인다 — 아이들과 함께 보려고 */
+  BD.sess = (sess && sess.ver===set.ver && Array.isArray(sess.groups)) ? sess : null;
+  bdTeacherDraw();
+  if(BD.sess) bdTeacherWatch();
+}
+/* 모둠 뽑기 — 저장한 뒤 TV로 짜잔 하고 보여 준다 */
+async function bdDrawGroups(again){
+  const set=bdSet(BD.setId), cls=DB.classes.find(c=>c.id===BD.cid);
+  if(!set || !cls) return;
+  if(cls.students.length<2){ toast('학생이 2명 이상이어야 모둠을 짤 수 있어요'); return; }
+  if(again && !confirm('모둠을 다시 뽑을까요?\n진행 중인 게임은 처음부터 다시 시작됩니다.')) return;
+  const btn=$('bdDraw')||$('bdReshuffle');
+  if(btn){ btn.disabled=true; btn.textContent='🥁 뽑는 중…'; }
+  bdUnsubs.forEach(u=>{ try{ u(); }catch(e){} }); bdUnsubs=[];
+  if(BD.sess) for(let g=0; g<BD.sess.groups.length; g++) await sDel(bdRKey(BD.setId, BD.cid, g));
+  const groups=bdMakeGroups(cls.students, set.players);
+  const rec={ setId:BD.setId, classId:BD.cid, ver:set.ver, groups:grpWrap(groups), at:Date.now(),
+              shuffle:((BD.sess&&BD.sess.shuffle)||0)+1 };
+  if(!await sSet(bdKey(BD.setId, BD.cid), rec)){
+    if(btn){ btn.disabled=false; btn.textContent=again? '🔀 모둠 다시 뽑기' : '🎊 모둠 뽑기'; }
+    return;
+  }
+  if(!BD || BD.role!=='teacher') return;
+  BD.sess=rec; BD.rooms={};
+  await groupReveal(groups, cls.students, { sub:`${cls.name} · ${set.title}`, tokens:BD_TOKENS });
+  if(!BD || BD.role!=='teacher') return;
+  bdTeacherDraw(); bdTeacherWatch();
+}
+function bdTeacherWatch(){
+  bdUnsubs.forEach(u=>{ try{ u(); }catch(e){} }); bdUnsubs=[];
+  if(!BD || BD.role!=='teacher' || !BD.sess) return;
+  if(!(fbReady && window.__store)) return;
+  BD.sess.groups.forEach((_,g)=>{
+    const ref=keyRef(bdRKey(BD.setId, BD.cid, g));
+    bdUnsubs.push(window.__store.watch(ref.col, ref.id, (v)=>{
+      if(!BD || BD.role!=='teacher') return;
+      BD.rooms[g]=v||null; bdTeacherDraw();
+    }));
+  });
+}
+function bdTeacherDraw(){
+  if(!BD || BD.role!=='teacher') return;
+  const set=bdSet(BD.setId), cls=DB.classes.find(c=>c.id===BD.cid), wrap=$('bdWrap');
+  if(!set || !cls || !wrap) return;
+  const nameOf=(sid)=>{ const s=cls.students.find(x=>x.id===sid); return s? s.name : '(나간 학생)'; };
+  if(!BD.sess){                       /* 아직 안 뽑았다 — TV를 켜고 함께 보는 화면 */
+    wrap.outerHTML=`<div id="bdWrap" class="card center">
+      <h2 style="margin-top:4px">🎊 모둠을 뽑아요</h2>
+      <p class="muted"><b>${esc(cls.name)}</b> ${cls.students.length}명을 <b>${set.players}명씩</b> 나눠요.<br>
+        TV를 켜고 아이들과 함께 보면 더 재미있어요!</p>
+      <div style="font-size:3.4rem; margin:14px 0">🥁</div>
+      <button class="btn lg coral" id="bdDraw">🎊 모둠 뽑기</button>
+      <p class="muted" style="margin:12px 0 0; font-size:.83rem">뽑고 나면 학생 태블릿에서 바로 시작할 수 있어요.</p>
+    </div>`;
+    $('bdDraw').onclick=()=> bdDrawGroups(false);
+    return;
+  }
+  const last=set.tiles.length-1;
+  const groups=BD.sess.groups.map((grp,g)=>{
+    const ids=grpIds(grp);
+    const room=BD.rooms[g];
+    const rows=ids.map((sid,k)=>{
+      const p=room? (room.players||[]).find(x=>x.sid===sid) : null;
+      const pos=p? p.pos : 0;
+      return `<div class="bd-seat" style="margin:0 0 5px">
+        <span class="tk">${BD_TOKENS[k%BD_TOKENS.length]}</span>
+        <span class="nm">${esc(nameOf(sid))}</span>
+        <span class="ps">${pos}/${last}${room && room.winner===sid?' 🏆':''}</span></div>`;
+    }).join('');
+    const state = !room ? '<span class="muted">아직 안 들어옴</span>'
+      : room.winner ? `<span class="pill done">🏆 ${esc(nameOf(room.winner))} 우승</span>`
+      : `<span class="pill bingo">${esc(nameOf((room.players[room.turn]||{}).sid))} 차례</span>`;
+    return `<div class="card" style="margin-bottom:10px">
+      <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:8px">
+        <h3 style="margin:0; flex:1">${g+1}모둠</h3>${state}</div>
+      ${rows}</div>`;
+  }).join('');
+  wrap.outerHTML=`<div id="bdWrap">
+    <div class="card">
+      <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap">
+        <h2 style="margin:2px 0; flex:1">🎲 ${esc(set.title)} · ${esc(cls.name)}</h2>
+        <button class="btn ghost sm" id="bdShow">🎊 모둠 다시 보여주기</button>
+        <button class="btn ghost sm" id="bdReshuffle">🔀 모둠 다시 뽑기</button>
+      </div>
+      <p class="muted" style="margin:6px 0 0">${BD.sess.groups.length}개 모둠 · 한 모둠 ${set.players}명 기준 ·
+        말판 ${set.tiles.length}칸. 학생들에게 <b>미션 활동 → 🎲 보드게임</b>으로 들어오라고 해 주세요.</p>
+      <p class="muted" style="margin:6px 0 0; font-size:.83rem">🔀 모둠을 다시 짜면 <b>진행 중인 게임이 처음부터</b> 다시 시작돼요.</p>
+    </div>
+    ${groups}</div>`;
+  $('bdReshuffle').onclick=()=> bdDrawGroups(true);
+  $('bdShow').onclick=async ()=>{
+    const groups=BD.sess.groups.map(grpIds);
+    await groupReveal(groups, cls.students, { sub:`${cls.name} · ${set.title}`, tokens:BD_TOKENS });
+  };
+}
+
+/* ============================ 보드게임 — 학생 ============================ */
+async function boardStudent(){
+  bdLeave(); bingoLeave(); mingleLeave(); ldLeave(); blLeave();
+  session.role='student'; refreshWho();
+  BD={ role:'student', setId:null, cid:session.classId, g:-1, room:null, rolling:false, rollT:0, heard:'' };
+  app.innerHTML=`<button class="back" onclick="boardStudentQuit()">← 이름 다시 고르기</button>
+    <div id="bdWrap" class="card empty"><span class="em">⏳</span>불러오는 중...</div>`;
+  /* 우리 반에 열려 있는 보드게임 찾기 */
+  const mine=bdSets().filter(s=> !s.classIds || !s.classIds.length || s.classIds.includes(session.classId));
+  const open=[];
+  for(const s of mine){
+    const sess=await sGet(bdKey(s.id, session.classId), null);
+    if(!BD || BD.role!=='student') return;
+    if(sess && sess.ver===s.ver && Array.isArray(sess.groups)) open.push({ set:s, sess });
+  }
+  const wrap=$('bdWrap'); if(!wrap) return;
+  if(!open.length){
+    wrap.outerHTML=`<div id="bdWrap" class="card empty"><span class="em">🎲</span>
+      아직 열린 보드게임이 없어요.<br>선생님이 <b>미션 활동 → 보드게임</b>에서 모둠을 짜면 시작할 수 있어요.
+      <div class="center" style="margin-top:12px"><button class="btn ghost sm" onclick="boardStudent()">🔄 다시 확인</button></div></div>`;
+    return;
+  }
+  if(open.length>1){
+    wrap.outerHTML=`<div id="bdWrap" class="card">
+      <h2 style="margin-top:4px">🎲 어느 보드게임을 할까요?</h2>
+      <div class="grid-cards" style="margin-top:12px">${open.map(o=>`
+        <div class="tile" data-bdpick="${esc(o.set.id)}"><span class="emoji">🎲</span>
+          <div class="t">${esc(o.set.title)}</div><div class="s">${o.set.tiles.length}칸 · ${o.sess.groups.length}모둠</div></div>`).join('')}</div></div>`;
+    app.querySelectorAll('[data-bdpick]').forEach(el=> el.onclick=()=> bdJoin(el.dataset.bdpick));
+    return;
+  }
+  bdJoin(open[0].set.id);
+}
+function boardStudentQuit(){ bdLeave(); studentPickName(session.classId); }
+
+async function bdJoin(setId){
+  const set=bdSet(setId); if(!set) return;
+  const cid=session.classId;
+  const sess=await sGet(bdKey(setId,cid), null);
+  if(!BD || BD.role!=='student') return;
+  const g=(sess && sess.groups) ? sess.groups.findIndex(grp=> grpIds(grp).includes(session.studentId)) : -1;
+  const wrap=$('bdWrap');
+  if(g<0){
+    if(wrap) wrap.outerHTML=`<div id="bdWrap" class="card empty"><span class="em">🙋</span>
+      아직 모둠에 들어가지 못했어요.<br>선생님께 <b>모둠 다시 짜기</b>를 부탁해 주세요.
+      <div class="center" style="margin-top:12px"><button class="btn ghost sm" onclick="boardStudent()">🔄 다시 확인</button></div></div>`;
+    return;
+  }
+  BD.setId=setId; BD.g=g; BD.sess=sess;
+  await bdEnsureRoom(set, cid, g, grpIds(sess.groups[g]));
+  if(!BD || BD.role!=='student') return;
+  if(fbReady && window.__store){
+    const ref=keyRef(bdRKey(setId,cid,g));
+    bdUnsubs.push(window.__store.watch(ref.col, ref.id, (v)=>{
+      if(!BD || BD.role!=='student') return;
+      if(v) BD.room=v;
+      bdStudentDraw();
+    }));
+  }
+  bdStudentDraw();
+}
+/* 방이 없으면 만든다 — 여러 명이 동시에 들어와도 하나만 남도록 트랜잭션을 쓴다 */
+async function bdEnsureRoom(set, cid, g, ids){
+  const cls=DB.classes.find(c=>c.id===cid);
+  const mk=()=>({ setId:set.id, classId:cid, g, ver:set.ver, bdKey:set.id+'|'+cid,
+    players: ids.map(sid=>{ const s=cls? cls.students.find(x=>x.id===sid) : null;
+      return { sid, name:s? s.name : '친구', pos:0, skip:0 }; }),
+    turn:0, phase:'roll', dice:0, from:0, tile:null, msg:'', winner:null, at:Date.now() });
+  const key=bdRKey(set.id,cid,g), ref=keyRef(key);
+  const resolve=(cur)=>{
+    if(cur && cur.ver===set.ver && Array.isArray(cur.players) && cur.players.length===ids.length) return null;
+    return mk();
+  };
+  if(fbReady && window.__store && window.__store.ensure){
+    try{ const v=await window.__store.ensure(ref.col, ref.id, resolve); BD.room=v; return; }
+    catch(e){ console.warn('bdEnsureRoom', e); }
+  }
+  const cur=await sGet(key, null);
+  const next=resolve(cur);
+  BD.room = next || cur;
+  if(next) await sSet(key, next);
+}
+async function bdSave(room){
+  room.at=Date.now();
+  BD.room=room;
+  bdStudentDraw();
+  await sSet(bdRKey(room.setId, room.classId, room.g), room);
+}
+/* 다음 차례로 넘긴다 — 쉬는 칸에 걸린 친구는 한 번 건너뛴다 */
+function bdNextTurn(room){
+  const n=room.players.length;
+  for(let k=1;k<=n;k++){
+    const idx=(room.turn+k)%n, p=room.players[idx];
+    if(p.skip>0){ p.skip--; continue; }
+    room.turn=idx; return;
+  }
+  room.turn=(room.turn+1)%n;      /* 모두 쉬는 중이면 그냥 다음 사람 */
+}
+
+function bdStudentDraw(){
+  if(!BD || BD.role!=='student') return;
+  const set=bdSet(BD.setId), room=BD.room, wrap=$('bdWrap');
+  if(!set || !room || !wrap) return;
+  const me=room.players.findIndex(p=>p.sid===session.studentId);
+  const myTurn = me>=0 && me===room.turn;
+  const cur=room.players[room.turn]||{};
+  const last=set.tiles.length-1;
+
+  let panel='';
+  if(room.winner){
+    const w=room.players.find(p=>p.sid===room.winner)||{};
+    panel=`<div class="card center">
+      <div style="font-size:3rem">🏆</div>
+      <h2 style="margin:6px 0">${esc(w.name)} 우승!</h2>
+      <p class="muted">모두 잘했어요! 다시 하려면 아래를 눌러요.</p>
+      <button class="btn lg coral" id="bdAgain" style="margin-top:10px">🔄 처음부터 다시 하기</button>
+    </div>`;
+  } else if(room.phase==='mission'){
+    const t=set.tiles[room.tile]||{}, it=set.items[t.i]||{};
+    panel=`<div class="card center">
+      <p class="muted" style="margin:0">${esc(cur.name)} 님의 미션</p>
+      <div style="font-size:3rem; line-height:1.2">${it.em||'📝'}</div>
+      <div style="font-family:'Andika'; font-size:1.7rem; margin:2px 0">${esc(it.en||'')}</div>
+      ${it.ko?`<p class="muted" style="margin:0">${esc(it.ko)}</p>`:''}
+      <div class="row" style="justify-content:center; margin-top:10px">
+        <button class="btn" id="bdHear">🔊 들어보기</button>
+        ${myTurn? '<button class="btn coral" id="bdMic">🎤 말해서 통과하기</button>':''}
+      </div>
+      <p class="muted" id="bdMicMsg" style="margin:8px 0 0">${myTurn
+        ? '또박또박 말해 보세요. 잘 안 되면 모둠 친구가 판정해 줘요.'
+        : '친구가 말하는 걸 듣고 판정해 주세요!'}</p>
+      ${!myTurn? `<div class="row" style="justify-content:center; margin-top:10px">
+        <button class="btn" id="bdOK">👍 통과!</button>
+        <button class="btn ghost" id="bdNO">👎 다시 (제자리로)</button></div>`:''}
+      <p class="muted" style="margin:10px 0 0; font-size:.82rem">실패하면 원래 자리(${room.from}칸)로 돌아가요.</p>
+    </div>`;
+  } else {
+    panel=`<div class="card center">
+      <p class="muted" style="margin:0">${myTurn? '내 차례예요!' : esc(cur.name)+' 님의 차례'}</p>
+      <div class="bd-dice ${BD.rolling?'rolling':''}" id="bdDice">${BD.rolling? '🎲' : (room.dice? '⚀⚁⚂⚃⚄⚅'[room.dice-1] : '🎲')}</div>
+      ${room.msg? `<p style="margin:2px 0 8px">${room.msg}</p>`:''}
+      ${myTurn? `<button class="btn lg coral" id="bdRoll" ${BD.rolling?'disabled':''}>🎲 주사위 굴리기</button>`
+              : '<p class="muted" style="margin:6px 0 0">친구가 굴릴 때까지 기다려요 ⏳</p>'}
+    </div>`;
+  }
+
+  wrap.outerHTML=`<div id="bdWrap">
+    <div class="card">
+      <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap">
+        <h2 style="margin:2px 0; flex:1">🎲 ${esc(set.title)}</h2>
+        <span class="pill bingo">${BD.g+1}모둠</span>
+      </div>
+      ${bdBoardHTML(set, room)}
+      ${bdSeatsHTML(set, room)}
+    </div>
+    ${panel}</div>`;
+
+  const hear=$('bdHear');
+  if(hear) hear.onclick=()=>{ const t=set.tiles[room.tile]||{}; const it=set.items[t.i]||{}; if(it.en) speak(it.en); };
+  const roll=$('bdRoll'); if(roll) roll.onclick=bdRoll;
+  const ok=$('bdOK');  if(ok) ok.onclick=()=> bdMissionResult(true);
+  const no=$('bdNO');  if(no) no.onclick=()=> bdMissionResult(false);
+  const mic=$('bdMic'); if(mic) mic.onclick=bdMicTry;
+  const again=$('bdAgain'); if(again) again.onclick=async ()=>{
+    const s=bdSet(BD.setId); const ids=grpIds(BD.sess.groups[BD.g]);
+    await sDel(bdRKey(BD.setId, BD.cid, BD.g));
+    await bdEnsureRoom(s, BD.cid, BD.g, ids);
+    bdStudentDraw();
+  };
+}
+
+/* ---------- 주사위 ---------- */
+function bdRoll(){
+  const room=BD.room, set=bdSet(BD.setId);
+  if(!room || room.winner || room.phase!=='roll') return;
+  if(room.players[room.turn].sid!==session.studentId) return;
+  BD.rolling=true; bdStudentDraw();
+  BD.rollT=setTimeout(async ()=>{
+    if(!BD || BD.role!=='student') return;
+    BD.rolling=false;
+    const d=1+Math.floor(Math.random()*6);
+    const p=room.players[room.turn];
+    const last=set.tiles.length-1;
+    const from=p.pos;
+    let pos=p.pos+d;
+    room.dice=d; room.from=from; room.msg='';
+    if(pos>=last){                                   /* 도착! */
+      p.pos=last; room.winner=p.sid; room.phase='over';
+      room.msg=`🎉 ${esc(p.name)} 님이 도착했어요!`;
+      return bdSave(room);
+    }
+    p.pos=pos;
+    const t=set.tiles[pos];
+    if(t.t==='mission'){
+      room.phase='mission'; room.tile=pos;
+      room.msg=`${esc(p.name)} 님이 ${d}칸 이동! 미션 칸이에요 📝`;
+      return bdSave(room);
+    }
+    const sp=bdSpecial(t.t);
+    room.msg=`${d}칸 이동 — ${sp? sp.msg : ''}`;
+    if(t.t==='again'){ room.phase='roll'; return bdSave(room); }        /* 차례를 넘기지 않는다 */
+    if(t.t==='rest'){ p.skip=1; }
+    if(t.t==='jump'){ p.pos=Math.min(last, pos+(t.d||2));
+      if(p.pos>=last){ room.winner=p.sid; room.phase='over'; room.msg=`🎉 ${esc(p.name)} 님이 도착했어요!`; return bdSave(room); } }
+    if(t.t==='back'){ p.pos=Math.max(0, pos-(t.d||2)); }
+    room.phase='roll'; bdNextTurn(room);
+    bdSave(room);
+  }, 650);
+  bdStudentDraw();
+}
+/* ---------- 미션 판정 ---------- */
+function bdMissionResult(pass){
+  const room=BD.room;
+  if(!room || room.phase!=='mission') return;
+  const p=room.players[room.turn];
+  if(pass){ room.msg=`✅ ${esc(p.name)} 님 통과! 그 자리에 남아요.`; }
+  else { p.pos=room.from; room.msg=`↩️ ${esc(p.name)} 님은 ${room.from}칸으로 돌아가요.`; }
+  room.phase='roll'; room.tile=null;
+  bdNextTurn(room);
+  bdSave(room);
+}
+/* 마이크로 자동 판정 — 60점 이상이면 통과 (말하기 연습과 같은 채점) */
+async function bdMicTry(){
+  const room=BD.room, set=bdSet(BD.setId);
+  if(!room || room.phase!=='mission') return;
+  const t=set.tiles[room.tile]||{}, it=set.items[t.i]||{};
+  const msg=$('bdMicMsg'), mic=$('bdMic');
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){ if(msg) msg.textContent='이 기기는 마이크 채점을 지원하지 않아요. 친구에게 판정을 부탁해요!'; return; }
+  if(speakRec){ speakStop(); if(mic) mic.classList.remove('rec'); return; }
+  const perm=await ensureMic();
+  if(!perm.ok){ if(msg) msg.textContent='마이크 권한을 허용해 주세요 (친구가 판정해 줘도 돼요)'; return; }
+  await new Promise(r=> setTimeout(r,120));
+  const r=new SR(); speakRec=r; r.lang='en-US'; r.interimResults=false; r.maxAlternatives=4;
+  if(mic) mic.classList.add('rec');
+  if(msg) msg.textContent='듣고 있어요… 지금 말해보세요 🎙️';
+  r.onresult=(e)=>{
+    const alts=[...e.results[0]].map(a=>a.transcript);
+    const {score, heard}=scoreSpeech(it.en||'', alts);
+    if(!BD || BD.role!=='student') return;
+    if(score>=60){ if(msg) msg.textContent=`잘했어요! (${score}점) 통과 ✅`; bdMissionResult(true); }
+    else { if(msg) msg.textContent=`들린 말: ${heard||'(못 알아들었어요)'} · ${score}점 — 다시 한 번 말해볼까요?`; }
+  };
+  r.onerror=()=>{ if(msg) msg.textContent='잘 안 들렸어요. 다시 누르거나 친구에게 판정을 부탁해요'; if(mic) mic.classList.remove('rec'); speakRec=null; };
+  r.onend=()=>{ if(mic) mic.classList.remove('rec'); if(speakRec===r) speakRec=null; };
+  try{ r.start(); }catch(e){ if(msg) msg.textContent='마이크를 시작할 수 없어요'; if(mic) mic.classList.remove('rec'); speakRec=null; }
+}
+
+
+/* ============================ 밸런스 게임 (PPT 보고 번호 고르기) ============================
+   문제는 선생님이 PPT로 보여 주고, 학생 태블릿에는 번호 버튼(①②③④)만 나온다.
+   그래서 이 활동은 ②의 낱말을 쓰지 않는다 — 대신 선생님이 라운드마다 정답 번호를 정해 둔다.
+   저장 위치 — 세트는 선생님만 쓰는 eng_app/balance, 학생 답안은 eng_progress (규칙 수정 불필요).
+   쓰기 횟수: 한 판을 끝냈을 때 딱 1회. 문제를 푸는 동안에는 저장하지 않는다. */
+const blPKey = (setId,cid,sid)=> `v1:prog:bal:${setId}:${cid}:${sid}`;
+const BL_NUM = ['①','②','③','④'];
+const BL_FBS = { end:'마지막에 한꺼번에', now:'고르자마자 바로' };
+let BL=null, blUnsub=null;
+
+function blLeave(){
+  if(blUnsub){ try{ blUnsub(); }catch(e){} blUnsub=null; }
+  if(BL){ if(BL.t) clearTimeout(BL.t); if(BL.tick) clearInterval(BL.tick); }
+  BL=null;
+}
+function blSets(){ return (DB.balance||[]).slice().sort((a,b)=> (b.createdAt||0)-(a.createdAt||0)); }
+function blSet(id){ return (DB.balance||[]).find(s=>s.id===id) || null; }
+function blClasses(set){
+  if(!set) return [];
+  if(!set.classIds || !set.classIds.length) return DB.classes.slice();
+  return DB.classes.filter(c=> set.classIds.includes(c.id));
+}
+function blClassNames(set){
+  if(!set.classIds || !set.classIds.length) return '전체 학급';
+  const l=blClasses(set);
+  return l.length ? l.map(c=>c.name).join(', ') : '배부된 학급 없음(지워진 학급)';
+}
+/* 정답표는 라운드 수만큼, 값은 1~보기 수 안에 있어야 한다 */
+function blAnswers(set){
+  const n=Math.max(1, set.rounds||1), k=Math.max(2, Math.min(4, set.choices||4));
+  const a=(set.answers||[]).slice(0,n);
+  while(a.length<n) a.push(1);
+  return a.map(v=> (v>=1 && v<=k) ? v : 1);
+}
+function blKeyText(set){ return blAnswers(set).map(v=> BL_NUM[v-1]).join(''); }
+
+/* ---------- 학생 화면 (미리보기와 같은 모양) ----------
+   PPT에 문제와 보기가 있으므로 태블릿에는 번호만 크게 띄운다. */
+function blPadHTML(set, opts){
+  const o=opts||{};
+  const k=Math.max(2, Math.min(4, set.choices||4));
+  const picks=o.picks||[], i=o.i||0, ans=blAnswers(set)[i];
+  const pick=picks[i]||0;
+  const lim=set.limit||0;
+  const left=(o.left===undefined? lim : o.left);
+  const strip=(set.rounds>1 && !o.preview)
+    ? `<div class="bl-strip">${[...Array(set.rounds).keys()].map(r=>
+        `<button class="bl-chip ${r===i?'on':''} ${picks[r]?'did':''}"${lim?'':` data-blr="${r}"`}>${r+1}</button>`).join('')}</div>`
+    : '';
+  /* ⏱ 남은 시간 — 10초 아래로 내려가면 숫자가 커지고 빨개진다 (소리는 blTickSound) */
+  const timer=lim? `<div class="bl-timer ${left<=10?'warn':''}" id="blTimer">
+      <div class="bl-count" id="blCount">${left<=10? left : '⏱ '+left+'초'}</div>
+      <div class="bl-tbar"><div id="blBar" style="width:${Math.round(left/lim*100)}%"></div></div>
+    </div>` : '';
+  const nums=[...Array(k).keys()].map(x=>{
+    const v=x+1;
+    const mark = o.showAns ? (v===ans? 'ok' : (v===pick? 'no':'')) : (v===pick? 'sel':'');
+    return `<button class="bl-num ${mark}" data-bln="${v}">${BL_NUM[x]}</button>`;
+  }).join('');
+  const foot = o.over ? '⏰ 시간이 끝났어요!'
+    : o.showAns ? (pick===ans? '정답이에요! 👍' : (pick? `아쉬워요. 정답은 ${BL_NUM[ans-1]}` : `정답은 ${BL_NUM[ans-1]}`))
+    : pick ? `${BL_NUM[pick-1]} 을(를) 골랐어요${lim? ' (시간 안에는 바꿀 수 있어요)':''}`
+    : '📺 화면을 보고 답을 골라요';
+  return `${strip}${timer}
+    <div class="bl-round">${i+1} <span class="muted" style="font-size:1rem">/ ${set.rounds}</span></div>
+    <div class="bl-nums c${k}">${nums}</div>
+    <div class="bg-foot ${o.over? 'miss' : (o.showAns? (pick===ans?'hit':'miss') : '')}">${foot}</div>`;
+}
+
+/* ---------- 제한시간 (소리는 파일 없이 그 자리에서 만든다) ---------- */
+function blTickSound(s){                 /* 10초부터 1초에 한 번 째깍 — 3초부터는 더 높고 크게 */
+  const ctx=bgCtx(); if(!ctx) return;
+  const t=ctx.currentTime+0.01;
+  const f = s<=3 ? 1174.7 : (s<=5 ? 987.77 : 880);
+  bgNote(ctx, f, t, 0.12, s<=3? 0.20:0.13, [['square',0.32],['triangle',0.55]]);
+  if(s<=3) bgHat(ctx, t, 0.07);
+}
+function blTimeUpSound(){                /* 삐— 시간 끝 */
+  const ctx=bgCtx(); if(!ctx) return;
+  const t=ctx.currentTime+0.01;
+  bgNote(ctx, 392.00, t,      0.22, 0.20, [['sawtooth',0.30],['triangle',0.5]]);
+  bgNote(ctx, 293.66, t+0.20, 0.44, 0.20, [['sawtooth',0.30],['triangle',0.5]]);
+}
+function blTimerStop(){ if(BL && BL.tick){ clearInterval(BL.tick); BL.tick=0; } }
+function blTimerStart(){
+  blTimerStop();
+  if(!BL || BL.role!=='student') return;
+  const lim=(BL.set && BL.set.limit)||0;
+  BL.left=lim; BL.beeped=99; BL.shown=-1;
+  if(!lim) return;
+  BL.deadline=Date.now()+lim*1000;
+  BL.tick=setInterval(blTimerStep, 100);
+}
+function blTimerStep(){
+  if(!BL || BL.role!=='student' || !BL.set || !BL.set.limit){ blTimerStop(); return; }
+  const rem=(BL.deadline-Date.now())/1000;
+  const s=Math.max(0, Math.ceil(rem));
+  if(s<=10 && s>0 && s<BL.beeped){ BL.beeped=s; blTickSound(s); }
+  BL.left=s;
+  blTimerPaint(rem);
+  if(rem<=0){ blTimerStop(); blTimeUp(); }
+}
+/* 숫자와 막대만 고쳐 그린다 — 화면 전체를 다시 그리면 누르던 버튼이 튄다 */
+function blTimerPaint(rem){
+  if(!BL || !BL.set || !BL.set.limit) return;
+  const lim=BL.set.limit, s=BL.left;
+  const box=$('blTimer'), c=$('blCount'), b=$('blBar');
+  if(b) b.style.width=Math.max(0, Math.min(100, rem/lim*100))+'%';
+  if(box) box.classList.toggle('warn', s<=10);
+  if(c){
+    c.textContent = s<=10 ? String(s) : ('⏱ '+s+'초');
+    if(s<=10 && s!==BL.shown){ c.classList.remove('pop'); void c.offsetWidth; c.classList.add('pop'); }
+  }
+  BL.shown=s;
+}
+function blTimeUp(){
+  if(!BL || BL.role!=='student') return;
+  blTimeUpSound();
+  BL.over=true;
+  if(BL.set.fb==='now') BL.showAns=true;        /* 시간이 끝날 때 정답을 보여준다 */
+  const last=BL.i>=BL.set.rounds-1;
+  blPlayDraw();
+  BL.t=setTimeout(()=>{
+    if(!BL || BL.role!=='student') return;
+    BL.t=0; BL.over=false; BL.showAns=false;
+    if(last) blFinish(); else blGo(BL.i+1);
+  }, 1100);
+}
+
+/* ---------- 선생님 화면 ---------- */
+function balanceTeacher(){
+  blLeave(); bingoLeave(); mingleLeave(); bdLeave(); ldLeave();
+  session.role='teacher'; refreshWho();
+  const sets=blSets();
+  app.innerHTML=`
+    <button class="back" onclick="missionRoomTeacher()">← 미션 활동</button>
+    <div class="card">
+      <h2 style="margin-top:4px">⚖️ 밸런스 게임</h2>
+      <p class="muted"><b>문제와 보기는 선생님이 PPT로</b> 보여 주고, 학생 태블릿에는
+        <b>번호 버튼(①②③④)만</b> 나와요. 문제마다 <b>제한시간</b>을 걸면 10초가 남을 때
+        큰 숫자와 소리로 알려주고 시간이 되면 저절로 다음 문제로 넘어갑니다. 학생이 고른 번호를 미리 정해 둔 <b>정답표</b>와 맞춰 채점합니다.
+        마지막 라운드까지 풀면 <b>몇 문제를 맞혔는지</b> 결과가 나와요.</p>
+      <p class="muted" style="margin-top:8px">보기 수·라운드 수·정답표는 <b>선생님 메뉴 → 📝 과제 만들기</b>에서
+        <b>③ 과제 유형 → ⚖️ 밸런스 게임</b>으로 정해요. 학생은 배부한 순간부터
+        <b>학생 → 미션 활동 → 밸런스 게임</b>에서 바로 풀 수 있어요.</p>
+      <div class="grid-cards" style="margin-top:14px">
+        <div class="tile" id="blDash"><span class="emoji">📊</span><div class="t">실시간 현황</div><div class="s">TV로 함께 보기</div></div>
+        <div class="tile" id="blMake"><span class="emoji">📝</span><div class="t">문제 수·정답표 만들기</div><div class="s">과제 만들기로 가기</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:2px">배부된 밸런스 게임 <span class="muted" style="font-size:.82rem">(누르면 고치기)</span></h3>
+      ${sets.length ? sets.map(s=>`
+        <div class="mg-listcard" data-bledit="${esc(s.id)}">
+          <div style="flex:1; min-width:0">
+            <div class="t">${esc(s.title)}</div>
+            <div class="m">${esc(s.grade||'')} · ${s.choices}개 중 하나 · ${s.rounds}라운드 ·
+              ${s.limit? `⏱ ${s.limit}초` : '시간 제한 없음'} · 정답 알려주기 ${esc(BL_FBS[s.fb]||BL_FBS.end)}</div>
+            <div class="m">🔑 ${esc(blKeyText(s))}</div>
+            <div class="m">🏫 ${esc(blClassNames(s))}</div>
+          </div><div class="ar">✏️</div>
+        </div>`).join('')
+        : '<div class="empty"><span class="em">⚖️</span>아직 만든 밸런스 게임이 없어요.<br>위 <b>문제 수·정답표 만들기</b>로 시작해요.</div>'}
+    </div>`;
+  $('blDash').onclick=()=> balanceDash();
+  $('blMake').onclick=()=>{ draft={ items:[], repeat:3, classIds:[], mode:'balance' }; assignmentForm(); };
+  app.querySelectorAll('[data-bledit]').forEach(el=> el.onclick=()=> loadBalanceIntoDraft(el.dataset.bledit));
+}
+
+/* 실시간 현황 — 세트+학급이 같은 답안 문서만 구독한다 (blKey 하나로 걸러 색인이 필요 없다) */
+function balanceDash(){
+  blLeave();
+  const sets=blSets();
+  if(!sets.length || !DB.classes.length){
+    app.innerHTML=`<button class="back" onclick="balanceTeacher()">← 밸런스 게임</button>
+      <div class="card empty"><span class="em">⚖️</span>
+        ${!sets.length ? '먼저 밸런스 게임을 만들어 주세요.' : '먼저 학급을 만들어 주세요.'}</div>`;
+    return;
+  }
+  BL={ role:'teacher', setId:sets[0].id, cid:null, rows:[], tv:false };
+  app.innerHTML=`
+    <button class="back" onclick="balanceTeacher()">← 밸런스 게임</button>
+    <div class="card noanim">
+      <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap">
+        <h2 style="margin:2px 0; flex:1">📊 밸런스 게임 현황</h2>
+        <button class="btn ghost sm" id="blTv">📺 TV로 크게</button>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <div><label>밸런스 게임</label><select id="blDSet">
+          ${sets.map(s=>`<option value="${esc(s.id)}">${esc(s.title)}</option>`).join('')}</select></div>
+        <div><label>학급</label><select id="blDCls"></select></div>
+      </div>
+      <p class="muted" id="blDSub" style="margin:12px 0 0"></p>
+      <div id="blDQs" style="margin-top:10px"></div>
+    </div>
+    <div class="card noanim"><div id="blDList" style="display:flex; flex-direction:column; gap:8px"></div></div>`;
+  $('blDSet').onchange=()=>{ BL.setId=$('blDSet').value; blDashClsFill(); blDashWatch(); };
+  $('blDCls').onchange=()=>{ BL.cid=$('blDCls').value; blDashWatch(); };
+  $('blTv').onclick=()=>{ BL.tv=!BL.tv; app.classList.toggle('mg-tv', BL.tv); mgWide(BL.tv); };
+  blDashClsFill();
+  blDashWatch();
+}
+function blDashClsFill(){
+  const sel=$('blDCls'); if(!sel || !BL) return;
+  const list=blClasses(blSet(BL.setId));
+  sel.innerHTML = list.length
+    ? list.map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('')
+    : '<option value="">배부된 학급이 없어요</option>';
+  if(!list.some(c=>c.id===BL.cid)) BL.cid = list.length ? list[0].id : null;
+  sel.value = BL.cid || '';
+}
+function blDashWatch(){
+  if(blUnsub){ try{ blUnsub(); }catch(e){} blUnsub=null; }
+  if(!BL) return;
+  BL.rows=[]; blDashDraw();
+  if(!BL.cid) return;
+  if(!(fbReady && window.__store && window.__store.watchWhere)) return;
+  blUnsub = window.__store.watchWhere(colName('progress'), 'value.blKey', BL.setId+'|'+BL.cid,
+    (rows)=>{ if(!BL || BL.role!=='teacher') return; BL.rows=rows||[]; blDashDraw(); });
+}
+function blDashDraw(){
+  if(!BL || BL.role!=='teacher') return;
+  const st=blSet(BL.setId), cls=DB.classes.find(c=>c.id===BL.cid);
+  const sub=$('blDSub'), box=$('blDList'), qs=$('blDQs');
+  if(!st || !box) return;
+  if(!cls){
+    if(sub) sub.textContent=''; if(qs) qs.innerHTML='';
+    box.innerHTML='<div class="empty"><span class="em">🏫</span>이 게임을 받은 학급이 없어요.<br>과제 만들기에서 학급을 골라 주세요.</div>';
+    return;
+  }
+  const key=blAnswers(st);
+  const by={}; BL.rows.forEach(r=>{ if(r && r.sid) by[r.sid]=r; });
+  const rows=cls.students.map(s=>{
+    const r=by[s.id];
+    return { nm:s.name, best: r? (r.best||0) : 0, total: (r && r.rounds) || st.rounds,
+             plays: r? (r.plays||0) : 0, picks: (r && r.picks) || [] };
+  }).sort((a,b)=> (b.plays? b.best/(b.total||1) : -1)-(a.plays? a.best/(a.total||1) : -1) || a.nm.localeCompare(b.nm,'ko'));
+  const played=rows.filter(r=>r.plays>0);
+  const avg=played.length ? Math.round(played.reduce((s,r)=>s+r.best/(r.total||1),0)/played.length*100) : 0;
+  sub.innerHTML=`${esc(cls.name)} · ${st.choices}개 중 하나 · ${st.rounds}라운드 ·
+    ${st.limit? `⏱ ${st.limit}초` : '시간 제한 없음'} · 정답 ${esc(blKeyText(st))} ·
+    <b>${played.length}</b>명 참여 / ${cls.students.length}명${played.length?` · 평균 정답률 <b>${avg}%</b>`:''}`;
+  /* 문항별 정답 인원 — 어느 문제에서 많이 틀렸는지 한눈에 보고 그 자리에서 다시 설명할 수 있다 */
+  if(qs) qs.innerHTML = played.length ? `<p class="muted" style="font-size:.82rem; margin:0 0 5px">문항별 맞힌 사람</p>
+    <div class="bl-qbar">${key.map((a,i)=>{
+      const n=played.filter(r=> (r.picks[i]||0)===a).length;
+      const pct=Math.round(n/played.length*100);
+      return `<div class="q ${pct>=80?'good':(pct<50?'bad':'')}" title="${i+1}번 · 정답 ${BL_NUM[a-1]}">
+        <b>${i+1}</b><span>${n}</span></div>`;
+    }).join('')}</div>` : '';
+  box.innerHTML = cls.students.length ? rows.map(r=>{
+    const pct=r.plays? Math.min(100, r.best/(r.total||1)*100) : 0;
+    const perfect=r.plays>0 && r.best>=r.total;
+    return `<div class="mg-row${perfect?' done':''}">
+      <div class="nm">${perfect?'🏆 ':''}${esc(r.nm)}</div>
+      <div class="cd">${r.plays? (r.plays+'판') : '—'}</div>
+      <div class="bar"><div style="width:${pct}%"></div></div>
+      <div class="ct">${r.plays? (r.best+'/'+r.total) : '아직'}</div></div>`;
+  }).join('') : '<div class="empty">이 학급에는 학생이 없어요.</div>';
+}
+
+/* ---------- 학생 화면 ---------- */
+async function balanceStudent(){
+  blLeave(); bingoLeave(); mingleLeave(); bdLeave(); ldLeave();
+  session.role='student'; refreshWho();
+  BL={ role:'student', setId:null, set:null, i:0, picks:[], showAns:false, t:0 };
+  const mine=blSets().filter(s=> !s.classIds || !s.classIds.length || s.classIds.includes(session.classId));
+  app.innerHTML=`<button class="back" onclick="balanceStudentQuit()">← 이름 다시 고르기</button>
+    <div id="blWrap" class="card empty"><span class="em">⏳</span>불러오는 중...</div>`;
+  const wrap=$('blWrap'); if(!wrap) return;
+  if(!mine.length){
+    wrap.outerHTML=`<div id="blWrap" class="card empty"><span class="em">⚖️</span>
+      아직 받은 밸런스 게임이 없어요.<br>선생님이 배부하면 바로 나와요!
+      <div class="center" style="margin-top:12px"><button class="btn ghost sm" onclick="balanceStudent()">🔄 다시 확인</button></div></div>`;
+    return;
+  }
+  /* 지난 최고 점수를 같이 보여 주면 한 번 더 하고 싶어진다 */
+  const best={};
+  for(const s of mine){
+    const p=await sGet(blPKey(s.id, session.classId, session.studentId), null);
+    if(!BL || BL.role!=='student') return;
+    if(p) best[s.id]=p;
+  }
+  const w2=$('blWrap'); if(!w2) return;
+  w2.outerHTML=`<div id="blWrap" class="card">
+    <h2 style="margin-top:4px">⚖️ 어떤 게임을 할까요?</h2>
+    <p class="muted">앞 화면(TV·칠판)에 나온 문제를 보고 <b>번호</b>를 골라요.
+      끝까지 풀면 <b>몇 개 맞혔는지</b> 알려줄게요!</p>
+    <div class="grid-cards" style="margin-top:12px">${mine.map(s=>{
+      const p=best[s.id];
+      return `<div class="tile" data-blpick="${esc(s.id)}"><span class="emoji">⚖️</span>
+        <div class="t">${esc(s.title)}</div>
+        <div class="s">${s.choices}개 중 하나 · ${s.rounds}문제${s.limit? ` · ⏱ ${s.limit}초`:''}<br>${
+          p? `🏆 최고 ${p.best||0}/${p.rounds||s.rounds}` : '처음 도전!'}</div></div>`;
+    }).join('')}</div></div>`;
+  app.querySelectorAll('[data-blpick]').forEach(el=> el.onclick=()=> blStart(el.dataset.blpick));
+}
+function balanceStudentQuit(){ blLeave(); studentPickName(session.classId); }
+
+function blStart(setId){
+  const set=blSet(setId); if(!set) return balanceStudent();
+  blTimerStop();
+  BL={ role:'student', setId, set, i:0, picks:new Array(Math.max(1,set.rounds||1)).fill(0),
+       showAns:false, over:false, t:0, tick:0, deadline:0, left:set.limit||0, beeped:99, shown:-1 };
+  blPlayDraw();
+  blTimerStart();
+}
+function blGo(i){
+  if(!BL || BL.role!=='student') return;
+  if(BL.t){ clearTimeout(BL.t); BL.t=0; }
+  BL.i=Math.max(0, Math.min(BL.set.rounds-1, i)); BL.showAns=false; BL.over=false;
+  blPlayDraw();
+  blTimerStart();
+}
+function blPlayDraw(){
+  if(!BL || BL.role!=='student') return;
+  const set=BL.set, wrap=$('blWrap'); if(!wrap) return;
+  const timed=!!set.limit, last=BL.i>=set.rounds-1;
+  const undone=BL.picks.filter(p=>!p).length;
+  wrap.className='card';
+  wrap.innerHTML=`
+    <div style="display:flex; align-items:center; gap:10px; margin:2px 0 10px">
+      <b class="jua" style="flex:1">⚖️ ${esc(set.title)}</b>
+      <span class="pill ${undone?'not':'done'}">${BL.picks.filter(p=>p).length} / ${set.rounds} 답함</span>
+    </div>
+    ${blPadHTML(set, { i:BL.i, picks:BL.picks, showAns:BL.showAns, over:BL.over, left:BL.left })}
+    <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:14px">
+      ${timed
+        ? (last? '<button class="btn coral" id="blDone">✅ 다 풀었어요</button>':'')
+        : `<button class="btn ghost" id="blPrev" ${BL.i===0?'disabled':''}>← 앞 문제</button>
+           <button class="btn ghost" id="blNext" ${last?'disabled':''}>다음 문제 →</button>
+           <button class="btn coral" id="blDone">✅ 다 풀었어요</button>`}
+    </div>
+    <p class="muted center" style="margin:10px 0 0; font-size:.83rem">${timed
+      ? `시간이 끝나면 <b>저절로 다음 문제</b>로 넘어가요. 그전까지는 답을 다시 골라도 돼요.`
+      : `위의 번호 칸을 눌러 <b>다른 문제로 이동</b>할 수 있어요. 답은 몇 번이든 다시 고를 수 있어요.`}</p>`;
+  wrap.querySelectorAll('[data-bln]').forEach(b=> b.onclick=()=> blAnswer(+b.dataset.bln));
+  wrap.querySelectorAll('[data-blr]').forEach(b=> b.onclick=()=> blGo(+b.dataset.blr));
+  if($('blPrev')) $('blPrev').onclick=()=> blGo(BL.i-1);
+  if($('blNext')) $('blNext').onclick=()=> blGo(BL.i+1);
+  if($('blDone')) $('blDone').onclick=()=>{
+    if(undone && !confirm(`아직 답하지 않은 문제가 ${undone}개 있어요.\n그래도 끝낼까요?`)) return;
+    blFinish();
+  };
+}
+function blAnswer(v){
+  if(!BL || BL.role!=='student' || BL.over) return;   /* 시간이 끝난 문제는 못 고친다 */
+  if(BL.t){ clearTimeout(BL.t); BL.t=0; }
+  const set=BL.set;
+  BL.picks[BL.i]=v;
+  /* 제한시간이 있으면 시간이 다 될 때까지 기다린다 — 그동안 답을 바꿔도 되고, 정답도 그때 알려준다 */
+  if(set.limit){ blPlayDraw(); return; }
+  BL.showAns = (set.fb==='now');          /* 바로 알려주기일 때만 정답 표시 */
+  blPlayDraw();
+  const last=BL.i>=set.rounds-1;
+  BL.t=setTimeout(()=>{                   /* 잠깐 보여준 뒤 다음 문제로 (마지막이면 그대로 둔다) */
+    if(!BL || BL.role!=='student') return;
+    BL.t=0; BL.showAns=false;
+    if(last){ blPlayDraw(); return; }
+    BL.i++; blPlayDraw();
+  }, BL.showAns? 900 : 420);
+}
+/* 다 풀면 — 몇 문제를 맞혔는지 보여주고, 이때 딱 한 번 저장한다 */
+async function blFinish(){
+  if(BL.t){ clearTimeout(BL.t); BL.t=0; }
+  blTimerStop();
+  const set=BL.set, key=blAnswers(set), total=set.rounds;
+  const picks=BL.picks.slice();
+  const ok=key.filter((a,i)=> picks[i]===a).length;
+  const pct=Math.round(ok/total*100);
+  const face = pct===100? '🏆' : pct>=80? '🎉' : pct>=60? '😊' : '💪';
+  const msg  = pct===100? '한 문제도 안 틀렸어요! 최고예요!'
+             : pct>=80 ? '아주 잘했어요!'
+             : pct>=60 ? '잘했어요! 한 번 더 해 볼까요?'
+             : '괜찮아요. 다시 하면 더 잘할 수 있어요!';
+  const wrap=$('blWrap');
+  if(wrap){
+    wrap.className='card center';
+    wrap.innerHTML=`
+      <div style="font-size:3.4rem">${face}</div>
+      <h2 style="margin:6px 0">${total}문제 중 <span style="color:var(--green-d)">${ok}개</span> 맞혔어요!</h2>
+      <div class="bl-score">${ok} / ${total} <span class="muted" style="font-size:1rem">(${pct}%)</span></div>
+      <p class="muted" style="margin:6px 0 0">${msg}</p>
+      <div class="hr"></div>
+      <h3 style="margin:0 0 8px">📋 내가 고른 답</h3>
+      <div class="bl-result">${key.map((a,i)=>{
+        const p=picks[i]||0, good=p===a;
+        return `<div class="r ${good?'ok':'no'}"><b>${i+1}</b>
+          <span class="mine">${p? BL_NUM[p-1] : '–'}</span>
+          ${good? '<span class="mk">⭕</span>' : `<span class="mk">❌</span><span class="ans">${BL_NUM[a-1]}</span>`}</div>`;
+      }).join('')}</div>
+      <p class="muted" style="margin:8px 0 0; font-size:.82rem">❌ 옆의 번호가 정답이에요.</p>
+      <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:16px">
+        <button class="btn lg" id="blAgain">🔁 다시 풀기</button>
+        <button class="btn ghost" id="blOther">⚖️ 다른 게임 고르기</button>
+      </div>`;
+    $('blAgain').onclick=()=> blStart(BL.setId);
+    $('blOther').onclick=()=> balanceStudent();
+  }
+  if(pct===100) mgConfetti();
+  /* 점수 저장 — 최고 점수·시도 횟수와 이번 답안을 남긴다 (한 판에 쓰기 1회) */
+  const pkey=blPKey(set.id, session.classId, session.studentId);
+  const prev=await sGet(pkey, null);
+  await sSet(pkey, { blKey:set.id+'|'+session.classId, setId:set.id, sid:session.studentId, sname:session.name,
+    rounds:total, correct:ok, best:Math.max(ok, (prev&&prev.best)||0),
+    plays:((prev&&prev.plays)||0)+1, picks, at:Date.now() });
+}
+
+/* ============================ 모둠 발표 (짜잔!) ============================
+   선생님이 버튼을 누르면 TV에 두구두구 → 모둠이 하나씩 뿅뿅 → 짜잔.
+   보드게임·땅따먹기가 같이 쓴다. */
+function grpRollSound(){                     /* 두구두구 — 하이햇 연타 */
+  const ctx=bgCtx(); if(!ctx) return;
+  const t0=ctx.currentTime+0.02;
+  for(let i=0;i<26;i++) bgHat(ctx, t0+i*0.06, 0.05);
+}
+function grpPopSound(k){                     /* 모둠 하나가 나올 때 한 음씩 올라간다 */
+  const ctx=bgCtx(); if(!ctx) return;
+  const sc=[523.25,587.33,659.25,783.99,880,1046.5,1174.7];
+  bgNote(ctx, sc[k%sc.length], ctx.currentTime+0.01, 0.24, 0.16, [['triangle',0.8],['sine',0.4]]);
+}
+function grpTadaSound(){                     /* 짜잔! */
+  const ctx=bgCtx(); if(!ctx) return;
+  const t=ctx.currentTime+0.02;
+  [[523.25,0],[659.25,0.08],[783.99,0.16],[1046.5,0.24]].forEach(([f,d])=>
+    bgNote(ctx, f, t+d, 0.55, 0.2, [['triangle',0.7],['sine',0.5]]));
+  bgHat(ctx, t+0.24, 0.12);
+}
+/* groups: [[학생id,...], ...] · students: 학급 학생 목록. 닫을 때까지 기다리는 약속을 돌려준다. */
+function groupReveal(groups, students, opts){
+  opts=opts||{};
+  return new Promise((done)=>{
+    document.querySelectorAll('.grp-ov').forEach(el=> el.remove());
+    const nameOf=(sid)=>{ const st=students.find(x=>x.id===sid); return st? st.name : '친구'; };
+    const toks=opts.tokens || ['🐰','🐻','🐼','🦊','🐯','🐨'];
+    const ov=document.createElement('div');
+    ov.className='grp-ov';
+    ov.innerHTML=`
+      <div class="grp-box">
+        <div class="grp-title" id="grpTitle">🥁 두구두구두구…</div>
+        <div class="grp-sub" id="grpSub">${esc(opts.sub||'')}</div>
+        <div class="grp-roll" id="grpRoll">&nbsp;</div>
+        <div class="grp-grid" id="grpGrid"></div>
+        <div class="center" style="margin-top:20px">
+          <button class="btn lg" id="grpClose" style="display:none">확인했어요 👍</button>
+        </div>
+      </div>`;
+    document.body.appendChild(ov);
+    let closed=false;
+    const finish=()=>{ if(closed) return; closed=true; ov.remove(); done(); };
+    const timers=[];
+    const later=(fn,ms)=> timers.push(setTimeout(fn,ms));
+
+    /* ① 이름이 촤르륵 지나간다 */
+    const names=students.map(x=>x.name).filter(Boolean);
+    grpRollSound();
+    const rollT=setInterval(()=>{
+      const el=ov.querySelector('#grpRoll'); if(!el) return;
+      el.textContent = names.length? names[Math.floor(Math.random()*names.length)] : '…';
+    }, 70);
+    timers.push(rollT);
+
+    later(()=>{
+      clearInterval(rollT);
+      const r=ov.querySelector('#grpRoll'); if(r) r.textContent='';
+      const ti=ov.querySelector('#grpTitle'); if(ti) ti.textContent='🎊 모둠 발표!';
+      /* ② 모둠이 하나씩 뿅뿅 */
+      const grid=ov.querySelector('#grpGrid');
+      groups.forEach((ids,g)=>{
+        const card=document.createElement('div');
+        card.className='grp-card';
+        card.innerHTML=`<h3>${g+1}모둠</h3>${ids.map((sid,i)=>
+          `<div class="who"><span>${toks[i%toks.length]}</span><span>${esc(nameOf(sid))}</span></div>`).join('')}`;
+        grid.appendChild(card);
+        later(()=>{ card.classList.add('show'); grpPopSound(g); }, 280*g);
+      });
+      /* ③ 짜잔 */
+      later(()=>{
+        const t2=ov.querySelector('#grpTitle'), s2=ov.querySelector('#grpSub');
+        if(t2) t2.textContent='짜잔! 🎉 오늘의 모둠이에요';
+        if(s2) s2.textContent=`${groups.length}개 모둠 · 모둠끼리 모여 앉아요!`;
+        grpTadaSound(); mgConfetti();
+        const b=ov.querySelector('#grpClose');
+        if(b){ b.style.display=''; b.onclick=finish; }
+        ov.onclick=(e)=>{ if(e.target===ov) finish(); };      /* 바깥을 눌러도 닫힌다 */
+      }, 280*groups.length+420);
+    }, 1700);
+
+    ov._stop=()=>{ timers.forEach(t=>{ clearTimeout(t); clearInterval(t); }); finish(); };
+  });
+}
+function groupRevealClose(){ document.querySelectorAll('.grp-ov').forEach(el=>{ if(el._stop) el._stop(); else el.remove(); }); }
+
+/* ============================ 땅따먹기 (돌 던져 땅 차지하기) ============================
+   조준 → 힘 모으기 → 발사. 돌이 떨어진 칸의 낱말 미션에 성공하면 그 칸이 내 땅이 된다.
+   돌·말·자 같은 실물 도구는 필요 없고 태블릿만으로 논다. 모둠·미션 판정 방식은 보드게임과 같다. */
+const LD_TOKENS=['🔴','🔵','🟡','🟢'];
+const ldKey  = (setId,cid)=> `v1:ld:${setId}:${cid}`;                 /* 모둠 편성 (선생님이 씀) */
+const ldRKey = (setId,cid,g)=> `v1:prog:ld:${setId}:${cid}:${g}`;     /* 모둠별 땅 (학생이 씀) */
+let LD=null, ldUnsubs=[];
+
+function ldLeave(){
+  groupRevealClose();
+  ldUnsubs.forEach(u=>{ try{ u(); }catch(e){} });
+  ldUnsubs=[];
+  if(LD){ if(LD.aimT) clearInterval(LD.aimT); if(LD.powT) clearInterval(LD.powT); if(LD.flyT) clearTimeout(LD.flyT); }
+  LD=null;
+}
+function ldSets(){ return (DB.land||[]).slice().sort((a,b)=> (b.createdAt||0)-(a.createdAt||0)); }
+function ldSet(id){ return (DB.land||[]).find(s=>s.id===id) || null; }
+function ldClasses(set){
+  if(!set) return [];
+  if(!set.classIds || !set.classIds.length) return DB.classes.slice();
+  return DB.classes.filter(c=> set.classIds.includes(c.id));
+}
+function ldClassNames(set){
+  if(!set.classIds || !set.classIds.length) return '전체 학급';
+  const l=ldClasses(set);
+  return l.length ? l.map(c=>c.name).join(', ') : '배부된 학급 없음(지워진 학급)';
+}
+
+/* ---------- 땅 만들기 ---------- */
+/* n×n 칸에 낱말을 골고루 뿌린다. 칸마다 미션 낱말이 하나씩 붙는다. */
+function ldMakeCells(items, n){
+  const total=n*n;
+  const cells=[]; let bag=[];
+  for(let k=0;k<total;k++){
+    if(!bag.length) bag=bdShuffle(items.map((_,i)=>i));
+    cells.push({ i:bag.pop(), o:null });
+  }
+  return cells;
+}
+/* 네 귀퉁이를 시작 땅으로 나눠 준다 */
+function ldBases(n, np){
+  const c=[0, n-1, n*n-n, n*n-1];
+  return c.slice(0, Math.max(2, Math.min(4, np)));
+}
+/* 조준 각도와 힘으로 돌이 떨어지는 칸을 구한다.
+   한 칸 이내로 살짝 벗어나면 선을 맞고 가장자리에 멈춘다. 그보다 멀리 나가면 빗나감(-1). */
+function ldLandCell(n, from, ang, pow){
+  const fx=(from%n)+0.5, fy=Math.floor(from/n)+0.5;
+  const dist=0.8 + pow*(n-0.8);
+  const x=fx+Math.cos(ang)*dist, y=fy+Math.sin(ang)*dist;
+  let cx=Math.floor(x), cy=Math.floor(y);
+  if(cx<-1||cy<-1||cx>n||cy>n) return -1;          /* 많이 벗어나면 빗나감 */
+  cx=Math.max(0, Math.min(n-1, cx));
+  cy=Math.max(0, Math.min(n-1, cy));
+  return cy*n+cx;
+}
+function ldCounts(room){
+  const c=room.players.map(()=>0);
+  room.cells.forEach(x=>{ if(x.o!=null && c[x.o]!=null) c[x.o]++; });
+  return c;
+}
+function ldEmpty(room){ return room.cells.filter(x=>x.o==null).length; }
+
+/* ---------- 땅 그리기 ---------- */
+function ldBoardHTML(set, room, opt){
+  opt=opt||{};
+  const n=set.n;
+  const cells=(room? room.cells : set.cells).map((c,idx)=>{
+    const it=set.items[c.i]||{};
+    const own=(c.o!=null);
+    const isFrom = room && !opt.flat && room.phase==='aim' && (room.players[room.turn]||{}).last===idx;
+    const isHit  = room && room.shot && room.shot.to===idx;
+    return `<div class="ld-cell${own?' p'+c.o:''}${isFrom?' from':''}${isHit?' hit':''}"
+        title="${esc(it.en||'')}">
+      <span class="em">${it.em||'📝'}</span>
+      <span class="wd">${esc(it.en||'')}</span>
+      ${own?`<span class="fg">${LD_TOKENS[c.o%LD_TOKENS.length]}</span>`:''}
+      ${isFrom?'<span class="st">🪨</span>':''}
+    </div>`;
+  }).join('');
+  return `<div class="ld-board" style="grid-template-columns:repeat(${n},1fr)">${cells}</div>`;
+}
+function ldSeatsHTML(set, room){
+  const cnt=ldCounts(room);
+  return room.players.map((p,i)=>`
+    <div class="bd-seat ${i===room.turn?'on':''}">
+      <span class="tk">${LD_TOKENS[i%LD_TOKENS.length]}</span>
+      <span class="nm">${esc(p.name)}${p.sid===session.studentId?' (나)':''}</span>
+      <span class="ps">${cnt[i]}칸</span>
+    </div>`).join('');
+}
+
+/* ============================ 땅따먹기 — 선생님 ============================ */
+function landTeacher(){
+  ldLeave(); bdLeave(); mingleLeave(); bingoLeave(); blLeave();
+  session.role='teacher'; refreshWho();
+  const sets=ldSets();
+  app.innerHTML=`
+    <button class="back" onclick="missionRoomTeacher()">← 미션 활동</button>
+    <div class="card">
+      <h2 style="margin-top:4px">🚩 땅따먹기</h2>
+      <p class="muted">모둠끼리 돌을 던져 땅을 넓혀 가요. <b>화살표가 돌 때 눌러 방향을 정하고</b>,
+        <b>누르고 있는 동안 힘이 차오르고</b>, <b>손을 떼면 발사</b>돼요.
+        돌이 떨어진 칸의 낱말을 말하면 그 칸이 내 땅이 됩니다. 남의 땅도 뺏을 수 있어요!</p>
+      <p class="muted" style="margin-top:8px">낱말·모둠 인원·판 크기는 <b>선생님 메뉴 → 📝 과제 만들기</b>에서
+        <b>③ 과제 유형 → 🚩 땅따먹기</b>로 정해요. 여기서는 <b>모둠을 짜고 진행을 보는 일</b>만 합니다.</p>
+      <div class="grid-cards" style="margin-top:14px">
+        <div class="tile" id="ldMake"><span class="emoji">📝</span><div class="t">낱말·땅 만들기</div><div class="s">과제 만들기로 가기</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:2px">만든 땅따먹기 <span class="muted" style="font-size:.82rem">(누르면 모둠 짜기)</span></h3>
+      ${sets.length ? sets.map(s=>`
+        <div class="mg-listcard" data-ldset="${esc(s.id)}">
+          <div style="flex:1; min-width:0">
+            <div class="t">${esc(s.title)}</div>
+            <div class="m">${esc(s.grade||'')} · 낱말 ${s.items.length}개 · ${s.n}×${s.n}칸 · ${s.players}인 모둠</div>
+            <div class="m">🏫 ${esc(ldClassNames(s))}</div>
+          </div><div class="ar">▶️</div>
+        </div>`).join('')
+        : '<div class="empty"><span class="em">🚩</span>아직 만든 땅따먹기가 없어요.<br>위 <b>낱말·땅 만들기</b>로 시작해요.</div>'}
+    </div>`;
+  $('ldMake').onclick=()=>{ draft={ items:[], repeat:3, classIds:[], mode:'land' }; assignmentForm(); };
+  app.querySelectorAll('[data-ldset]').forEach(el=> el.onclick=()=> landPickClass(el.dataset.ldset));
+}
+
+function landPickClass(setId){
+  ldLeave();
+  const set=ldSet(setId); if(!set) return landTeacher();
+  const list=ldClasses(set);
+  app.innerHTML=`
+    <button class="back" onclick="landTeacher()">← 땅따먹기</button>
+    <div class="card">
+      <h2 style="margin-top:4px">🚩 ${esc(set.title)} — 어느 반인가요?</h2>
+      <p class="muted">반을 고르면 <b>${set.players}명씩</b> 모둠을 짜 줘요. 학생은 <b>학생 → 미션 활동 → 땅따먹기</b>로 들어옵니다.</p>
+      ${list.length? `<div class="grid-cards" style="margin-top:14px">${list.map(c=>`
+        <div class="tile" data-ldc="${esc(c.id)}"><span class="emoji">🏫</span>
+          <div class="t">${esc(c.name)}</div><div class="s">${c.students.length}명</div></div>`).join('')}</div>`
+        : '<div class="empty"><span class="em">🏫</span>이 땅따먹기를 받은 학급이 없어요.<br>과제 만들기에서 학급을 골라 주세요.</div>'}
+    </div>`;
+  app.querySelectorAll('[data-ldc]').forEach(el=> el.onclick=()=> landGroups(setId, el.dataset.ldc));
+}
+
+async function landGroups(setId, cid){
+  ldLeave();
+  const set=ldSet(setId), cls=DB.classes.find(c=>c.id===cid);
+  if(!set || !cls) return landTeacher();
+  LD={ role:'teacher', setId, cid, sess:null, rooms:{} };
+  app.innerHTML=`<button class="back" onclick="landPickClass('${esc(setId)}')">← 반 고르기</button>
+    <div id="ldWrap" class="card empty"><span class="em">⏳</span>불러오는 중...</div>`;
+  const sess=await sGet(ldKey(setId,cid), null);
+  if(!LD || LD.role!=='teacher') return;
+  LD.sess = (sess && sess.ver===set.ver && Array.isArray(sess.groups)) ? sess : null;
+  ldTeacherDraw();
+  if(LD.sess) ldTeacherWatch();
+}
+/* 모둠 뽑기 — 저장한 뒤 TV로 짜잔 하고 보여 준다 */
+async function ldDrawGroups(again){
+  const set=ldSet(LD.setId), cls=DB.classes.find(c=>c.id===LD.cid);
+  if(!set || !cls) return;
+  if(cls.students.length<2){ toast('학생이 2명 이상이어야 모둠을 짤 수 있어요'); return; }
+  if(again && !confirm('모둠을 다시 뽑을까요?\n진행 중인 땅따먹기는 처음부터 다시 시작됩니다.')) return;
+  const btn=$('ldDraw')||$('ldReshuffle');
+  if(btn){ btn.disabled=true; btn.textContent='🥁 뽑는 중…'; }
+  ldUnsubs.forEach(u=>{ try{ u(); }catch(e){} }); ldUnsubs=[];
+  if(LD.sess) for(let g=0; g<LD.sess.groups.length; g++) await sDel(ldRKey(LD.setId, LD.cid, g));
+  const groups=bdMakeGroups(cls.students, set.players);
+  const rec={ setId:LD.setId, classId:LD.cid, ver:set.ver, groups:grpWrap(groups), at:Date.now(),
+              shuffle:((LD.sess&&LD.sess.shuffle)||0)+1 };
+  if(!await sSet(ldKey(LD.setId, LD.cid), rec)){
+    if(btn){ btn.disabled=false; btn.textContent=again? '🔀 모둠 다시 뽑기' : '🎊 모둠 뽑기'; }
+    return;
+  }
+  if(!LD || LD.role!=='teacher') return;
+  LD.sess=rec; LD.rooms={};
+  await groupReveal(groups, cls.students, { sub:`${cls.name} · ${set.title}`, tokens:LD_TOKENS });
+  if(!LD || LD.role!=='teacher') return;
+  ldTeacherDraw(); ldTeacherWatch();
+}
+function ldTeacherWatch(){
+  ldUnsubs.forEach(u=>{ try{ u(); }catch(e){} }); ldUnsubs=[];
+  if(!LD || LD.role!=='teacher' || !LD.sess) return;
+  if(!(fbReady && window.__store)) return;
+  LD.sess.groups.forEach((_,g)=>{
+    const ref=keyRef(ldRKey(LD.setId, LD.cid, g));
+    ldUnsubs.push(window.__store.watch(ref.col, ref.id, (v)=>{
+      if(!LD || LD.role!=='teacher') return;
+      LD.rooms[g]=v||null; ldTeacherDraw();
+    }));
+  });
+}
+function ldTeacherDraw(){
+  if(!LD || LD.role!=='teacher') return;
+  const set=ldSet(LD.setId), cls=DB.classes.find(c=>c.id===LD.cid), wrap=$('ldWrap');
+  if(!set || !cls || !wrap) return;
+  const nameOf=(sid)=>{ const s=cls.students.find(x=>x.id===sid); return s? s.name : '(나간 학생)'; };
+  if(!LD.sess){                       /* 아직 안 뽑았다 */
+    wrap.outerHTML=`<div id="ldWrap" class="card center">
+      <h2 style="margin-top:4px">🎊 모둠을 뽑아요</h2>
+      <p class="muted"><b>${esc(cls.name)}</b> ${cls.students.length}명을 <b>${set.players}명씩</b> 나눠요.<br>
+        TV를 켜고 아이들과 함께 보면 더 재미있어요!</p>
+      <div style="font-size:3.4rem; margin:14px 0">🥁</div>
+      <button class="btn lg coral" id="ldDraw">🎊 모둠 뽑기</button>
+      <p class="muted" style="margin:12px 0 0; font-size:.83rem">뽑고 나면 학생 태블릿에서 바로 시작할 수 있어요.</p>
+    </div>`;
+    $('ldDraw').onclick=()=> ldDrawGroups(false);
+    return;
+  }
+  const total=set.n*set.n;
+  const groups=LD.sess.groups.map((grp,g)=>{
+    const ids=grpIds(grp);
+    const room=LD.rooms[g];
+    const cnt=room? ldCounts(room) : null;
+    const rows=ids.map((sid,k)=>{
+      const idx=room? room.players.findIndex(p=>p.sid===sid) : -1;
+      return `<div class="bd-seat" style="margin:0 0 5px">
+        <span class="tk">${LD_TOKENS[k%LD_TOKENS.length]}</span>
+        <span class="nm">${esc(nameOf(sid))}</span>
+        <span class="ps">${cnt&&idx>=0? cnt[idx]+'칸' : '—'}${room && room.winner===sid?' 🏆':''}</span></div>`;
+    }).join('');
+    const state = !room ? '<span class="muted">아직 안 들어옴</span>'
+      : room.winner ? `<span class="pill done">🏆 ${esc(nameOf(room.winner))} 우승</span>`
+      : `<span class="pill land">빈 땅 ${ldEmpty(room)}/${total} · 남은 던지기 ${Math.max(0, ldMaxShots(room)-(room.shots||0))}</span>`;
+    return `<div class="card" style="margin-bottom:10px">
+      <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:8px">
+        <h3 style="margin:0; flex:1">${g+1}모둠</h3>${state}</div>
+      ${rows}</div>`;
+  }).join('');
+  wrap.outerHTML=`<div id="ldWrap">
+    <div class="card">
+      <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap">
+        <h2 style="margin:2px 0; flex:1">🚩 ${esc(set.title)} · ${esc(cls.name)}</h2>
+        <button class="btn ghost sm" id="ldShow">🎊 모둠 다시 보여주기</button>
+        <button class="btn ghost sm" id="ldReshuffle">🔀 모둠 다시 뽑기</button>
+      </div>
+      <p class="muted" style="margin:6px 0 0">${LD.sess.groups.length}개 모둠 · 한 모둠 ${set.players}명 기준 ·
+        ${set.n}×${set.n} = ${total}칸. 학생들에게 <b>미션 활동 → 🚩 땅따먹기</b>로 들어오라고 해 주세요.</p>
+      <p class="muted" style="margin:6px 0 0; font-size:.83rem">🔀 모둠을 다시 짜면 <b>진행 중인 땅이 처음부터</b> 다시 시작돼요.</p>
+    </div>
+    ${groups}</div>`;
+  $('ldReshuffle').onclick=()=> ldDrawGroups(true);
+  $('ldShow').onclick=async ()=>{
+    const groups=LD.sess.groups.map(grpIds);
+    await groupReveal(groups, cls.students, { sub:`${cls.name} · ${set.title}`, tokens:LD_TOKENS });
+  };
+}
+
+/* ============================ 땅따먹기 — 학생 ============================ */
+async function landStudent(){
+  ldLeave(); bdLeave(); bingoLeave(); mingleLeave(); blLeave();
+  session.role='student'; refreshWho();
+  LD={ role:'student', setId:null, cid:session.classId, g:-1, room:null,
+       ang:0, pow:0, charging:false, flying:false, aimT:0, powT:0, flyT:0 };
+  app.innerHTML=`<button class="back" onclick="landStudentQuit()">← 이름 다시 고르기</button>
+    <div id="ldWrap" class="card empty"><span class="em">⏳</span>불러오는 중...</div>`;
+  const mine=ldSets().filter(s=> !s.classIds || !s.classIds.length || s.classIds.includes(session.classId));
+  const open=[];
+  for(const s of mine){
+    const sess=await sGet(ldKey(s.id, session.classId), null);
+    if(!LD || LD.role!=='student') return;
+    if(sess && sess.ver===s.ver && Array.isArray(sess.groups)) open.push({ set:s, sess });
+  }
+  const wrap=$('ldWrap'); if(!wrap) return;
+  if(!open.length){
+    wrap.outerHTML=`<div id="ldWrap" class="card empty"><span class="em">🚩</span>
+      아직 열린 땅따먹기가 없어요.<br>선생님이 <b>미션 활동 → 땅따먹기</b>에서 모둠을 짜면 시작할 수 있어요.
+      <div class="center" style="margin-top:12px"><button class="btn ghost sm" onclick="landStudent()">🔄 다시 확인</button></div></div>`;
+    return;
+  }
+  if(open.length>1){
+    wrap.outerHTML=`<div id="ldWrap" class="card">
+      <h2 style="margin-top:4px">🚩 어느 땅따먹기를 할까요?</h2>
+      <div class="grid-cards" style="margin-top:12px">${open.map(o=>`
+        <div class="tile" data-ldpick="${esc(o.set.id)}"><span class="emoji">🚩</span>
+          <div class="t">${esc(o.set.title)}</div><div class="s">${o.set.n}×${o.set.n}칸 · ${o.sess.groups.length}모둠</div></div>`).join('')}</div></div>`;
+    app.querySelectorAll('[data-ldpick]').forEach(el=> el.onclick=()=> ldJoin(el.dataset.ldpick));
+    return;
+  }
+  ldJoin(open[0].set.id);
+}
+function landStudentQuit(){ ldLeave(); studentPickName(session.classId); }
+
+async function ldJoin(setId){
+  const set=ldSet(setId); if(!set) return;
+  const cid=session.classId;
+  const sess=await sGet(ldKey(setId,cid), null);
+  if(!LD || LD.role!=='student') return;
+  const g=(sess && sess.groups) ? sess.groups.findIndex(grp=> grpIds(grp).includes(session.studentId)) : -1;
+  const wrap=$('ldWrap');
+  if(g<0){
+    if(wrap) wrap.outerHTML=`<div id="ldWrap" class="card empty"><span class="em">🙋</span>
+      아직 모둠에 들어가지 못했어요.<br>선생님께 <b>모둠 다시 짜기</b>를 부탁해 주세요.
+      <div class="center" style="margin-top:12px"><button class="btn ghost sm" onclick="landStudent()">🔄 다시 확인</button></div></div>`;
+    return;
+  }
+  LD.setId=setId; LD.g=g; LD.sess=sess;
+  await ldEnsureRoom(set, cid, g, grpIds(sess.groups[g]));
+  if(!LD || LD.role!=='student') return;
+  if(fbReady && window.__store){
+    const ref=keyRef(ldRKey(setId,cid,g));
+    ldUnsubs.push(window.__store.watch(ref.col, ref.id, (v)=>{
+      if(!LD || LD.role!=='student') return;
+      if(v && !LD.charging && !LD.flying) { LD.room=v; ldStudentDraw(); }
+      else if(v) LD.room=v;
+    }));
+  }
+  ldStudentDraw();
+}
+async function ldEnsureRoom(set, cid, g, ids){
+  const cls=DB.classes.find(c=>c.id===cid);
+  const mk=()=>{
+    const cells=(set.cells||[]).map(c=>({ i:c.i, o:null }));
+    const bases=ldBases(set.n, ids.length);
+    const players=ids.map((sid,k)=>{ const s=cls? cls.students.find(x=>x.id===sid) : null;
+      const base=bases[k%bases.length];
+      return { sid, name:s? s.name : '친구', base, last:base }; });
+    players.forEach((p,k)=>{ if(cells[p.base]) cells[p.base].o=k; });   /* 시작 땅 한 칸씩 */
+    return { setId:set.id, classId:cid, g, ver:set.ver, ldKey:set.id+'|'+cid,
+      players, cells, turn:0, phase:'aim', shot:null, shots:0, msg:'', winner:null, at:Date.now() };
+  };
+  const key=ldRKey(set.id,cid,g), ref=keyRef(key);
+  const resolve=(cur)=>{
+    if(cur && cur.ver===set.ver && Array.isArray(cur.players) && cur.players.length===ids.length
+       && Array.isArray(cur.cells) && cur.cells.length===set.n*set.n) return null;
+    return mk();
+  };
+  if(fbReady && window.__store && window.__store.ensure){
+    try{ const v=await window.__store.ensure(ref.col, ref.id, resolve); LD.room=v; return; }
+    catch(e){ console.warn('ldEnsureRoom', e); }
+  }
+  const cur=await sGet(key, null);
+  const next=resolve(cur);
+  LD.room = next || cur;
+  if(next) await sSet(key, next);
+}
+async function ldSave(room){
+  room.at=Date.now();
+  LD.room=room;
+  ldStudentDraw();
+  await sSet(ldRKey(room.setId, room.classId, room.g), room);
+}
+function ldNextTurn(room){ room.turn=(room.turn+1)%room.players.length; }
+/* 끝나는 조건 — 셋 중 하나. 어떤 경우에도 반드시 끝난다.
+   ① 빈 땅이 하나도 없을 때  ② 누군가 전체의 절반을 넘겼을 때  ③ 정해진 던지기 횟수를 다 썼을 때 */
+function ldMaxShots(room){ return room.cells.length*3; }
+function ldCheckEnd(room, force){
+  const c=ldCounts(room), total=room.cells.length;
+  const done = force || ldEmpty(room)===0 || c.some(v=> v>total/2) || (room.shots||0)>=ldMaxShots(room);
+  if(!done) return false;
+  let best=0; c.forEach((v,i)=>{ if(v>c[best]) best=i; });
+  room.winner=room.players[best].sid; room.phase='over';
+  room.msg=`🎉 ${esc(room.players[best].name)} 님이 ${c[best]}칸으로 우승!`;
+  return true;
+}
+
+function ldStudentDraw(){
+  if(!LD || LD.role!=='student') return;
+  const set=ldSet(LD.setId), room=LD.room, wrap=$('ldWrap');
+  if(!set || !room || !wrap) return;
+  const me=room.players.findIndex(p=>p.sid===session.studentId);
+  const myTurn = me>=0 && me===room.turn;
+  const cur=room.players[room.turn]||{};
+  const cnt=ldCounts(room);
+
+  let panel='';
+  if(room.winner){
+    const w=room.players.find(p=>p.sid===room.winner)||{};
+    panel=`<div class="card center">
+      <div style="font-size:3rem">🏆</div>
+      <h2 style="margin:6px 0">${esc(w.name)} 우승!</h2>
+      <p class="muted">${room.players.map((p,i)=>`${LD_TOKENS[i%LD_TOKENS.length]} ${esc(p.name)} ${cnt[i]}칸`).join(' · ')}</p>
+      <button class="btn lg coral" id="ldAgain" style="margin-top:10px">🔄 처음부터 다시 하기</button>
+    </div>`;
+  } else if(room.phase==='mission'){
+    const c=room.cells[room.shot.to]||{}, it=set.items[c.i]||{};
+    const kind=room.shot.hit;
+    panel=`<div class="card center">
+      <p class="muted" style="margin:0">${esc(cur.name)} 님의 미션 ${
+        kind==='steal'? '<b style="color:var(--coral-d)">— 남의 땅 뺏기!</b>' : '— 빈 땅 차지하기'}</p>
+      <div style="font-size:3rem; line-height:1.2">${it.em||'📝'}</div>
+      <div style="font-family:'Andika'; font-size:1.7rem; margin:2px 0">${esc(it.en||'')}</div>
+      ${it.ko?`<p class="muted" style="margin:0">${esc(it.ko)}</p>`:''}
+      <div class="row" style="justify-content:center; margin-top:10px">
+        <button class="btn" id="ldHear">🔊 들어보기</button>
+        ${myTurn? '<button class="btn coral" id="ldMic">🎤 말해서 차지하기</button>':''}
+      </div>
+      <p class="muted" id="ldMicMsg" style="margin:8px 0 0">${myTurn
+        ? '또박또박 말하면 이 칸이 내 땅이 돼요. 잘 안 되면 모둠 친구가 판정해 줘요.'
+        : '친구가 말하는 걸 듣고 판정해 주세요!'}</p>
+      ${!myTurn? `<div class="row" style="justify-content:center; margin-top:10px">
+        <button class="btn" id="ldOK">👍 통과!</button>
+        <button class="btn ghost" id="ldNO">👎 다시</button></div>`:''}
+      <p class="muted" style="margin:10px 0 0; font-size:.82rem">실패하면 그 칸은 그대로 두고 차례가 넘어가요.</p>
+    </div>`;
+  } else if(myTurn){
+    panel=`<div class="card center">
+      <p class="muted" style="margin:0">내 차례! 화살표가 돌 때 <b>버튼을 누르면</b> 방향이 정해져요.
+        <br>누르고 있는 동안 <b>힘</b>이 차오르고, <b>손을 떼면</b> 돌이 날아가요 🪨</p>
+      <div class="ld-aimwrap"><div class="ld-arrow" id="ldArrow">➤</div></div>
+      <p class="muted" style="margin:2px 0 6px">방향 <b id="ldAngT">0°</b> · 힘 <b id="ldPowT">0%</b></p>
+      <div class="ld-power"><div id="ldPowBar"></div></div>
+      <button class="btn lg coral" id="ldFire" style="margin-top:12px; width:100%; max-width:340px">🪨 누르고 있기 → 손 떼면 발사</button>
+    </div>`;
+  } else {
+    panel=`<div class="card center">
+      <p class="muted" style="margin:0">${esc(cur.name)} 님이 조준하고 있어요 🎯</p>
+      <div style="font-size:2.6rem">🪨</div>
+      ${room.msg? `<p style="margin:2px 0 0">${room.msg}</p>`:''}
+      <p class="muted" style="margin:6px 0 0">차례를 기다려요 ⏳</p>
+    </div>`;
+  }
+
+  wrap.outerHTML=`<div id="ldWrap">
+    <div class="card">
+      <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap">
+        <h2 style="margin:2px 0; flex:1">🚩 ${esc(set.title)}</h2>
+        <span class="pill land">${LD.g+1}모둠</span>
+        <span class="muted">빈 땅 ${ldEmpty(room)}칸 · 남은 던지기 ${Math.max(0, ldMaxShots(room)-(room.shots||0))}번</span>
+      </div>
+      ${ldBoardHTML(set, room)}
+      ${room.msg && !myTurn===false && room.phase==='aim' ? `<p class="muted" style="margin:0 0 8px">${room.msg}</p>`:''}
+      ${ldSeatsHTML(set, room)}
+    </div>
+    ${panel}</div>`;
+
+  const hear=$('ldHear');
+  if(hear) hear.onclick=()=>{ const c=room.cells[room.shot.to]||{}; const it=set.items[c.i]||{}; if(it.en) speak(it.en); };
+  const ok=$('ldOK'); if(ok) ok.onclick=()=> ldMissionResult(true);
+  const no=$('ldNO'); if(no) no.onclick=()=> ldMissionResult(false);
+  const mic=$('ldMic'); if(mic) mic.onclick=ldMicTry;
+  const again=$('ldAgain'); if(again) again.onclick=async ()=>{
+    const s=ldSet(LD.setId), ids=grpIds(LD.sess.groups[LD.g]);
+    await sDel(ldRKey(LD.setId, LD.cid, LD.g));
+    await ldEnsureRoom(s, LD.cid, LD.g, ids);
+    ldStudentDraw();
+  };
+  if($('ldFire')) ldAimStart();
+}
+
+/* ---------- 조준 · 힘 모으기 · 발사 ---------- */
+function ldAimStart(){
+  const arrow=$('ldArrow'), btn=$('ldFire');
+  if(!arrow || !btn || !LD) return;
+  if(LD.aimT) clearInterval(LD.aimT);
+  LD.charging=false; LD.pow=0;
+  LD.aimT=setInterval(()=>{
+    if(!LD || LD.charging || LD.flying) return;
+    const a=$('ldArrow'); if(!a){ clearInterval(LD.aimT); LD.aimT=0; return; }
+    LD.ang=(LD.ang+0.09)%(Math.PI*2);
+    a.style.transform=`rotate(${LD.ang}rad)`;
+    const t=$('ldAngT'); if(t) t.textContent=Math.round(LD.ang*180/Math.PI)+'°';
+  }, 40);
+
+  const startCharge=(e)=>{
+    if(e && e.preventDefault) e.preventDefault();
+    if(!LD || LD.charging || LD.flying) return;
+    LD.charging=true; LD.pow=0; LD.up=true;
+    btn.textContent='💪 힘 모으는 중… 손을 떼면 발사!';
+    LD.powT=setInterval(()=>{
+      if(!LD) return;
+      LD.pow += LD.up? 0.035 : -0.035;                 /* 힘 게이지가 왕복한다 */
+      if(LD.pow>=1){ LD.pow=1; LD.up=false; }
+      if(LD.pow<=0.05){ LD.pow=0.05; LD.up=true; }
+      const bar=$('ldPowBar'), pt=$('ldPowT');
+      if(bar) bar.style.width=Math.round(LD.pow*100)+'%';
+      if(pt) pt.textContent=Math.round(LD.pow*100)+'%';
+    }, 40);
+  };
+  const fire=(e)=>{
+    if(e && e.preventDefault) e.preventDefault();
+    if(!LD || !LD.charging) return;
+    LD.charging=false;
+    if(LD.powT){ clearInterval(LD.powT); LD.powT=0; }
+    if(LD.aimT){ clearInterval(LD.aimT); LD.aimT=0; }
+    ldFire(LD.ang, LD.pow);
+  };
+  btn.onpointerdown=startCharge;
+  btn.onpointerup=fire;
+  btn.onpointercancel=fire;
+  btn.onpointerleave=(e)=>{ if(LD && LD.charging) fire(e); };
+  /* 포인터 이벤트가 없는 기기 대비 */
+  btn.ontouchstart=(e)=>{ if(!LD.charging) startCharge(e); };
+  btn.ontouchend=fire;
+  btn.onmousedown=(e)=>{ if(!LD.charging) startCharge(e); };
+  btn.onmouseup=fire;
+}
+function ldFire(ang, pow){
+  const room=LD.room, set=ldSet(LD.setId);
+  if(!room || room.winner || room.phase!=='aim') return;
+  if(room.players[room.turn].sid!==session.studentId) return;
+  LD.flying=true;
+  const btn=$('ldFire'); if(btn){ btn.disabled=true; btn.textContent='🪨 날아가는 중…'; }
+  LD.flyT=setTimeout(()=>{
+    if(!LD || LD.role!=='student') return;
+    LD.flying=false;
+    const p=room.players[room.turn];
+    const to=ldLandCell(set.n, p.last, ang, pow);
+    room.shots=(room.shots||0)+1;
+    room.shot={ from:p.last, to, ang, pow };
+    const deg=Math.round(ang*180/Math.PI), pc=Math.round(pow*100);
+    if(to<0){
+      room.shot.hit='miss';
+      room.msg=`💨 ${esc(p.name)} 님의 돌이 판 밖으로 나갔어요! (${deg}° · 힘 ${pc}%)`;
+      room.phase='aim';
+      if(!ldCheckEnd(room)) ldNextTurn(room);
+      return ldSave(room);
+    }
+    const c=room.cells[to];
+    if(c.o===room.turn){
+      room.shot.hit='own';
+      room.msg=`🪨 이미 내 땅이에요! 여기서 <b>한 번 더</b> 던져요 (${deg}° · 힘 ${pc}%)`;
+      p.last=to;                                   /* 던지는 자리를 옮겨 더 멀리 넓힐 수 있다 */
+      room.phase='aim';
+      ldCheckEnd(room);                            /* 한 번 더 던져도 횟수는 줄어든다 */
+      return ldSave(room);
+    }
+    room.shot.hit = (c.o==null) ? 'empty' : 'steal';
+    room.msg=`🪨 ${deg}° · 힘 ${pc}% — ${c.o==null? '빈 땅에 떨어졌어요!' : '남의 땅에 떨어졌어요!'}`;
+    room.phase='mission';
+    ldSave(room);
+  }, 700);
+  ldStudentDraw();
+}
+/* ---------- 미션 판정 ---------- */
+function ldMissionResult(pass){
+  const room=LD.room;
+  if(!room || room.phase!=='mission' || !room.shot) return;
+  const p=room.players[room.turn], to=room.shot.to, c=room.cells[to];
+  if(pass){
+    const stolen=(c.o!=null);
+    c.o=room.turn; p.last=to;
+    room.msg = stolen ? `🚩 ${esc(p.name)} 님이 땅을 <b>빼앗았어요!</b>` : `🚩 ${esc(p.name)} 님의 땅이 됐어요!`;
+  } else {
+    room.msg=`😢 ${esc(p.name)} 님, 아쉬워요. 이 칸은 그대로예요.`;
+  }
+  room.phase='aim'; room.shot=null;
+  if(!ldCheckEnd(room)) ldNextTurn(room);
+  ldSave(room);
+}
+async function ldMicTry(){
+  const room=LD.room, set=ldSet(LD.setId);
+  if(!room || room.phase!=='mission' || !room.shot) return;
+  const c=room.cells[room.shot.to]||{}, it=set.items[c.i]||{};
+  const msg=$('ldMicMsg'), mic=$('ldMic');
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){ if(msg) msg.textContent='이 기기는 마이크 채점을 지원하지 않아요. 친구에게 판정을 부탁해요!'; return; }
+  if(speakRec){ speakStop(); if(mic) mic.classList.remove('rec'); return; }
+  const perm=await ensureMic();
+  if(!perm.ok){ if(msg) msg.textContent='마이크 권한을 허용해 주세요 (친구가 판정해 줘도 돼요)'; return; }
+  await new Promise(r=> setTimeout(r,120));
+  const r=new SR(); speakRec=r; r.lang='en-US'; r.interimResults=false; r.maxAlternatives=4;
+  if(mic) mic.classList.add('rec');
+  if(msg) msg.textContent='듣고 있어요… 지금 말해보세요 🎙️';
+  r.onresult=(e)=>{
+    const alts=[...e.results[0]].map(a=>a.transcript);
+    const {score, heard}=scoreSpeech(it.en||'', alts);
+    if(!LD || LD.role!=='student') return;
+    if(score>=60){ if(msg) msg.textContent=`잘했어요! (${score}점) 이 땅은 내 거예요 🚩`; ldMissionResult(true); }
+    else { if(msg) msg.textContent=`들린 말: ${heard||'(못 알아들었어요)'} · ${score}점 — 다시 한 번 말해볼까요?`; }
+  };
+  r.onerror=()=>{ if(msg) msg.textContent='잘 안 들렸어요. 다시 누르거나 친구에게 판정을 부탁해요'; if(mic) mic.classList.remove('rec'); speakRec=null; };
+  r.onend=()=>{ if(mic) mic.classList.remove('rec'); if(speakRec===r) speakRec=null; };
+  try{ r.start(); }catch(e){ if(msg) msg.textContent='마이크를 시작할 수 없어요'; if(mic) mic.classList.remove('rec'); speakRec=null; }
+}
+
 
 /* ============================ START ============================ */
 window.boot = boot;
