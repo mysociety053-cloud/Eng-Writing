@@ -16,6 +16,7 @@
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
   html,body{margin:0; padding:0;}
+  html{overflow-y:scroll;}          /* 화면마다 길이가 달라도 스크롤 막대 자리는 그대로 — 안 그러면 화면이 튄다 */
   body{
     font-family:'Gowun Dodum',sans-serif; color:var(--ink);
     background:
@@ -45,8 +46,8 @@
   .btn.lg{padding:15px 26px; font-size:1.2rem; border-radius:18px;}
   .btn[disabled]{opacity:.45; cursor:not-allowed; transform:none;}
   .card{background:var(--paper2); border:2px solid var(--border); border-radius:20px;
-    padding:20px; box-shadow:0 8px 0 var(--shadow); margin-bottom:18px; animation:rise .35s ease both;}
-  @keyframes rise{from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:none;}}
+    padding:20px; box-shadow:0 8px 0 var(--shadow); margin-bottom:18px; animation:rise .22s ease both;}
+  @keyframes rise{from{opacity:0;} to{opacity:1;}}
   label{display:block; font-size:.9rem; color:var(--ink-soft); margin:0 0 5px 3px;}
   input[type=text],input[type=number],input[type=password],textarea,select{
     width:100%; font-family:'Gowun Dodum'; font-size:1rem; color:var(--ink);
@@ -174,6 +175,77 @@
   .score-big{font-family:'Jua'; font-size:2rem;}
   .score-row{display:flex; gap:12px; margin-top:12px;}
   .score-row>div{flex:1; background:#fff; border:2px solid var(--border); border-radius:14px; padding:12px;}
+  /* ===== 받아쓰기 문제지 ===== */
+  .dc-sheet{background:#fff; border:2px solid var(--border); border-radius:14px; padding:14px 16px; max-height:420px; overflow:auto;}
+  .dc-q{padding:8px 0; border-bottom:1px dashed var(--border);}
+  .dc-q:last-child{border-bottom:none;}
+  .dc-q .sh{font-family:'Andika'; font-size:1.05rem; margin:3px 0 0 12px;}
+  .dc-q .ln{color:#9a9a9a; margin:2px 0 0 12px; letter-spacing:1px;}
+  .dc-q .an{font-size:.82rem; color:var(--green-d); margin:2px 0 0 12px;}
+  .dc-row{display:grid; grid-template-columns:26px 1fr auto 190px; gap:8px; align-items:center; margin-bottom:8px;}
+  .dc-no{font-family:'Jua'; color:var(--ink-soft); text-align:center;}
+  .dc-row select{margin:0;}
+  @media(max-width:620px){
+    .dc-row{grid-template-columns:26px 1fr auto;}
+    .dc-row select{grid-column:2/4;}
+  }
+  /* ===== 대화하기 ===== */
+  .pill.talk{background:#E4F1EE; color:#1F6E5C;}
+  /* 대화 한 판 — 선생님 TV와 학생 태블릿이 같은 화면을 본다 */
+  .tk-slide{border-radius:22px; padding:16px 14px; color:#fff;
+    background:linear-gradient(135deg,#2F8F77,#3F72C4); box-shadow:0 10px 0 rgba(25,70,80,.25);}
+  .tk-slide .head{display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:12px;}
+  .tk-slide .num{font-family:'Jua'; background:rgba(255,255,255,.22); padding:4px 12px; border-radius:999px; font-size:.85rem;}
+  .tk-swap{font-family:'Jua'; background:var(--gold); color:#4A3B10; padding:4px 12px; border-radius:999px; font-size:.85rem;}
+  .tk-line{display:flex; gap:10px; align-items:flex-start; background:rgba(255,255,255,.97); color:var(--ink);
+    border-radius:16px; padding:12px 14px; margin-bottom:10px;}
+  .tk-line .who{font-family:'Jua'; color:#fff; background:#2C6FA8; border-radius:999px; padding:4px 12px; font-size:.85rem; flex:none;}
+  .tk-line.b .who{background:var(--coral);}
+  .tk-line .tx{flex:1; min-width:0;}
+  .tk-line .en{font-family:'Andika'; font-weight:700; font-size:1.5rem; line-height:1.35; word-break:break-word;}
+  .tk-line .ko{color:var(--ink-soft); font-size:.92rem; margin-top:2px;}
+  .tk-line .say{background:#fff; border:2px solid var(--border); border-radius:12px; padding:7px 10px; flex:none; box-shadow:none;}
+  .tk-blank{background:#FFF3C9; border-bottom:3px solid var(--gold); border-radius:7px; padding:0 9px; color:#8A5A00;}
+  /* 룰렛 — 칸이 위로 촤르륵 돌다가 뽑힌 낱말에서 멈춘다. 판 높이가 고정이라 화면이 흔들리지 않는다 */
+  .tk-reel{position:relative; height:216px; overflow:hidden; border-radius:18px; margin-bottom:12px;
+    background:rgba(255,255,255,.97); color:var(--ink); box-shadow:inset 0 0 0 3px rgba(255,255,255,.6);}
+  .tk-reel-strip{will-change:transform;}
+  .tk-cell{height:216px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:8px;}
+  .tk-cell .pic{height:118px; display:flex; align-items:center; justify-content:center;}
+  .tk-cell .pic img{max-height:118px; max-width:100%; border-radius:12px;}
+  .tk-cell .emo{font-size:4.4rem; line-height:1;}
+  .tk-cell .w{font-family:'Andika'; font-weight:700; font-size:1.8rem; word-break:break-word; text-align:center;}
+  .tk-cell .m{color:var(--ink-soft); font-size:.95rem;}
+  .tk-reel::before, .tk-reel::after{content:''; position:absolute; left:0; right:0; height:26px; pointer-events:none;}
+  .tk-reel::before{top:0; background:linear-gradient(#fff, rgba(255,255,255,0));}
+  .tk-reel::after{bottom:0; background:linear-gradient(rgba(255,255,255,0), #fff);}
+  @media(max-width:560px){ .tk-reel{height:180px;} .tk-cell{height:180px;} .tk-cell .pic{height:92px;} .tk-cell .pic img{max-height:92px;} .tk-cell .emo{font-size:3.4rem;} }
+  /* 학생 대기 화면 — 짝과 역할부터 정한다 */
+  .tk-wait{background:#FFFDF8; border:2px dashed var(--border); border-radius:20px; padding:24px 16px; text-align:center;}
+  .tk-wait .big{font-family:'Jua'; font-size:1.7rem; color:var(--green-d); margin:0 0 4px;}
+  .tk-roles{display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin:16px 0 8px;}
+  .tk-role{border:2px solid var(--border); border-radius:16px; padding:12px 20px; background:#fff; min-width:130px;}
+  .tk-role .r{font-family:'Jua'; font-size:1.6rem; color:#2C6FA8;}
+  .tk-role.b .r{color:var(--coral-d);}
+  .tk-role .nm{font-size:1rem; margin-top:2px;}
+  /* 설정 — 대화 묶음과 낱말 꾸러미 */
+  .tk-conv{border:2px solid var(--border); border-radius:16px; padding:12px; margin-bottom:10px; background:#fff;}
+  .tk-conv h4{margin:0 0 8px; font-family:'Jua'; display:flex; align-items:center; gap:8px; font-weight:400;}
+  .tk-lrow{display:grid; grid-template-columns:54px 1fr 34px; gap:7px; align-items:center; margin-bottom:8px;}
+  .tk-brow{display:grid; grid-template-columns:78px 1fr auto; gap:10px; align-items:center; margin-bottom:8px;}
+  .tk-thumb{width:78px; height:66px; border:2px solid var(--border); border-radius:12px; background:#fff;
+    display:flex; align-items:center; justify-content:center; font-size:1.8rem; overflow:hidden; padding:0; box-shadow:none;}
+  .tk-thumb img{width:100%; height:100%; object-fit:cover;}
+  .tk-thumb.armed{border-color:var(--coral); border-style:dashed; background:#FFF6F2;}
+  .tk-etx{background:#fff; border:2px solid var(--border); border-radius:12px; padding:8px 12px; min-width:0;}
+  .tk-etx b{font-family:'Andika'; font-size:1.02rem; word-break:break-word;}
+  .tk-etx small{display:block; color:var(--ink-soft); font-size:.82rem;}
+  .tk-bbtn{display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end;}
+  @media(max-width:560px){
+    .tk-brow{grid-template-columns:78px 1fr;}
+    .tk-bbtn{grid-column:1/3; justify-content:flex-start;}
+    .tk-line .en{font-size:1.25rem;}
+  }
   /* ===== 듣기 빙고 ===== */
   .card.noanim{animation:none;}   /* 자주 다시 그리는 화면 — 매번 나타나는 효과가 반복되면 눈이 아프다 */
   .bg-stage{border-radius:22px; padding:22px 18px; text-align:center; color:#fff; min-height:230px;
@@ -656,6 +728,20 @@ let session = { role:null, name:null, classId:null, studentId:null };
 const uid = ()=> Math.random().toString(36).slice(2,9);
 const $ = (id)=> document.getElementById(id);
 const app = $('app');
+/* 메뉴를 옮길 때마다 보던 위치가 남아 화면이 위아래로 흔들렸다.
+   화면이 '바뀔 때만' 맨 위로 올린다 — 앞부분이 같으면 같은 화면을 다시 그린 것(빙고·대화 진행 중)이라 그대로 둔다. */
+(function(){
+  const d=Object.getOwnPropertyDescriptor(Element.prototype,'innerHTML');
+  if(!app || !d || !d.set) return;
+  let last=null;
+  Object.defineProperty(app,'innerHTML',{ configurable:true,
+    get(){ return d.get.call(app); },
+    set(v){
+      const head=String(v).slice(0,240);
+      d.set.call(app, v);
+      if(head!==last){ last=head; try{ window.scrollTo(0,0); }catch(e){} }
+    } });
+})();
 
 async function boot(){
   if(window.__booted) return; window.__booted=true;
@@ -745,14 +831,14 @@ function refreshWho(){
 }
 /* '처음으로' — 화면만 시작 화면으로 되돌린다. 선생님 로그인은 그대로 둔다. */
 function goHome(){
-  bingoLeave(); mingleLeave(); bdLeave(); ldLeave(); blLeave();
+  bingoLeave(); mingleLeave(); bdLeave(); ldLeave(); blLeave(); tkLeave();
   session={role:null,name:null,classId:null,studentId:null};
   renderHome();
 }
 /* '로그아웃' — 선생님 계정에서 정말 나갈 때만 (다음에 들어오려면 다시 로그인해야 한다) */
 async function signOutTeacher(){
   if(!confirm('선생님 계정에서 로그아웃할까요?\n다음에 들어올 때 이메일과 비밀번호를 다시 입력해야 해요.\n(그냥 시작 화면으로 가려면 「처음으로」를 누르세요)')) return;
-  bingoLeave(); mingleLeave(); bdLeave(); ldLeave(); blLeave();
+  bingoLeave(); mingleLeave(); bdLeave(); ldLeave(); blLeave(); tkLeave();
   session={role:null,name:null,classId:null,studentId:null};
   if(window.__auth) await window.__auth.signOutToAnon();
   toast('로그아웃했어요');
@@ -766,17 +852,17 @@ function esc(s){ return (s==null?'':String(s)).replace(/[&<>"']/g,c=>({'&':'&amp
 
 /* ============================ HOME / ROLE ============================ */
 function renderHome(){
-  bingoLeave(); mingleLeave(); bdLeave(); ldLeave(); blLeave();
+  bingoLeave(); mingleLeave(); bdLeave(); ldLeave(); blLeave(); tkLeave();
   session.role=null; refreshWho();
   const signed=isTeacherSignedIn();
   app.innerHTML = `
     <div class="card center">
       <h2 style="margin-top:4px">누구인가요?</h2>
-      <p class="muted">선생님은 학급·과제를 관리하고, 학생은 쓰기·말하기 연습을 해요.</p>
+      <p class="muted">선생님은 학급·과제를 관리하고, 학생은 쓰기·말하기·대화 연습을 해요.</p>
       <div class="grid-cards" style="max-width:420px; margin:18px auto 4px">
         <div class="tile ${signed?'on':''}" id="goTeacher"><span class="emoji">👩‍🏫</span><div class="t">선생님</div>
           <div class="s">${signed? '로그인됨 · 바로 들어가기' : '학급·과제 관리'}</div></div>
-        <div class="tile" id="goStudent"><span class="emoji">🧒</span><div class="t">학생</div><div class="s">쓰기·말하기 연습</div></div>
+        <div class="tile" id="goStudent"><span class="emoji">🧒</span><div class="t">학생</div><div class="s">쓰기·말하기·대화 연습</div></div>
       </div>
       ${signed? `<p class="muted" style="margin:12px 0 0; font-size:.83rem">선생님 로그인은 이 기기에 남아 있어요. 학생 화면을 다녀와도 다시 로그인하지 않아도 됩니다.<br>
         정말 끊고 싶을 때만 위쪽 <b>로그아웃</b>을 누르세요.</p>` : ''}
@@ -790,7 +876,7 @@ function renderHome(){
 window.__onUser = ()=>{ try{ refreshWho(); if(!session.role && $('goTeacher')) renderHome(); }catch(e){} };
 
 function studentMenu(){
-  bingoLeave(); mingleLeave(); bdLeave(); ldLeave(); blLeave();
+  bingoLeave(); mingleLeave(); bdLeave(); ldLeave(); blLeave(); tkLeave();
   app.innerHTML = `
     <button class="back" onclick="renderHome()">← 처음으로</button>
     <div class="card center">
@@ -799,17 +885,19 @@ function studentMenu(){
       <div class="grid-cards" style="max-width:640px; margin:18px auto 4px">
         <div class="tile" id="goWrite"><span class="emoji">✏️</span><div class="t">또박또박 영어 쓰기</div><div class="s">흐린 글자 따라쓰기</div></div>
         <div class="tile" id="goSpeak"><span class="emoji">🗣️</span><div class="t">또박또박 영어 말하기</div><div class="s">듣고 따라 말하기</div></div>
+        <div class="tile" id="goTalk"><span class="emoji">💬</span><div class="t">또박또박 영어로 대화하기</div><div class="s">짝과 역할 맡아 주고받기</div></div>
         <div class="tile" id="goMission"><span class="emoji">🎯</span><div class="t">미션 활동</div><div class="s">빙고 · 카드 · 보드게임 · 땅따먹기 · 밸런스</div></div>
       </div>
     </div>`;
   $('goWrite').onclick = ()=>{ studentMode='write'; studentPickClass(); };
   $('goSpeak').onclick = ()=>{ studentMode='speak'; studentPickClass(); };
+  $('goTalk').onclick = ()=>{ studentMode='talk'; studentPickClass(); };
   $('goMission').onclick = missionRoomStudent;
 }
 
 /* 미션 활동 방 — 선생님과 함께하는 놀이(듣기 빙고)와 친구와 하는 놀이(카드 미션)를 한곳에 모았다 */
 function missionRoomStudent(){
-  bingoLeave(); mingleLeave(); bdLeave(); ldLeave(); blLeave();
+  bingoLeave(); mingleLeave(); bdLeave(); ldLeave(); blLeave(); tkLeave();
   app.innerHTML = `
     <button class="back" onclick="studentMenu()">← 뒤로</button>
     <div class="card center">
@@ -837,8 +925,12 @@ function studentBackMenu(){
 /* ============================ SPEAKING PRACTICE ============================ */
 const SPEAK_GOAL = 5;
 let speakRec = null;
-let studentMode = 'write';   // 'write' | 'speak'
-function assignmentHasMode(a, m){ const md=a.mode||'write'; return m==='speak' ? (md==='speak'||md==='both') : (md==='write'||md==='both'); }
+let studentMode = 'write';   // 'write' | 'speak' | 'talk' | 미션 활동(bingo·mingle·board·land·balance)
+function assignmentHasMode(a, m){ const md=a.mode||'write';
+  return m==='speak' ? (md==='speak'||md==='both') : (md==='write'||md==='both'); }
+/* 학생 화면 말투 — 연습 종류마다 제목·안내 문구를 한 곳에서 고른다 */
+const STU_MODE={ write:{icon:'📝', title:'✏️ 쓰기', verb:'따라 써요', unit:'번 쓰기'},
+                 speak:{icon:'🗣️', title:'🗣️ 말하기', verb:'따라 말해요', unit:'번 말하기'} };
 /* ===== 목소리·속도 설정 =====
    목소리 이름만 바꾸면 되고 클라우드 함수는 손댈 필요가 없다(함수가 voice를 그대로 받는다).
    속도는 오디오를 느리게 재생해서 맞춘다 — 음높이는 그대로 유지되고, 이미 만들어 둔 mp3를
@@ -1185,7 +1277,7 @@ async function teacherLogin(){
 
 /* ============================ TEACHER HOME ============================ */
 function teacherHome(){
-  bingoLeave(); mingleLeave(); bdLeave(); ldLeave(); blLeave();
+  bingoLeave(); mingleLeave(); bdLeave(); ldLeave(); blLeave(); tkLeave();
   session.role='teacher'; refreshWho();
   app.innerHTML = `
     <div class="card">
@@ -1194,26 +1286,58 @@ function teacherHome(){
         <div class="tile" id="mClass"><span class="emoji">🏫</span><div class="t">학급·학생</div><div class="s">${DB.classes.length}개 학급</div></div>
         <div class="tile" id="mNew"><span class="emoji">📝</span><div class="t">과제 만들기</div><div class="s">새로 만들기·다시 부여</div></div>
         <div class="tile" id="mDash"><span class="emoji">📊</span><div class="t">진행 현황</div><div class="s">학급별 완료 확인</div></div>
-        <div class="tile" id="mMission"><span class="emoji">🎯</span><div class="t">미션 활동</div><div class="s">듣기 빙고 · 카드 미션 · 보드게임 · 땅따먹기</div></div>
+        <div class="tile" id="mText"><span class="emoji">📖</span><div class="t">교과서 활동</div><div class="s">쓰기 · 말하기 · 대화하기</div></div>
+        <div class="tile" id="mMission"><span class="emoji">🎯</span><div class="t">미션 활동</div><div class="s">듣기 빙고 · 카드 미션 · 보드게임 · 땅따먹기 · 밸런스</div></div>
         <div class="tile" id="mVoice"><span class="emoji">🔊</span><div class="t">소리 설정</div><div class="s">${esc(voiceInfo().label)} · ${esc(speedLabel(VOICE.rate))}</div></div>
       </div>
     </div>`;
   $('mClass').onclick = manageClasses;
   $('mNew').onclick = ()=> createAssignment();
-  $('mDash').onclick = dashboardList;
+  $('mDash').onclick = ()=> dashboardOpen(null);
+  $('mText').onclick = textbookRoomTeacher;
   $('mMission').onclick = missionRoomTeacher;
   $('mVoice').onclick = voiceSettings;
 }
 
+/* 교과서 활동 방 — 학생 메뉴의 ✏️ 쓰기 · 🗣️ 말하기 · 💬 대화하기와 같은 세 가지.
+   내용은 모두 「과제 만들기」에서 만들고, 여기서는 쓰기·말하기는 현황을, 대화하기는 진행을 맡는다. */
+function textbookRoomTeacher(){
+  bingoLeave(); mingleLeave(); bdLeave(); ldLeave(); blLeave(); tkLeave();
+  session.role='teacher'; refreshWho();
+  const cnt=(m)=> DB.assignments.filter(a=>(a.mode||'write')===m).length;
+  app.innerHTML = `
+    <button class="back" onclick="teacherHome()">← 선생님 메뉴</button>
+    <div class="card">
+      <h2 style="margin-top:4px">📖 교과서 활동</h2>
+      <p class="muted">학생 화면의 <b>✏️ 쓰기 · 🗣️ 말하기 · 💬 대화하기</b>와 같은 세 가지예요.
+        내용은 <b>📝 과제 만들기</b>에서 만들고, 여기서는 <b>보고 진행</b>합니다.</p>
+      <div class="grid-cards" style="margin-top:14px">
+        <div class="tile" id="tbWrite"><span class="emoji">✏️</span><div class="t">쓰기</div>
+          <div class="s">진행 현황 보기 · 배부 ${cnt('write')}개</div></div>
+        <div class="tile" id="tbSpeak"><span class="emoji">🗣️</span><div class="t">말하기</div>
+          <div class="s">진행 현황 보기 · 배부 ${cnt('speak')}개</div></div>
+        <div class="tile" id="tbTalk"><span class="emoji">💬</span><div class="t">대화하기</div>
+          <div class="s">수업에서 진행하기 · 배부 ${cnt('talk')}개</div></div>
+      </div>
+      <p class="muted" style="margin:14px 0 0; font-size:.85rem">
+        ✏️·🗣️ 는 학생이 태블릿에서 혼자 하는 연습이라 <b>현황</b>만 보면 되고,
+        💬 대화하기는 선생님이 <b>시작·다음</b>을 눌러 함께 진행합니다.</p>
+    </div>`;
+  $('tbWrite').onclick = ()=> dashboardOpen('write');
+  $('tbSpeak').onclick = ()=> dashboardOpen('speak');
+  $('tbTalk').onclick = talkSetup;
+}
+
 /* 미션 활동 방 — 교실에서 함께 하는 놀이(듣기 빙고·카드 미션)를 한곳에 모았다 */
 function missionRoomTeacher(){
-  bingoLeave(); mingleLeave(); bdLeave(); ldLeave(); blLeave();
+  bingoLeave(); mingleLeave(); bdLeave(); ldLeave(); blLeave(); tkLeave();
   session.role='teacher'; refreshWho();
   app.innerHTML = `
     <button class="back" onclick="teacherHome()">← 선생님 메뉴</button>
     <div class="card">
       <h2 style="margin-top:4px">🎯 미션 활동</h2>
-      <p class="muted">교실에서 함께 하는 놀이예요. 학생은 <b>학생 → 미션 활동</b>으로 들어옵니다.</p>
+      <p class="muted">교실에서 함께 하는 놀이예요. 학생은 <b>학생 → 미션 활동</b>으로 들어옵니다.
+        (✏️ 쓰기 · 🗣️ 말하기 · 💬 대화하기는 <b>📖 교과서 활동</b>에 있어요)</p>
       <div class="grid-cards" style="margin-top:14px">
         <div class="tile" id="mBingo"><span class="emoji">👂</span><div class="t">듣기 빙고</div><div class="s">TV로 들려주는 놀이</div></div>
         <div class="tile" id="mMingle"><span class="emoji">🃏</span><div class="t">카드 미션</div><div class="s">교실을 돌며 말하기</div></div>
@@ -1353,6 +1477,7 @@ function createAssignment(){
       const usedPills=[
         asgModes.has('write')? '<span class="pill done">✏️ 쓰기</span>':'',
         asgModes.has('speak')? '<span class="pill done">🗣️ 말하기</span>':'',
+        asgModes.has('talk')? '<span class="pill talk">💬 대화하기</span>':'',
         (l.bingo||asgModes.has('bingo'))? '<span class="pill bingo">👂 듣기 빙고</span>':'',
         ms? '<span class="pill mingle">🃏 카드 미션</span>':'',
         bs? '<span class="pill board">🎲 보드게임</span>':'',
@@ -1373,6 +1498,8 @@ function createAssignment(){
         <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px">
           <button class="btn sm" data-load="${l.id}|write">✏️ 쓰기</button>
           <button class="btn sm" data-load="${l.id}|speak">🗣️ 말하기</button>
+          <button class="btn sm" data-load="${l.id}|talk">💬 대화하기</button>
+          <button class="btn sm" data-load="${l.id}|dict">📄 받아쓰기</button>
           <button class="btn sm" data-load="${l.id}|bingo">👂 듣기 빙고</button>
           <button class="btn sm" data-load="${l.id}|mingle">🃏 카드 미션${ms?' (이어서 고치기)':''}</button>
           <button class="btn sm" data-load="${l.id}|board">🎲 보드게임${bs?' (이어서 고치기)':''}</button>
@@ -1410,6 +1537,7 @@ function createAssignment(){
       const targets=DB.assignments.filter(a=>a.listId===lid && a.classId===cid);
       if(!targets.length) return;
       const hasBingo=targets.some(a=>a.mode==='bingo');
+      const hasTalk=targets.some(a=>a.mode==='talk');
       if(!confirm(`'${c?c.name:'이 학급'}'에서 이 과제 배부를 취소할까요?\n학생들이 더 이상 볼 수 없고, 진행 기록도 함께 지워져요.${
         hasBingo? '\n진행 중인 빙고 게임이 있으면 학생 화면에서 함께 내려가요.' : ''} (보관함 목록은 그대로 남아요)`)) return;
       b.disabled=true; b.textContent='…';
@@ -1419,6 +1547,10 @@ function createAssignment(){
       if(hasBingo){
         const live=await sGet(bingoKey(cid), null);
         if(live && (ids.has(live.asgId) || live.listId===lid)) await bingoCloseGame(cid);
+      }
+      if(hasTalk){
+        const live=await sGet(talkKey(cid), null);
+        if(live && (ids.has(live.asgId) || live.listId===lid)) await talkCloseGame(cid);
       }
       DB.assignments=DB.assignments.filter(a=>!ids.has(a.id));
       await sSet(KEYS.assignments, DB.assignments);
@@ -1454,8 +1586,11 @@ function loadListIntoDraft(listId, mode){
     draft.land={ id:gs.id, players:gs.players, n:gs.n, cells:gs.cells.map(c=>({i:c.i})) };
     if(mode==='land') draft.classIds=(gs.classIds||[]).slice();
   }
+  const ta=DB.assignments.find(x=> x.listId===l.id && x.mode==='talk');   /* 이 낱말로 만든 대화가 있으면 대화문·역할 이름을 이어 쓴다 */
+  if(ta && ta.talk) draft.talk=tkCloneSetting(ta.talk);
+  if(mode==='talk') tkLoadPix(l.id);                     /* 낱말 그림은 따로 저장돼 있어 뒤이어 붙인다 */
   assignmentForm();
-  const what={ write:'쓰기', speak:'말하기', bingo:'듣기 빙고', mingle:'카드 미션', board:'보드게임',
+  const what={ write:'쓰기', speak:'말하기', talk:'대화하기', dict:'받아쓰기 문제지', bingo:'듣기 빙고', mingle:'카드 미션', board:'보드게임',
                land:'땅따먹기', balance:'밸런스 게임' }[draft.mode];
   toast(`낱말을 불러왔어요 📋 ${what? '· '+what+'로 만들기':''}`);
 }
@@ -1853,6 +1988,8 @@ function assignmentForm(){
         <button data-mt="write" class="${draft.mode==='write'?'on':''}">✏️ 쓰기</button>
         <button data-mt="speak" class="${draft.mode==='speak'?'on':''}">🗣️ 말하기</button>
         <button data-mt="both" class="${draft.mode==='both'?'on':''}">✏️+🗣️ 둘 다</button>
+        <button data-mt="talk" class="${draft.mode==='talk'?'on':''}">💬 대화하기</button>
+        <button data-mt="dict" class="${draft.mode==='dict'?'on':''}">📄 받아쓰기</button>
         <button data-mt="bingo" class="${draft.mode==='bingo'?'on':''}">👂 듣기 빙고</button>
         <button data-mt="mingle" class="${draft.mode==='mingle'?'on':''}">🃏 카드 미션</button>
         <button data-mt="board" class="${draft.mode==='board'?'on':''}">🎲 보드게임</button>
@@ -1871,6 +2008,8 @@ function assignmentForm(){
           <span class="muted">번</span>
         </div>
       </div>
+      <div id="talkBox" style="display:none"></div>
+      <div id="dictBox" style="display:none"></div>
       <div id="bingoBox" style="display:none"></div>
       <div id="mingleBox" style="display:none"></div>
       <div id="boardBox" style="display:none"></div>
@@ -1878,7 +2017,7 @@ function assignmentForm(){
       <div id="balBox" style="display:none"></div>
     </div>
 
-    <div class="card">
+    <div class="card" id="clsCard">
       <h2 style="margin-top:4px">④ 배부할 학급 고르기</h2>
       <p class="muted">이 과제를 수행할 학급을 클릭하세요. (여러 학급 선택 가능)</p>
       <p class="muted" id="clsNote" style="font-size:.83rem; color:var(--green-d); margin:2px 0 0 2px"></p>
@@ -1902,6 +2041,8 @@ function assignmentForm(){
   if($('aGrade')) $('aGrade').addEventListener('input', renderClassPick);
   const modeHints={ write:'학생이 흐린 글자 위에 따라 써요.', speak:'학생이 듣고 마이크로 따라 말해요(자동 채점).',
     both:'쓰기 과제와 말하기 과제가 각각 하나씩 배부돼요.',
+    dict:'②의 낱말·문장으로 받아쓰기 문제를 만들어 한글 문서(.hwpx)로 내려받아요. 학급에 배부하지 않는 종이 활동입니다.',
+    talk:'짝과 마주 보고 하는 대화 연습이에요. 여기서 대화를 만들어 두면, 「교과서 활동 → 💬 대화하기」에서 선생님이 시작할 때 학생 태블릿에 한 판씩 뜹니다.',
     bingo:'선생님이 들려주는 표현을 학생이 빙고판에서 찾는 놀이예요. 아래에서 판과 그림을 정하세요.',
     mingle:'학생이 카드를 한 장 뽑고 교실을 돌며 친구를 인터뷰하는 말하기 놀이예요. ②의 낱말이 그대로 주제 카드가 돼요.',
     board:'모둠끼리 태블릿으로 주사위를 굴려 말판을 도는 놀이예요. ②의 낱말이 미션 칸에 들어가요.',
@@ -1911,8 +2052,12 @@ function assignmentForm(){
   const updateModeUI=()=>{ const h=$('modeHint'); if(h) h.textContent=modeHints[draft.mode]||'';
     const t=cntText[draft.mode]||cntText.write; const ct=$('cntTitle'); if(ct) ct.textContent=t[0]; const cd=$('cntDesc'); if(cd) cd.textContent=t[1];
     const isB=draft.mode==='bingo', isM=draft.mode==='mingle', isD=draft.mode==='board',
-          isL=draft.mode==='land', isQ=draft.mode==='balance';
-    $('cntBox').style.display = (isB||isM||isD||isL||isQ)? 'none':'';
+          isL=draft.mode==='land', isQ=draft.mode==='balance', isT=draft.mode==='talk',
+          isW=draft.mode==='dict';
+    $('cntBox').style.display = (isB||isM||isD||isL||isQ||isT||isW)? 'none':'';
+    $('talkBox').style.display = isT? '':'none';
+    $('dictBox').style.display = isW? '':'none';
+    const cc=$('clsCard'); if(cc) cc.style.display = isW? 'none':'';   /* 받아쓰기는 배부하지 않는다 */
     $('bingoBox').style.display = isB? '':'none';
     $('mingleBox').style.display = isM? '':'none';
     $('boardBox').style.display = isD? '':'none';
@@ -1920,7 +2065,12 @@ function assignmentForm(){
     $('balBox').style.display = isQ? '':'none';
     const ic=$('itemsCard'); if(ic) ic.style.display = isQ? 'none':'';   /* 밸런스 게임은 낱말을 쓰지 않는다 */
     const sv=$('saveAsg'); if(sv) sv.textContent = isB? '👂 선택한 학급에 빙고 배부하기'
-      : isM? mgSaveLabel() : isD? bdSaveLabel() : isL? ldSaveLabel() : isQ? blSaveLabel() : '📨 선택한 학급에 배부하기';
+      : isM? mgSaveLabel() : isD? bdSaveLabel() : isL? ldSaveLabel() : isQ? blSaveLabel()
+      : isT? '💬 선택한 학급에 대화 과제 배부하기'
+      : isW? ((draft.dict&&draft.dict.made)? '📄 한글 문서(.hwpx)로 내려받기' : '✅ 문항 만들기')
+      : '📨 선택한 학급에 배부하기';
+    if(isW) renderDictBox();
+    if(isT) renderTalkBox();
     if(isB) renderBingoBox();
     if(isM) renderMingleBox();
     if(isD) renderBoardBox();
@@ -2172,6 +2322,82 @@ function assignmentForm(){
     $('bgI').onchange=()=>{ b.iv=+$('bgI').value; };
   };
   window.__renderBingoBox=renderBingoBox;      /* 항목 체크가 바뀌면 다시 그린다 */
+  /* 대화하기 설정 — ②의 문장이 그대로 대화 순서가 되고, 여기서는 말하는 사람(A·B)만 정한다 */
+  const renderTalkBox=()=>{
+    draft.talk = tkCloneSetting(draft.talk);
+    const t=draft.talk;
+    $('talkBox').innerHTML=`
+      <div class="hr"></div>
+      <h3 style="margin-top:0">대화하기 설정</h3>
+      <div class="row">
+        <div><label>A 역할 이름</label><input type="text" id="tkNameA" placeholder="예) 손님" value="${esc(t.nameA)}"></div>
+        <div><label>B 역할 이름</label><input type="text" id="tkNameB" placeholder="예) 점원" value="${esc(t.nameB)}"></div>
+      </div>
+      <p class="muted" style="margin:12px 0 8px">A·B가 주고받을 <b>영어 문장</b>을 미리 적어 두세요.
+        바뀌는 자리는 <b>밑줄 ___</b> 로 적으면(예: <b>I'd like ___.</b>) 아래 <b>낱말 꾸러미</b>에서 룰렛으로 하나씩 뽑혀 들어가요.<br>
+        대화를 <b>5개</b> 만들면 역할을 바꿔 한 번 더 하므로 학생에게는 <b>10판</b>으로 제시됩니다.<br>
+        <span style="font-size:.85rem">※ 대화 문장의 한글 해석은 넣지 않아요 — 빈칸 낱말이 바뀌면 <b>을/를</b> 같은 조사가 어색해지기 때문이에요.
+        낱말의 뜻은 룰렛 칸에 함께 나옵니다.</span></p>
+      <div id="tkConvs"></div>
+      <button class="btn ghost sm" id="tkAddConv">＋ 대화 추가</button>
+      <div class="hr"></div>
+      <h3 style="margin-top:0">빈칸에 들어갈 낱말 꾸러미</h3>
+      <p class="muted" style="margin:0 0 10px">②에서 <b>체크한 낱말</b>이 그대로 꾸러미가 돼요. 낱말마다 <b>그림</b>을 넣을 수 있어요 —
+        <b>📁 그림</b>으로 사진을 고르거나, 화면을 캡처한 뒤 <b>📋 붙여넣기</b>를 누르고 <b>Ctrl+V</b> 하세요.</p>
+      <div id="tkBank"></div>
+      <p class="muted" id="tkSum" style="margin-top:10px"></p>`;
+    $('tkNameA').oninput=e=>{ t.nameA=e.target.value; };
+    $('tkNameB').oninput=e=>{ t.nameB=e.target.value; };
+    $('tkAddConv').onclick=()=>{ t.convs.push(tkNewConv()); tkConvsDraw(); tkSumDraw(); };
+    tkConvsDraw(); tkBankDraw(); tkSumDraw();
+  };
+  window.__renderTalkBox=renderTalkBox;
+  /* 받아쓰기 문제지 설정 — ②의 낱말·문장마다 유형을 고르고, 마지막에 문항을 만든다 */
+  const renderDictBox=()=>{
+    draft.dict = draft.dict || { answer:true, shuffle:false, made:false, qs:[] };
+    const d=draft.dict;
+    $('dictBox').innerHTML=`
+      <div class="hr"></div>
+      <h3 style="margin-top:0">받아쓰기 문제지</h3>
+      <p class="muted" style="margin:0 0 10px">②에 적은 <b>낱말·문장 하나가 문제 하나</b>가 돼요.
+        아래에서 줄마다 <b>문제 유형</b>을 고르고, 다 골랐으면 <b>✅ 문항 만들기</b>를 누르세요.
+        <br><span style="font-size:.85rem">🎲 자동으로 두면 그 항목으로 만들 수 있는 유형 중에서 하나가 뽑혀요.
+        <b>①②⑤</b> 는 낱말, <b>③④⑤</b> 는 문장에서 만들 수 있어요.</span></p>
+      <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px">
+        <button class="btn ghost sm" id="dcAllAuto">🎲 모두 자동으로</button>
+        ${DICT_TYPES.map(t=>`<button class="btn ghost sm" data-dall="${t.id}">${t.label} 로 모두</button>`).join('')}
+      </div>
+      <div id="dcList"></div>
+      <p class="muted" id="dcSum" style="margin:10px 0 0"></p>
+      <div class="hr"></div>
+      <div class="row">
+        <div><label>정답지</label><select id="dcAns">
+          <option value="1" ${d.answer!==false?'selected':''}>뒷장에 함께 넣기</option>
+          <option value="0" ${d.answer===false?'selected':''}>넣지 않기</option></select></div>
+        <div><label>문항 순서</label><select id="dcShuf">
+          <option value="0" ${d.shuffle?'':'selected'}>②에 적은 차례대로</option>
+          <option value="1" ${d.shuffle?'selected':''}>섞기</option></select></div>
+      </div>
+      <div class="center" style="margin-top:14px">
+        <button class="btn coral" id="dcMake">✅ 문항 만들기</button>
+      </div>
+      <div id="dcOut"></div>`;
+    $('dcAns').onchange=e=>{ d.answer = e.target.value==='1'; };
+    $('dcShuf').onchange=e=>{ d.shuffle = e.target.value==='1'; dictReset(); };
+    $('dcMake').onclick=()=> dictMakeAndShow();
+    $('dcAllAuto').onclick=()=>{ draft.items.forEach(i=>{ i.dq='auto'; }); dictListDraw(); dictReset(); };
+    $('dictBox').querySelectorAll('[data-dall]').forEach(b=> b.onclick=()=>{
+      const t=b.dataset.dall;
+      draft.items.filter(i=>i.sel && (i.text||'').trim()).forEach(i=>{
+        if(dictOptsFor(i).includes(t)) i.dq=t;                 /* 낱말/문장에 맞는 것만 바꾼다 */
+      });
+      dictListDraw(); dictReset(); toast(`${dictTypeLabel(t)}로 맞췄어요`);
+    });
+    dictListDraw();
+    dictOutDraw();
+    dictSyncBtn();
+  };
+  window.__renderDictBox=renderDictBox;
   updateModeUI();
   app.querySelectorAll('#modeType button').forEach(b=> b.onclick=()=>{ draft.mode=b.dataset.mt;
     app.querySelectorAll('#modeType button').forEach(x=>x.classList.toggle('on',x.dataset.mt===draft.mode)); updateModeUI(); renderLinkNote(); });
@@ -2206,6 +2432,8 @@ function splitMeaning(line){
 /* 그림 목록(듣기 빙고 칸 / 카드 미션 카드)은 항목이 바뀔 때마다 같이 갱신한다 */
 function asgSyncBingo(){
   if(!draft) return;
+  if(draft.mode==='dict' && window.__renderDictBox) window.__renderDictBox();   /* ②가 바뀌면 줄도 다시 그린다 */
+  if(draft.mode==='talk' && window.__renderTalkBox) window.__renderTalkBox();
   if(draft.mode==='bingo' && window.__renderBingoBox) window.__renderBingoBox();
   if(draft.mode==='mingle' && window.__renderMingleCards) window.__renderMingleCards();
   if(draft.mode==='board' && window.__renderBoardCards) window.__renderBoardCards();
@@ -2220,6 +2448,7 @@ function renderLinkNote(){
   const spots=[];
   if(asgModes.has('write')) spots.push('✏️ 쓰기');
   if(asgModes.has('speak')) spots.push('🗣️ 말하기');
+  if(asgModes.has('talk')) spots.push('💬 대화하기');
   if(asgModes.has('bingo') || (l&&l.bingo)) spots.push('👂 듣기 빙고');
   if(ms) spots.push(`🃏 카드 미션 「${esc(ms.title)}」`);
   const bs = (draft.board && draft.board.id) ? bdSet(draft.board.id) : bdSetOfList(l);
@@ -2487,13 +2716,27 @@ async function saveAssignment(){
   asgTrimItems();                                   /* 빈 칸은 빼고 배부한다 */
   const items=draft.items.slice();                  /* 다시 그리면 빈 칸 한 줄이 새로 생기므로 먼저 떠 둔다 */
   renderItemList();
+  if(draft.mode==='dict') return dictAct();      /* 받아쓰기는 배부가 아니라 파일 내려받기 */
   /* 밸런스 게임은 문제를 PPT로 내므로 낱말이 없어도 배부할 수 있다 — 낱말 검사보다 먼저 처리한다 */
   if(draft.mode==='balance'){
     return saveBalanceSet({ grade:$('aGrade').value.trim(), unit:$('aUnit').value.trim(),
                             lesson:$('aLesson').value.trim(), title });
   }
   const chosen = items.filter(i=>i.sel).map(i=>({id:i.id,text:i.text.trim(),meaning:(i.meaning||'').trim(),type:i.type,emoji:i.emoji||''}));
-  if(!chosen.length){ toast('제시할 항목을 1개 이상 선택하세요'); return; }
+  const isTalk = draft.mode==='talk';
+  /* 대화하기 — ③에서 적어 둔 대화가 본문, ②의 낱말은 빈칸(___)에 들어갈 꾸러미다 */
+  let talkSet=null;
+  if(isTalk){
+    talkSet=tkCloneSetting(draft.talk);
+    talkSet.convs=talkSet.convs.map(c=>({ lines:c.lines.filter(l=>(l.en||'').trim())
+        .map(l=>({ r:l.r, en:l.en.trim() })) })).filter(c=>c.lines.length);
+    if(!talkSet.convs.length){ toast('대화를 1개 이상 만들어 주세요'); return; }
+    if(talkSet.convs.some(tkConvHasBlank) && chosen.length<2){
+      toast('빈칸(___)에 넣을 낱말을 ②에서 2개 이상 골라 주세요'); return; }
+    talkSet.nameA=(talkSet.nameA||'A').trim()||'A';
+    talkSet.nameB=(talkSet.nameB||'B').trim()||'B';
+  }
+  if(!chosen.length && !isTalk){ toast('제시할 항목을 1개 이상 선택하세요'); return; }
   if(isBingo && chosen.length<3){ toast('빙고는 표현이 3개 이상이어야 해요'); return; }
   const grade=$('aGrade').value.trim(), unit=$('aUnit').value.trim(), lesson=$('aLesson').value.trim();
   /* 카드 미션은 과제(assignments)가 아니라 미션 세트로 저장된다 — 배부 학급도 세트가 들고 있다 */
@@ -2507,6 +2750,7 @@ async function saveAssignment(){
     const l=DB.lists.find(x=>x.id===listId);
     if(l){ l.bingo=true; l.updatedAt=Date.now(); await sSet(KEYS.lists, DB.lists); }
   }
+  const draft0mode = draft.mode||'write';
   const modes = draft.mode==='both' ? ['write','speak'] : [draft.mode||'write'];
   const now=Date.now(); let k=0;
   draft.classIds.forEach((classId)=>{
@@ -2514,13 +2758,17 @@ async function saveAssignment(){
       const a={ id:uid(), classId, listId, title, grade, unit, lesson, mode:md,
         items:chosen.map(c=>({...c})), repeat:draft.repeat, createdAt:now + (k++) };
       if(md==='bingo') a.bingo={...draft.bingo};    /* 판 크기·목표·자동 진행을 과제에 저장 */
+      if(md==='talk') a.talk=JSON.parse(JSON.stringify(talkSet));   /* 대화문·역할 이름을 과제에 저장 */
       DB.assignments.push(a);
     });
   });
   await sSet(KEYS.assignments, DB.assignments);
+  if(isTalk) await tkSavePix(listId, items);      /* 낱말 그림은 목록마다 따로 저장한다 */
   const n=draft.classIds.length;
   draft=null;
-  toast(isBingo? `${n}개 학급에 빙고를 배부했어요! 👂` : `${n}개 학급에 과제를 배부했어요! 🎉`);
+  toast(isBingo? `${n}개 학급에 빙고를 배부했어요! 👂`
+      : draft0mode==='talk'? `${n}개 학급에 대화를 배부했어요! 💬 (교과서 활동에서 시작하세요)`
+      : `${n}개 학급에 과제를 배부했어요! 🎉`);
   createAssignment();
 }
 
@@ -2726,18 +2974,29 @@ async function saveBalanceSet(meta){
 }
 
 /* ============================ DASHBOARD ============================ *//* ============================ DASHBOARD ============================ */
+/* 현황판을 한 활동만 보여 줄 수도 있다 — 교과서 활동에서 ✏️·🗣️ 를 눌러 들어오는 길 */
+let dashMode=null;
+function dashboardOpen(mode){ dashMode=mode||null; dashboardList(); }
+function dashFits(a){ return !dashMode || (a.mode||'write')===dashMode; }
+function dashLabel(){ return dashMode==='speak'? '🗣️ 말하기' : dashMode==='write'? '✏️ 쓰기' : ''; }
 function dashboardList(){
-  if(!DB.classes.length){ app.innerHTML=`<button class="back" onclick="teacherHome()">← 선생님 메뉴</button>
+  const back = dashMode? `<button class="back" onclick="textbookRoomTeacher()">← 교과서 활동</button>`
+                       : `<button class="back" onclick="teacherHome()">← 선생님 메뉴</button>`;
+  if(!DB.classes.length){ app.innerHTML=`${back}
     <div class="card empty"><span class="em">🏫</span>먼저 학급을 만들어 주세요.</div>`; return; }
-  app.innerHTML = `<button class="back" onclick="teacherHome()">← 선생님 메뉴</button>
-    <div class="card"><h2 style="margin-top:4px">📊 진행 현황</h2><p class="muted">학급을 먼저 골라 주세요.</p>
+  app.innerHTML = `${back}
+    <div class="card"><h2 style="margin-top:4px">📊 ${dashMode? dashLabel()+' 진행 현황' : '진행 현황'}</h2>
+    <p class="muted">학급을 먼저 골라 주세요.${dashMode? ` (${dashLabel()} 과제만 보여 줘요)`:''}</p>
     <div class="grid-cards" style="margin-top:10px">${
-      DB.classes.map(c=>{ const n=DB.assignments.filter(a=>a.classId===c.id).length;
+      DB.classes.map(c=>{ const n=DB.assignments.filter(a=>a.classId===c.id && dashFits(a)).length;
         return `<div class="tile" data-dc="${c.id}"><span class="emoji">🏫</span><div class="t">${esc(c.name)}</div><div class="s">${n}개 과제 · ${c.students.length}명</div></div>`;
       }).join('')
     }</div></div>`;
   app.querySelectorAll('[data-dc]').forEach(el=> el.onclick=()=> dashboardClass(el.dataset.dc));
 }
+/* 과제 유형 한 글자 표시 — 현황판에서 쓰기·말하기·대화를 한눈에 구분한다 */
+function asgIcon(a){ const m=(a&&a.mode)||'write'; return m==='talk'?'💬' : m==='speak'?'🗣️' : '✏️'; }
+function asgWord(a){ const m=(a&&a.mode)||'write'; return m==='talk'?'대화' : m==='speak'?'말하기' : '쓰기'; }
 async function dashboardClass(classId){
   const c=DB.classes.find(x=>x.id===classId); if(!c){ dashboardList(); return; }
   app.innerHTML = `<button class="back" onclick="dashboardList()">← 학급 고르기</button>
@@ -2747,18 +3006,31 @@ async function dashboardClass(classId){
       <p class="muted">과제를 눌러 학생별 완료 여부를 확인하세요. 최신 진행은 새로고침을 눌러요.</p></div>
     <div id="dlist" class="empty"><span class="em">⏳</span>불러오는 중...</div>`;
   const rc=$('refreshC'); if(rc) rc.onclick=()=>{ toast('최신 진행을 불러왔어요'); dashboardClass(classId); };
-  const asgs=DB.assignments.filter(a=>a.classId===classId).sort((a,b)=>b.createdAt-a.createdAt);
-  if(!asgs.length){ $('dlist').outerHTML='<div class="card empty"><span class="em">📭</span>이 학급에 부여된 과제가 없어요.</div>'; return; }
+  const asgs=DB.assignments.filter(a=>a.classId===classId && dashFits(a)).sort((a,b)=>b.createdAt-a.createdAt);
+  if(!asgs.length){ $('dlist').outerHTML=`<div class="card empty"><span class="em">📭</span>이 학급에 부여된 ${dashMode? dashLabel()+' ':''}과제가 없어요.</div>`; return; }
   const cards=[];
   for(const a of asgs){
     const total=c.students.length; let done=0;
     for(const s of c.students){ const p=await sGet(progKey(a.id,s.id),null); if(p&&p.done) done++; }
+    if(a.mode==='talk'){                       /* 대화하기는 진행 기록을 남기지 않는 활동 */
+      const t=a.talk||{}; const nc=(t.convs||[]).length;
+      cards.push(`<div class="card" style="margin-bottom:14px">
+        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap">
+          <h3 style="margin:0; flex:1">💬 ${esc(a.title)}</h3>
+          <button class="btn ghost sm" data-dela="${a.id}" style="color:var(--coral-d)">🗑️ 배부 삭제</button>
+        </div>
+        <p class="muted" style="margin:6px 0 0">${[a.grade,a.unit,a.lesson].filter(Boolean).join(' / ')||'학년 미지정'} ·
+          대화 ${nc}개 → ${nc*2}판 · 꾸러미 낱말 ${a.items.length}개</p>
+        <p class="muted" style="margin:6px 0 0; font-size:.85rem">선생님이 <b>교과서 활동 → 💬 대화하기</b>에서 진행하는 활동이라
+          학생별 완료 기록은 남지 않아요.</p></div>`);
+      continue;
+    }
     cards.push(`<div class="card" style="margin-bottom:14px">
       <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap">
-        <h3 style="margin:0; flex:1; cursor:pointer" data-asg="${a.id}">${a.mode==='speak'?'🗣️':'✏️'} ${esc(a.title)}</h3>
+        <h3 style="margin:0; flex:1; cursor:pointer" data-asg="${a.id}">${asgIcon(a)} ${esc(a.title)}</h3>
         <button class="btn ghost sm" data-dela="${a.id}" style="color:var(--coral-d)">🗑️ 배부 삭제</button>
       </div>
-      <p class="muted" style="margin:6px 0 10px; cursor:pointer" data-asg="${a.id}">${[a.grade,a.unit,a.lesson].filter(Boolean).join(' / ')||'학년 미지정'} · 항목 ${a.items.length}개 · ${a.repeat}번 쓰기</p>
+      <p class="muted" style="margin:6px 0 10px; cursor:pointer" data-asg="${a.id}">${[a.grade,a.unit,a.lesson].filter(Boolean).join(' / ')||'학년 미지정'} · 항목 ${a.items.length}개 · ${a.repeat}번 ${asgWord(a)}</p>
       <div class="progress" data-asg="${a.id}" style="cursor:pointer"><div style="width:${total?Math.round(done/total*100):0}%"></div></div>
       <p class="muted" style="margin-top:8px">완료 <b style="color:var(--green-d)">${done}</b> / 전체 ${total}명 · <span style="color:var(--green-d)">학생별 보기 →</span></p>
     </div>`);
@@ -2771,6 +3043,10 @@ async function dashboardClass(classId){
     b.disabled=true; b.textContent='삭제 중...';
     // 학생 진행 기록 정리
     for(const s of c.students){ await sDel(progKey(a.id, s.id)); }
+    if(a.mode==='talk'){                       /* 진행 중이던 대화가 있으면 학생 화면에서도 내린다 */
+      const live=await sGet(talkKey(a.classId), null);
+      if(live && live.asgId===a.id) await talkCloseGame(a.classId);
+    }
     DB.assignments=DB.assignments.filter(x=>x.id!==a.id);
     await sSet(KEYS.assignments, DB.assignments);
     toast('과제 배부를 삭제했어요');
@@ -2781,7 +3057,7 @@ async function dashboardDetail(aid){
   const a=DB.assignments.find(x=>x.id===aid); const c=DB.classes.find(x=>x.id===a.classId);
   app.innerHTML = `<button class="back" onclick="dashboardClass('${a.classId}')">← ${esc(c?c.name:'학급')}</button>
     <div class="card"><div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap">
-      <h2 style="margin:4px 0; flex:1">${a.mode==='speak'?'🗣️':'✏️'} ${esc(a.title)}</h2>
+      <h2 style="margin:4px 0; flex:1">${asgIcon(a)} ${esc(a.title)}</h2>
       <button class="btn ghost sm" id="refreshD">🔄 새로고침</button></div>
     <p class="muted">${esc(c?c.name:'')} · ${[a.grade,a.unit,a.lesson].filter(Boolean).join(' / ')} · ${a.items.length}개 항목 · ${a.repeat}번씩</p></div>
     <div id="rosterArea" class="empty"><span class="em">⏳</span>불러오는 중...</div>`;
@@ -2827,7 +3103,8 @@ function studentPickName(cid){
     <div class="grid-cards">${c.students.map(s=>`<div class="tile" data-s="${s.id}"><span class="emoji">🧒</span><div class="t">${esc(s.name)}</div></div>`).join('')}</div></div>`;
   app.querySelectorAll('[data-s]').forEach(el=> el.onclick=()=>{ const s=c.students.find(x=>x.id===el.dataset.s);
     session={role:'student', name:s.name, classId:cid, studentId:s.id};
-    if(studentMode==='bingo') bingoStudent();
+    if(studentMode==='talk') talkStudent();
+    else if(studentMode==='bingo') bingoStudent();
     else if(studentMode==='mingle') mingleStudent();
     else if(studentMode==='board') boardStudent();
     else if(studentMode==='land') landStudent();
@@ -2836,11 +3113,10 @@ function studentPickName(cid){
 }
 async function studentAssignments(){
   session.role='student'; refreshWho();
-  const isSpeak = studentMode==='speak';
-  const verb = isSpeak ? '말해요' : '써요';
+  const M = STU_MODE[studentMode] || STU_MODE.write;
   const asgs=DB.assignments.filter(a=>a.classId===session.classId && assignmentHasMode(a, studentMode)).sort((a,b)=>b.createdAt-a.createdAt);
   app.innerHTML=`<button class="back" onclick="studentPickName('${session.classId}')">← 이름 다시 고르기</button>
-    <div class="card"><h2 style="margin-top:4px">${esc(session.name)}의 ${isSpeak?'🗣️ 말하기':'✏️ 쓰기'} 과제</h2><p class="muted">과제를 눌러 또박또박 따라 ${verb}!</p></div>
+    <div class="card"><h2 style="margin-top:4px">${esc(session.name)}의 ${M.title} 과제</h2><p class="muted">과제를 눌러 또박또박 ${M.verb}!</p></div>
     <div id="salist" class="empty"><span class="em">⏳</span>불러오는 중...</div>`;
   if(!asgs.length){ $('salist').outerHTML='<div class="card empty"><span class="em">🌱</span>아직 받은 과제가 없어요.</div>'; return; }
   const cards=[];
@@ -2850,13 +3126,875 @@ async function studentAssignments(){
     if(p&&p.counts){ for(const it of a.items) cnt+=Math.min(a.repeat,p.counts[it.id]||0); }
     const pct= total? Math.round(cnt/total*100):0; const done=!!(p&&p.done);
     cards.push(`<div class="card" style="cursor:pointer; margin-bottom:14px" data-go="${a.id}">
-      <div style="display:flex; align-items:center; gap:10px"><h3 style="margin:0; flex:1">${isSpeak?'🗣️':'📝'} ${esc(a.title)}</h3>
+      <div style="display:flex; align-items:center; gap:10px"><h3 style="margin:0; flex:1">${M.icon} ${esc(a.title)}</h3>
       <span class="pill ${done?'done':'not'}">${done?'완료 ✓':pct+'%'}</span></div>
-      <p class="muted" style="margin:6px 0 10px">${[a.grade,a.unit,a.lesson].filter(Boolean).join(' / ')||''} · 항목 ${a.items.length}개 · ${a.repeat}번 ${isSpeak?'말하기':'쓰기'}</p>
+      <p class="muted" style="margin:6px 0 10px">${[a.grade,a.unit,a.lesson].filter(Boolean).join(' / ')||''} · 항목 ${a.items.length}개 · ${a.repeat}${M.unit}</p>
       <div class="progress"><div style="width:${pct}%"></div></div></div>`);
   }
   $('salist').outerHTML=`<div>${cards.join('')}</div>`;
   app.querySelectorAll('[data-go]').forEach(el=> el.onclick=()=> doAssignment(el.dataset.go));
+}
+
+/* ============================ 받아쓰기 문제지 ============================
+   ②의 낱말·문장으로 문제를 만들어 한글 문서(.hwpx)로 내려받는다. 학생 태블릿에 배부하지 않는 '종이' 활동이다.
+   문제 유형
+     ① 낱말 쓰기  뜻을 보고 영어 낱말 쓰기        ② 철자 빈칸  p _ z z a 처럼 빠진 철자 채우기
+     ③ 문장 빈칸  문장에서 낱말 하나 채우기        ④ 문장 쓰기  뜻을 보고 영어 문장 전체 쓰기
+     ⑤ 뜻 쓰기    영어 문장을 읽고 한글 뜻 쓰기 */
+const DICT_TYPES=[
+  { id:'word',  label:'① 낱말 쓰기', hint:'뜻 → 영어 낱말',      kind:'word' },
+  { id:'spell', label:'② 철자 빈칸', hint:'p _ z z a 채우기',    kind:'word' },
+  { id:'blank', label:'③ 문장 빈칸', hint:'문장 속 낱말 채우기',  kind:'sentence' },
+  { id:'write', label:'④ 문장 쓰기', hint:'뜻 → 영어 문장',      kind:'sentence' },
+  { id:'mean',  label:'⑤ 뜻 쓰기',   hint:'영어 → 한글 뜻',      kind:'both' }
+];
+const DICT_STOP=new Set(['a','an','the','is','am','are','was','were','do','does','did','to','of','in','on','at','it','i','you','he','she','we','they','my','your','his','her','and','or','can','will','would','like','this','that','for','with']);
+/* 'ice cream'처럼 두 낱말짜리도 낱말로 본다 — 문장은 마침표가 있거나 세 낱말 이상 */
+const dictIsSentence=(i)=>{ const t=String(i.text||'').trim();
+  return /[.!?]/.test(t) || t.split(/\s+/).length>=3; };
+
+/* p _ z z a — 첫 글자는 남기고 모음 위주로 40%쯤 지운다 */
+function dictSpell(w){
+  const s=String(w||'');
+  const idx=[]; for(let i=1;i<s.length;i++) if(/[a-z]/i.test(s[i])) idx.push(i);
+  if(!idx.length) return s.split('').join(' ');
+  const want=Math.max(1, Math.round(idx.length*0.4));
+  const vowels=bgShuffle(idx.filter(i=>/[aeiou]/i.test(s[i])));
+  const pick=new Set(vowels.slice(0,want));
+  if(pick.size<want) bgShuffle(idx.slice()).forEach(i=>{ if(pick.size<want) pick.add(i); });
+  return s.split('').map((c,i)=> pick.has(i)? '_' : c).join(' ');
+}
+/* 문장에서 뜻이 담긴 낱말 하나를 지운다 */
+function dictBlank(t){
+  const parts=String(t||'').split(/(\s+)/);
+  const cand=[];
+  parts.forEach((p,i)=>{ const w=p.replace(/[^A-Za-z']/g,''); if(w.length>=3 && !DICT_STOP.has(w.toLowerCase())) cand.push(i); });
+  if(!cand.length) return null;
+  const i=cand[Math.floor(Math.random()*cand.length)];
+  const word=parts[i].replace(/[^A-Za-z']/g,'');
+  const out=parts.slice(); out[i]=parts[i].replace(word, '__________');
+  return { q:out.join(''), a:word };
+}
+const DICT_FOR_WORD=['word','spell','mean'];
+const DICT_FOR_SENT=['blank','write','mean'];
+function dictOptsFor(it){ return dictIsSentence(it)? DICT_FOR_SENT : DICT_FOR_WORD; }
+function dictNeedMean(t){ return t==='word' || t==='write' || t==='mean'; }
+/* 낱말·문장 하나로 문제 하나를 만든다 (만들 수 없으면 null) */
+function dictOne(it, t){
+  const text=(it.text||'').trim(), mean=(it.meaning||'').trim();
+  if(!text) return null;
+  if(dictNeedMean(t) && !mean) return null;
+  if(t==='word')  return { ask:'다음 뜻에 알맞은 영어 낱말을 쓰세요.', show:`( ${mean} )`, ans:text };
+  if(t==='spell') return { ask:'빠진 철자를 채워 낱말을 완성하세요.', show:`${dictSpell(text)}${mean? '   ( '+mean+' )':''}`, ans:text };
+  if(t==='blank'){ const b=dictBlank(text); if(!b) return null;
+    return { ask:'빈칸에 알맞은 낱말을 쓰세요.', show:`${b.q}${mean? '   ( '+mean+' )':''}`, ans:b.a }; }
+  if(t==='write') return { ask:'다음 뜻을 영어 문장으로 쓰세요.', show:`( ${mean} )`, ans:text };
+  if(t==='mean')  return { ask:`다음 ${dictIsSentence(it)?'문장':'낱말'}의 뜻을 한글로 쓰세요.`, show:text, ans:mean };
+  return null;
+}
+/* 자동 — 이 낱말·문장으로 만들 수 있는 유형 중에서 하나 고른다 */
+function dictAutoType(it){
+  const ok=dictOptsFor(it).filter(t=> !dictNeedMean(t) || (it.meaning||'').trim());
+  return bgShuffle(ok.slice())[0] || null;
+}
+function dictTypeLabel(t){ const d=DICT_TYPES.find(x=>x.id===t); return d? d.label : (t==='auto'?'🎲 자동':'빼기'); }
+/* ②에서 고른 항목을 위에서부터 하나씩 문제로 — 유형은 각 줄에서 고른 것을 쓴다 */
+function dictMake(){
+  if(!draft) return 0;
+  const d=draft.dict;
+  const out=[];
+  draft.items.filter(i=>i.sel && (i.text||'').trim()).forEach(it=>{
+    const want=it.dq||'auto';
+    if(want==='off') return;
+    let q = (want==='auto')? null : dictOne(it, want);
+    if(!q){ const t=dictAutoType(it); q = t? dictOne(it,t) : null; }   /* 못 만들면 자동으로 대신 */
+    if(q) out.push(q);
+  });
+  d.qs = d.shuffle? bgShuffle(out) : out;
+  d.made = d.qs.length>0;
+  return d.qs.length;
+}
+/* ---------- 아주 작은 ZIP 만들기 (압축 없이 담기만 한다 — 한글도 그대로 읽는다) ---------- */
+const ZIP_CRC=(()=>{ const t=new Uint32Array(256);
+  for(let i=0;i<256;i++){ let c=i; for(let k=0;k<8;k++) c=(c&1)? (0xEDB88320^(c>>>1)) : (c>>>1); t[i]=c>>>0; }
+  return t; })();
+function zipCrc(b){ let c=0xFFFFFFFF; for(let i=0;i<b.length;i++) c=ZIP_CRC[(c^b[i])&0xFF]^(c>>>8); return (c^0xFFFFFFFF)>>>0; }
+function zipMake(files, mime){
+  const enc=new TextEncoder(), parts=[], dir=[];
+  const u16=v=>[v&255,(v>>8)&255], u32=v=>[v&255,(v>>8)&255,(v>>16)&255,(v>>24)&255];
+  let off=0;
+  files.forEach(f=>{
+    const name=enc.encode(f.name);
+    const data=(typeof f.data==='string')? enc.encode(f.data) : f.data;
+    const crc=zipCrc(data);
+    const head=new Uint8Array([].concat([0x50,0x4b,0x03,0x04], u16(20), u16(0), u16(0), u16(0), u16(0),
+      u32(crc), u32(data.length), u32(data.length), u16(name.length), u16(0)));
+    parts.push(head, name, data);
+    dir.push({ name, crc, len:data.length, off });
+    off += head.length + name.length + data.length;
+  });
+  let cdLen=0;
+  dir.forEach(c=>{
+    const h=new Uint8Array([].concat([0x50,0x4b,0x01,0x02], u16(20), u16(20), u16(0), u16(0), u16(0), u16(0),
+      u32(c.crc), u32(c.len), u32(c.len), u16(c.name.length), u16(0), u16(0), u16(0), u16(0), u32(0), u32(c.off)));
+    parts.push(h, c.name); cdLen += h.length + c.name.length;
+  });
+  parts.push(new Uint8Array([].concat([0x50,0x4b,0x05,0x06], u16(0), u16(0), u16(dir.length), u16(dir.length), u32(cdLen), u32(off), u16(0))));
+  return new Blob(parts, { type: mime||'application/octet-stream' });
+}
+function dlBlob(blob, name){
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download=name;
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{ try{ URL.revokeObjectURL(url); a.remove(); }catch(e){} }, 2000);
+}
+function xesc(t){ return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+/* 한글(HWP)은 완성형(cp949) 밖 글자를 &#숫자; 로 바꿔 버린다 — 자주 쓰는 것만 비슷한 글자로 미리 바꾼다 */
+function hwpSafe(t){ return String(t==null?'':t)
+  .replace(/[–—]/g,'-').replace(/[‘’]/g,"'").replace(/[“”]/g,'"')
+  .replace(/…/g,'...').replace(/ /g,' '); }
+
+/* ---------- 한글 문서(.hwpx) 만들기 ----------
+   한글이 실제로 저장한 파일과 같은 뼈대를 쓴다(mimetype·version·META-INF·Contents).
+   글자 모양 0=본문 11pt, 1=제목 16pt 굵게, 2=작은 글씨. 문단 모양 0=왼쪽, 1=가운데. */
+const HWP_NS='xmlns:ha="http://www.hancom.co.kr/hwpml/2011/app" xmlns:hp="http://www.hancom.co.kr/hwpml/2011/paragraph" xmlns:hp10="http://www.hancom.co.kr/hwpml/2016/paragraph" xmlns:hs="http://www.hancom.co.kr/hwpml/2011/section" xmlns:hc="http://www.hancom.co.kr/hwpml/2011/core" xmlns:hh="http://www.hancom.co.kr/hwpml/2011/head" xmlns:hhs="http://www.hancom.co.kr/hwpml/2011/history" xmlns:hm="http://www.hancom.co.kr/hwpml/2011/master-page" xmlns:hpf="http://www.hancom.co.kr/schema/2011/hpf" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf/" xmlns:ooxmlchart="http://www.hancom.co.kr/hwpml/2016/ooxmlchart" xmlns:hwpunitchar="http://www.hancom.co.kr/hwpml/2016/HwpUnitChar" xmlns:epub="http://www.idpf.org/2007/ops" xmlns:config="urn:oasis:names:tc:opendocument:xmlns:config:1.0"';
+const XMLDECL='<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>';
+function hwpFontFaces(){
+  const one=(lang)=>`<hh:fontface lang="${lang}" fontCnt="2">`+
+    ['함초롬바탕','함초롬돋움'].map((f,i)=>`<hh:font id="${i}" face="${f}" type="TTF" isEmbedded="0">`+
+      `<hh:typeInfo familyType="FCAT_GOTHIC" weight="6" proportion="4" contrast="0" strokeVariation="1" armStyle="1" letterform="1" midline="1" xHeight="1"/></hh:font>`).join('')+
+    `</hh:fontface>`;
+  return ['HANGUL','LATIN','HANJA','JAPANESE','OTHER','SYMBOL','USER'].map(one).join('');
+}
+function hwpCharPr(id, height, bold, color){
+  return `<hh:charPr id="${id}" height="${height}" textColor="${color||'#000000'}" shadeColor="none" useFontSpace="0" useKerning="0" symMark="NONE" borderFillIDRef="2">`+
+    `<hh:fontRef hangul="0" latin="0" hanja="0" japanese="0" other="0" symbol="0" user="0"/>`+
+    `<hh:ratio hangul="100" latin="100" hanja="100" japanese="100" other="100" symbol="100" user="100"/>`+
+    `<hh:spacing hangul="0" latin="0" hanja="0" japanese="0" other="0" symbol="0" user="0"/>`+
+    `<hh:relSz hangul="100" latin="100" hanja="100" japanese="100" other="100" symbol="100" user="100"/>`+
+    `<hh:offset hangul="0" latin="0" hanja="0" japanese="0" other="0" symbol="0" user="0"/>`+
+    (bold? '<hh:bold/>':'')+
+    `<hh:underline type="NONE" shape="SOLID" color="#000000"/><hh:strikeout shape="NONE" color="#000000"/>`+
+    `<hh:outline type="NONE"/><hh:shadow type="NONE" color="#C0C0C0" offsetX="10" offsetY="10"/></hh:charPr>`;
+}
+function hwpParaPr(id, align){
+  const marg=`<hh:margin><hc:intent value="0" unit="HWPUNIT"/><hc:left value="0" unit="HWPUNIT"/><hc:right value="0" unit="HWPUNIT"/><hc:prev value="0" unit="HWPUNIT"/><hc:next value="0" unit="HWPUNIT"/></hh:margin><hh:lineSpacing type="PERCENT" value="160" unit="HWPUNIT"/>`;
+  return `<hh:paraPr id="${id}" tabPrIDRef="0" condense="0" fontLineHeight="0" snapToGrid="1" suppressLineNumbers="0" checked="0">`+
+    `<hh:align horizontal="${align}" vertical="BASELINE"/><hh:heading type="NONE" idRef="0" level="0"/>`+
+    `<hh:breakSetting breakLatinWord="KEEP_WORD" breakNonLatinWord="KEEP_WORD" widowOrphan="0" keepWithNext="0" keepLines="0" pageBreakBefore="0" lineWrap="BREAK"/>`+
+    `<hh:autoSpacing eAsianEng="0" eAsianNum="0"/>`+
+    `<hp:switch><hp:case hp:required-namespace="http://www.hancom.co.kr/hwpml/2016/HwpUnitChar">${marg}</hp:case><hp:default>${marg}</hp:default></hp:switch>`+
+    `<hh:border borderFillIDRef="2" offsetLeft="0" offsetRight="0" offsetTop="0" offsetBottom="0" connect="0" ignoreMargin="0"/></hh:paraPr>`;
+}
+function hwpHeader(){
+  const bf=(id)=>`<hh:borderFill id="${id}" threeD="0" shadow="0" centerLine="NONE" breakCellSeparateLine="0">`+
+    `<hh:slash type="NONE" Crooked="0" isCounter="0"/><hh:backSlash type="NONE" Crooked="0" isCounter="0"/>`+
+    `<hh:leftBorder type="NONE" width="0.1 mm" color="#000000"/><hh:rightBorder type="NONE" width="0.1 mm" color="#000000"/>`+
+    `<hh:topBorder type="NONE" width="0.1 mm" color="#000000"/><hh:bottomBorder type="NONE" width="0.1 mm" color="#000000"/>`+
+    `<hh:diagonal type="SOLID" width="0.1 mm" color="#000000"/></hh:borderFill>`;
+  const heads=[...Array(7)].map((_,i)=>`<hh:paraHead start="1" level="${i+1}" align="LEFT" useInstWidth="1" autoIndent="1" widthAdjust="0" textOffsetType="PERCENT" textOffset="50" numFormat="DIGIT" charPrIDRef="4294967295" checkable="0">^${i+1}.</hh:paraHead>`).join('');
+  return XMLDECL+`<hh:head ${HWP_NS} version="1.4" secCnt="1">`+
+    `<hh:beginNum page="1" footnote="1" endnote="1" pic="1" tbl="1" equation="1"/>`+
+    `<hh:refList>`+
+      `<hh:fontfaces itemCnt="7">${hwpFontFaces()}</hh:fontfaces>`+
+      `<hh:borderFills itemCnt="2">${bf(1)}${bf(2)}</hh:borderFills>`+
+      `<hh:charProperties itemCnt="3">${hwpCharPr(0,1000,false)}${hwpCharPr(1,1600,true)}${hwpCharPr(2,900,false,'#666666')}</hh:charProperties>`+
+      `<hh:tabProperties itemCnt="1"><hh:tabPr id="0" autoTabLeft="0" autoTabRight="0"/></hh:tabProperties>`+
+      `<hh:numberings itemCnt="1"><hh:numbering id="1" start="0">${heads}</hh:numbering></hh:numberings>`+
+      `<hh:paraProperties itemCnt="2">${hwpParaPr(0,'LEFT')}${hwpParaPr(1,'CENTER')}</hh:paraProperties>`+
+      `<hh:styles itemCnt="1"><hh:style id="0" type="PARA" name="바탕글" engName="Normal" paraPrIDRef="0" charPrIDRef="0" nextStyleIDRef="0" langID="1042" lockForm="0"/></hh:styles>`+
+    `</hh:refList></hh:head>`;
+}
+const HWP_SECPR=`<hp:secPr id="" textDirection="HORIZONTAL" spaceColumns="1134" tabStop="8000" tabStopVal="4000" tabStopUnit="HWPUNIT" outlineShapeIDRef="1" memoShapeIDRef="0" textVerticalWidthHead="0" masterPageCnt="0">`+
+  `<hp:grid lineGrid="0" charGrid="0" wonggojiFormat="0"/><hp:startNum pageStartsOn="BOTH" page="0" pic="0" tbl="0" equation="0"/>`+
+  `<hp:visibility hideFirstHeader="0" hideFirstFooter="0" hideFirstMasterPage="0" border="SHOW_ALL" fill="SHOW_ALL" hideFirstPageNum="0" hideFirstEmptyLine="0" showLineNumber="0"/>`+
+  `<hp:lineNumberShape restartType="0" countBy="0" distance="0" startNumber="0"/>`+
+  `<hp:pagePr landscape="WIDELY" width="59528" height="84186" gutterType="LEFT_ONLY"><hp:margin header="4252" footer="4252" gutter="0" left="8504" right="8504" top="5668" bottom="4252"/></hp:pagePr>`+
+  `<hp:footNotePr><hp:autoNumFormat type="DIGIT" userChar="" prefixChar="" suffixChar=")" supscript="0"/><hp:noteLine length="-1" type="SOLID" width="0.12 mm" color="#000000"/><hp:noteSpacing betweenNotes="283" belowLine="567" aboveLine="850"/><hp:numbering type="CONTINUOUS" newNum="1"/><hp:placement place="EACH_COLUMN" beneathText="0"/></hp:footNotePr>`+
+  `<hp:endNotePr><hp:autoNumFormat type="DIGIT" userChar="" prefixChar="" suffixChar=")" supscript="0"/><hp:noteLine length="14692344" type="SOLID" width="0.12 mm" color="#000000"/><hp:noteSpacing betweenNotes="0" belowLine="567" aboveLine="850"/><hp:numbering type="CONTINUOUS" newNum="1"/><hp:placement place="END_OF_DOCUMENT" beneathText="0"/></hp:endNotePr>`+
+  `<hp:pageBorderFill type="BOTH" borderFillIDRef="1" textBorder="PAPER" headerInside="0" footerInside="0" fillArea="PAPER"><hp:offset left="1417" right="1417" top="1417" bottom="1417"/></hp:pageBorderFill>`+
+  `<hp:pageBorderFill type="EVEN" borderFillIDRef="1" textBorder="PAPER" headerInside="0" footerInside="0" fillArea="PAPER"><hp:offset left="1417" right="1417" top="1417" bottom="1417"/></hp:pageBorderFill>`+
+  `<hp:pageBorderFill type="ODD" borderFillIDRef="1" textBorder="PAPER" headerInside="0" footerInside="0" fillArea="PAPER"><hp:offset left="1417" right="1417" top="1417" bottom="1417"/></hp:pageBorderFill></hp:secPr>`;
+/* 문단 하나 — p={t:글, c:글자모양, a:문단모양, br:쪽나눔} */
+function hwpPara(p, idx, first){
+  const h=p.c===1? 1600 : p.c===2? 900 : 1000;
+  const seg=`<hp:linesegarray><hp:lineseg textpos="0" vertpos="0" vertsize="${h}" textheight="${h}" baseline="${Math.round(h*0.85)}" spacing="${Math.round(h*0.6)}" horzpos="0" horzsize="42520" flags="393216"/></hp:linesegarray>`;
+  const body=`<hp:t>${xesc(hwpSafe(p.t||''))}</hp:t>`;
+  return `<hp:p id="${2147483648+idx}" paraPrIDRef="${p.a||0}" styleIDRef="0" pageBreak="${p.br?1:0}" columnBreak="0" merged="0">`+
+    `<hp:run charPrIDRef="${p.c||0}">${first? HWP_SECPR+'<hp:ctrl><hp:colPr id="" type="NEWSPAPER" layout="LEFT" colCount="1" sameSz="1" sameGap="0"/></hp:ctrl>':''}${body}</hp:run>${seg}</hp:p>`;
+}
+function hwpxBlob(title, paras){
+  const section=XMLDECL+`<hs:sec ${HWP_NS}>`+paras.map((p,i)=>hwpPara(p,i,i===0)).join('')+`</hs:sec>`;
+  const now=new Date().toISOString().replace(/\.\d+Z$/,'Z');
+  const hpf=XMLDECL+`<opf:package ${HWP_NS} version="" unique-identifier="" id="">`+
+    `<opf:metadata><opf:title>${xesc(title)}</opf:title><opf:language>ko</opf:language>`+
+    `<opf:meta name="creator" content="text">또박또박영어</opf:meta>`+
+    `<opf:meta name="CreatedDate" content="text">${now}</opf:meta>`+
+    `<opf:meta name="ModifiedDate" content="text">${now}</opf:meta></opf:metadata>`+
+    `<opf:manifest><opf:item id="header" href="Contents/header.xml" media-type="application/xml"/>`+
+    `<opf:item id="section0" href="Contents/section0.xml" media-type="application/xml"/>`+
+    `<opf:item id="settings" href="settings.xml" media-type="application/xml"/></opf:manifest>`+
+    `<opf:spine><opf:itemref idref="header" linear="yes"/><opf:itemref idref="section0" linear="yes"/></opf:spine></opf:package>`;
+  const container=XMLDECL+`<ocf:container xmlns:ocf="urn:oasis:names:tc:opendocument:xmlns:container" xmlns:hpf="http://www.hancom.co.kr/schema/2011/hpf">`+
+    `<ocf:rootfiles><ocf:rootfile full-path="Contents/content.hpf" media-type="application/hwpml-package+xml"/>`+
+    `<ocf:rootfile full-path="Preview/PrvText.txt" media-type="text/plain"/></ocf:rootfiles></ocf:container>`;
+  const version=XMLDECL+`<hv:HCFVersion xmlns:hv="http://www.hancom.co.kr/hwpml/2011/version" tagetApplication="WORDPROCESSOR" major="5" minor="1" micro="1" buildNumber="0" os="1" xmlVersion="1.5" application="또박또박영어" appVersion="1, 0, 0, 0"/>`;
+  const settings=XMLDECL+`<ha:HWPApplicationSetting xmlns:ha="http://www.hancom.co.kr/hwpml/2011/app" xmlns:config="urn:oasis:names:tc:opendocument:xmlns:config:1.0"><ha:CaretPosition listIDRef="0" paraIDRef="0" pos="0"/></ha:HWPApplicationSetting>`;
+  const manifest=XMLDECL+`<odf:manifest xmlns:odf="urn:oasis:names:tc:opendocument:xmlns:manifest:1.0"/>`;
+  const prv=paras.map(p=>p.t||'').join('\r\n').slice(0,1000);
+  return zipMake([
+    { name:'mimetype', data:'application/hwp+zip' },
+    { name:'version.xml', data:version },
+    { name:'Contents/header.xml', data:hwpHeader() },
+    { name:'Contents/section0.xml', data:section },
+    { name:'Contents/content.hpf', data:hpf },
+    { name:'META-INF/container.xml', data:container },
+    { name:'META-INF/manifest.xml', data:manifest },
+    { name:'settings.xml', data:settings },
+    { name:'Preview/PrvText.txt', data:prv }
+  ], 'application/hwp+zip');
+}
+/* ---------- 문제지 문단 만들기 ---------- */
+function dictParas(meta, qs, withAnswer){
+  const P=[];
+  P.push({ t:`${meta.title? meta.title+' ' : ''}받아쓰기`, c:1, a:1 });
+  const tag=[meta.grade,meta.unit,meta.lesson].filter(Boolean).join(' / ');
+  P.push({ t:`${tag}${tag?'    ':''}이름 : ______________       점수 :        / ${qs.length}`, c:2, a:1 });
+  P.push({ t:'' });
+  qs.forEach((q,i)=>{
+    P.push({ t:`${i+1}. ${q.ask}` });
+    if(q.show) P.push({ t:`    ${q.show}` });
+    P.push({ t:'    ▶ ______________________________________________' });
+    P.push({ t:'' });
+  });
+  if(withAnswer){
+    P.push({ t:'정답', c:1, a:1, br:true });
+    P.push({ t:'' });
+    qs.forEach((q,i)=> P.push({ t:`${i+1}. ${q.ans}` }));
+  }
+  return P;
+}
+function dictFileName(meta, ext){
+  const base=['받아쓰기', meta.grade, meta.unit, meta.title].filter(Boolean).join('_')
+    .replace(/[\\/:*?"<>|]/g,'').replace(/\s+/g,'_');
+  return `${base||'받아쓰기'}.${ext}`;
+}
+function dictDownload(){
+  if(!draft) return;
+  const d=draft.dict||{};
+  const qs=(d.qs||[]);
+  if(!qs.length){ toast('먼저 ✅ 문항 만들기를 눌러 주세요'); return; }
+  const meta={ grade:($('aGrade')||{}).value||'', unit:($('aUnit')||{}).value||'',
+               lesson:($('aLesson')||{}).value||'', title:($('aTitle')||{}).value||'' };
+  const paras=dictParas(meta, qs, d.answer!==false);
+  try{
+    dlBlob(hwpxBlob(meta.title||'받아쓰기', paras), dictFileName(meta,'hwpx'));
+    toast('한글 문서를 내려받았어요 📄');
+  }catch(e){ toast('파일을 만들지 못했어요: '+((e&&e.message)||e)); }
+}
+/* ---------- 과제 만들기 ③ 설정 상자 ---------- */
+/* 설정이 바뀌면 만들어 둔 문항은 무효 — 다시 만들어야 내려받을 수 있다 */
+function dictReset(msg){
+  if(!draft || !draft.dict) return;
+  draft.dict.made=false; draft.dict.qs=[];
+  dictOutDraw(msg||'설정이 바뀌었어요. <b>✅ 문항 만들기</b>를 다시 눌러 주세요.');
+  dictSyncBtn();
+}
+function dictSyncBtn(){
+  const b=$('saveAsg'); if(!b || !draft || draft.mode!=='dict') return;
+  b.textContent = (draft.dict && draft.dict.made)? '📄 한글 문서(.hwpx)로 내려받기' : '✅ 문항 만들기';
+}
+/* 아래 큰 단추 — 아직 안 만들었으면 만들고, 만들었으면 내려받는다 */
+function dictAct(){
+  if(!draft || !draft.dict) return;
+  if(!draft.dict.made){ dictMakeAndShow(); return; }
+  dictDownload();
+}
+function dictMakeAndShow(){
+  const n=dictMake();
+  dictOutDraw();
+  dictSyncBtn();
+  if(!n) toast('만들 수 있는 문항이 없어요. ②의 낱말·뜻과 유형을 확인해 주세요');
+  else { toast(`문항 ${n}개를 만들었어요 ✅`); const o=$('dcOut'); if(o) o.scrollIntoView({block:'start', behavior:'smooth'}); }
+}
+/* 낱말·문장마다 한 줄 — 여기서 유형을 고른다 */
+function dictListDraw(){
+  const box=$('dcList'); if(!box || !draft) return;
+  const rows=draft.items.filter(i=>i.sel && (i.text||'').trim());
+  if(!rows.length){ box.innerHTML='<p class="muted">② 에서 낱말·문장을 적고 체크해 주세요.</p>'; return; }
+  const opt=(it, t)=>{
+    const cur=it.dq||'auto';
+    const need=dictNeedMean(t) && !(it.meaning||'').trim();
+    const d=DICT_TYPES.find(x=>x.id===t);
+    return `<option value="${t}" ${cur===t?'selected':''} ${need?'disabled':''}>${d.label}${need?' (뜻 필요)':''}</option>`;
+  };
+  box.innerHTML = rows.map((it,idx)=>{
+    const kind=dictIsSentence(it)? '문장':'낱말';
+    return `<div class="dc-row">
+      <span class="dc-no">${idx+1}</span>
+      <div class="tk-etx"><b>${esc(it.text)}</b>${it.meaning? `<small>${esc(it.meaning)}</small>`:'<small style="color:var(--coral-d)">뜻 없음</small>'}</div>
+      <span class="pill ${kind==='문장'?'bingo':'done'}">${kind}</span>
+      <select data-dq="${esc(it.id)}">
+        <option value="auto" ${(it.dq||'auto')==='auto'?'selected':''}>🎲 자동</option>
+        ${dictOptsFor(it).map(t=>opt(it,t)).join('')}
+        <option value="off" ${it.dq==='off'?'selected':''}>— 이 문항 빼기</option>
+      </select>
+    </div>`;
+  }).join('');
+  box.querySelectorAll('[data-dq]').forEach(sel=> sel.onchange=()=>{
+    const it=draft.items.find(x=>x.id===sel.dataset.dq); if(!it) return;
+    it.dq=sel.value; dictSumDraw(); dictReset();
+  });
+  dictSumDraw();
+}
+function dictSumDraw(){
+  const el=$('dcSum'); if(!el || !draft) return;
+  const rows=draft.items.filter(i=>i.sel && (i.text||'').trim());
+  const on=rows.filter(i=>(i.dq||'auto')!=='off');
+  const noMean=on.filter(i=>!(i.meaning||'').trim()).length;
+  el.innerHTML = `출제할 항목 <b>${on.length}개</b> · 뺀 항목 ${rows.length-on.length}개`+
+    (noMean? ` · <span style="color:var(--coral-d)">뜻이 없는 항목 ${noMean}개는 뜻이 필요한 유형으로는 못 나와요</span>`:'');
+}
+/* 만들어진 문항을 보여 준다 — 여기서 바로 내려받거나, 위로 올라가 고칠 수 있다 */
+function dictOutDraw(msg){
+  const box=$('dcOut'); if(!box || !draft) return;
+  const d=draft.dict;
+  if(!d.made || !(d.qs||[]).length){
+    box.innerHTML=`<div class="hr"></div><p class="muted">${msg||'유형을 다 골랐으면 <b>✅ 문항 만들기</b>를 눌러 주세요. 만든 문항을 확인한 뒤 내려받습니다.'}</p>`;
+    return;
+  }
+  box.innerHTML=`<div class="hr"></div>
+    <h3 style="margin-top:0">✅ 문항 ${d.qs.length}개</h3>
+    <p class="muted" style="margin:0 0 8px">이대로 한글 문서가 만들어져요. 고칠 것이 있으면 위에서 바꾸고 다시 만들면 됩니다.</p>
+    <div class="dc-sheet">${d.qs.map((q,i)=>`
+      <div class="dc-q"><b>${i+1}. ${esc(q.ask)}</b>
+        ${q.show? `<div class="sh">${esc(q.show)}</div>`:''}
+        <div class="ln">▶ ______________________________</div>
+        <div class="an">정답: ${esc(q.ans)}</div></div>`).join('')}</div>
+    <div class="center" style="margin-top:14px">
+      <button class="btn lg coral" id="dcDl">📄 한글 문서(.hwpx)로 내려받기</button>
+      <div style="margin-top:10px">
+        <button class="btn ghost sm" id="dcRe">🔀 다시 만들기</button>
+        <button class="btn ghost sm" id="dcEdit" style="margin-left:6px">✏️ 위에서 고치기</button>
+      </div>
+    </div>`;
+  $('dcDl').onclick=()=> dictDownload();
+  $('dcRe').onclick=()=> dictMakeAndShow();
+  $('dcEdit').onclick=()=>{ const l=$('dcList'); if(l) l.scrollIntoView({block:'start', behavior:'smooth'}); };
+}
+/* ============================ 대화하기 (TALK) ============================
+   짝과 마주 보고 하는 대화 연습. 마이크 채점은 하지 않는다.
+   · 설정(과제 만들기 ③ 💬 대화하기) : 대화 묶음 여러 개 + 빈칸에 들어갈 낱말 꾸러미(②의 낱말·그림)
+   · 실행(미션 활동 💬 대화하기)      : 선생님이 ▶ 시작 → 학생 태블릿에 대화가 한 판씩 뜬다
+   · 대화가 5개면 역할을 바꿔 한 번 더 하므로 학생에게는 10판으로 제시된다
+   · 문장에 ___ 가 있으면 낱말 꾸러미에서 룰렛으로 하나가 뽑혀 그림과 함께 빈칸에 들어간다
+   저장 위치
+   · 세션 : v1:talk:<학급id>  → eng_app/talk_<학급id>  (선생님만 쓰기 · 학생은 읽기)
+   · 그림 : v1:pix:<목록id>   → eng_app/pix_<목록id>   (용량이 커서 목록·과제와 따로 둔다) */
+const talkKey = (cid)=> `v1:talk:${cid}`;
+const pixKey  = (lid)=> `v1:pix:${lid}`;
+const TK_BLANK=/_{2,}/;
+const TK_PIX_MAX=700000;          /* 그림 전체 용량 대략 한도 — 넘으면 저장이 막힐 수 있어 미리 알린다 */
+
+function tkNewConv(){ return { lines:[{r:'A',en:''},{r:'B',en:''}] }; }
+/* 어디서 불러오든(새로 만들기·보관함·기존 과제) 같은 모양으로 맞춰 둔다 */
+function tkCloneSetting(t){
+  t=t||{};
+  const convs=(t.convs||[]).map(c=>({ lines:(c.lines||[]).map(l=>({ r:l.r==='B'?'B':'A', en:l.en||'' })) }))
+                           .filter(c=>c.lines.length);
+  return { nameA:t.nameA||'A', nameB:t.nameB||'B', convs: convs.length? convs : [tkNewConv()] };
+}
+function tkConvHasBlank(c){ return (c.lines||[]).some(l=> TK_BLANK.test(l.en||'')); }
+/* 대화 하나를 두 판으로 — 한 번은 그대로, 한 번은 역할을 바꿔서 */
+function tkOrder(convs){ const o=[]; (convs||[]).forEach((c,i)=>{ o.push({c:i,swap:false}); o.push({c:i,swap:true}); }); return o; }
+function tkWordOf(i){ return { t:(i.text||'').trim(), m:(i.meaning||'').trim(), e:(i.emoji&&i.emoji!=='-')? i.emoji:'' }; }
+
+/* ---------- 과제 만들기: 대화 묶음 편집 ---------- */
+/* 글자를 칠 때는 다시 그리지 않는다(커서가 튄다) — 칸을 나갈 때 요약만 고쳐 준다 */
+function tkConvsDraw(){
+  const box=$('tkConvs'); if(!box || !draft || !draft.talk) return;
+  const t=draft.talk;
+  box.innerHTML=t.convs.map((c,ci)=>`
+    <div class="tk-conv">
+      <h4><span style="flex:1">💬 대화 ${ci+1}${tkConvHasBlank(c)? ' <span class="pill talk">룰렛 빈칸</span>':''}</span>
+        ${t.convs.length>1? `<button class="del" data-cdel="${ci}" title="이 대화 지우기">✕</button>`:''}</h4>
+      ${c.lines.map((l,li)=>`
+        <div class="tk-lrow">
+          <button class="mg-rb ${l.r}" data-crole="${ci}.${li}" title="말하는 사람 바꾸기">${l.r}</button>
+          <input type="text" data-cen="${ci}.${li}" placeholder="영어 문장 (바뀌는 자리는 ___)" value="${esc(l.en)}">
+          <button class="del" data-cldel="${ci}.${li}" title="문장 지우기">✕</button>
+        </div>`).join('')}
+      <button class="btn ghost sm" data-cadd="${ci}">＋ 문장 추가</button>
+    </div>`).join('');
+  const at=v=>{ const [ci,li]=String(v).split('.').map(Number); return t.convs[ci].lines[li]; };
+  box.querySelectorAll('[data-cen]').forEach(el=>{ el.oninput=()=>{ at(el.dataset.cen).en=el.value; };
+    el.onchange=()=>{ tkConvsDraw(); tkSumDraw(); }; });                    /* ___ 배지·요약을 고쳐 준다 */
+  box.querySelectorAll('[data-crole]').forEach(el=> el.onclick=()=>{
+    const l=at(el.dataset.crole); l.r = l.r==='A'?'B':'A';
+    el.textContent=l.r; el.className='mg-rb '+l.r; });
+  box.querySelectorAll('[data-cldel]').forEach(el=> el.onclick=()=>{
+    const [ci,li]=el.dataset.cldel.split('.').map(Number);
+    t.convs[ci].lines.splice(li,1);
+    if(!t.convs[ci].lines.length) t.convs[ci].lines.push({r:'A',en:''});
+    tkConvsDraw(); tkSumDraw(); });
+  box.querySelectorAll('[data-cadd]').forEach(el=> el.onclick=()=>{
+    const c=t.convs[+el.dataset.cadd];
+    c.lines.push({ r: c.lines.length%2? 'B':'A', en:'' });
+    tkConvsDraw(); });
+  box.querySelectorAll('[data-cdel]').forEach(el=> el.onclick=()=>{
+    if(!confirm('이 대화를 지울까요?')) return;
+    t.convs.splice(+el.dataset.cdel,1);
+    if(!t.convs.length) t.convs.push(tkNewConv());
+    tkConvsDraw(); tkSumDraw(); });
+}
+/* 낱말 꾸러미 — ②에서 체크한 낱말마다 그림 한 칸 */
+function tkThumbHTML(i){
+  if(i.img) return `<img src="${i.img}" alt="${esc(i.text)}">`;
+  if(i.emoji && i.emoji!=='-') return esc(i.emoji);
+  return '<span style="font-size:1.1rem; color:var(--ink-soft)">그림</span>';
+}
+function tkBankDraw(){
+  const box=$('tkBank'); if(!box || !draft) return;
+  const chosen=draft.items.filter(i=>i.sel && (i.text||'').trim());
+  box.innerHTML = chosen.length ? chosen.map(i=>`
+    <div class="tk-brow">
+      <button class="tk-thumb ${tkPasteTarget===i.id?'armed':''}" data-tpic="${esc(i.id)}" title="그림 넣기">${tkThumbHTML(i)}</button>
+      <div class="tk-etx"><b>${esc(i.text)}</b>${i.meaning? `<small>${esc(i.meaning)}</small>`:''}</div>
+      <div class="tk-bbtn">
+        <button class="btn ghost sm" data-tfile="${esc(i.id)}">📁 그림</button>
+        <button class="btn ghost sm" data-tpaste="${esc(i.id)}">${tkPasteTarget===i.id? '📋 Ctrl+V 하세요' : '📋 붙여넣기'}</button>
+        <button class="btn ghost sm" data-temo="${esc(i.id)}">😀 이모지</button>
+        ${(i.img || (i.emoji && i.emoji!=='-'))? `<button class="btn ghost sm" data-tclr="${esc(i.id)}">✕ 지우기</button>`:''}
+      </div>
+    </div>`).join('') : '<p class="muted">② 에서 빈칸에 넣을 낱말을 적고 체크해 주세요.</p>';
+  const find=id=> draft.items.find(x=>x.id===id);
+  box.querySelectorAll('[data-tfile], [data-tpic]').forEach(el=> el.onclick=()=>{
+    tkFileTarget = el.dataset.tfile || el.dataset.tpic; tkFileInput().click(); });
+  box.querySelectorAll('[data-tpaste]').forEach(el=> el.onclick=()=>{
+    tkPasteTarget = (tkPasteTarget===el.dataset.tpaste)? null : el.dataset.tpaste;
+    tkBankDraw();
+    if(tkPasteTarget) toast('이제 Ctrl+V 를 누르면 그림이 들어가요 📋'); });
+  box.querySelectorAll('[data-temo]').forEach(el=> el.onclick=()=>{
+    const it=find(el.dataset.temo); if(!it) return;
+    emojiPickOpen({ text:it.text, meaning:it.meaning||'', cur:(it.emoji&&it.emoji!=='-')?it.emoji:'',
+      cands: mgSuggest(it.text, it.meaning).slice(0,4),
+      onPick:(e)=>{ it.emoji=e||''; it.emojiAuto=false; it.emojiFor=it.text; tkBankDraw(); tkSumDraw(); } }); });
+  box.querySelectorAll('[data-tclr]').forEach(el=> el.onclick=()=>{
+    const it=find(el.dataset.tclr); if(!it) return;
+    it.img=''; it.emoji=''; it.emojiAuto=false; tkBankDraw(); tkSumDraw(); });
+}
+function tkSumDraw(){
+  const el=$('tkSum'); if(!el || !draft || !draft.talk) return;
+  const t=draft.talk;
+  const convs=t.convs.filter(c=> c.lines.some(l=>(l.en||'').trim()));
+  const blanks=convs.filter(tkConvHasBlank).length;
+  const chosen=draft.items.filter(i=>i.sel && (i.text||'').trim());
+  const pics=chosen.filter(i=>i.img).length;
+  const warn = !convs.length ? '⚠️ 대화를 <b>1개 이상</b> 만들어 주세요.'
+    : (blanks && chosen.length<2) ? '⚠️ 빈칸(___)이 있으니 ②에서 <b>낱말을 2개 이상</b> 골라 주세요.' : '';
+  el.innerHTML = warn || `대화 ${convs.length}개 → 학생에게는 <b>${convs.length*2}판</b>(역할 바꿔서 한 번 더) ·
+    룰렛 빈칸이 있는 대화 ${blanks}개 · 꾸러미 낱말 ${chosen.length}개(그림 ${pics}개)`;
+}
+/* ---------- 그림 넣기 (파일·붙여넣기) ---------- */
+let tkFileTarget=null, tkPasteTarget=null;
+function tkFileInput(){
+  let el=$('tkFileIn');
+  if(!el){
+    el=document.createElement('input'); el.type='file'; el.accept='image/*'; el.id='tkFileIn'; el.style.display='none';
+    el.onchange=()=>{ const f=el.files && el.files[0]; el.value=''; if(f && tkFileTarget) tkSetImg(tkFileTarget, f); };
+    document.body.appendChild(el);
+  }
+  return el;
+}
+/* 사진은 그대로 두면 너무 커서 저장이 막힌다 — 가로세로 280px 안쪽으로 줄여 담는다 */
+function tkShrink(file){
+  return new Promise((res,rej)=>{
+    const fr=new FileReader();
+    fr.onerror=()=> rej(new Error('read'));
+    fr.onload=()=>{
+      const im=new Image();
+      im.onerror=()=> rej(new Error('img'));
+      im.onload=()=>{
+        try{
+          const M=280, r=Math.min(1, M/Math.max(im.width||1, im.height||1));
+          const w=Math.max(1,Math.round((im.width||1)*r)), h=Math.max(1,Math.round((im.height||1)*r));
+          const cv=document.createElement('canvas'); cv.width=w; cv.height=h;
+          const ctx=cv.getContext('2d');
+          ctx.fillStyle='#fff'; ctx.fillRect(0,0,w,h);
+          ctx.drawImage(im,0,0,w,h);
+          res(cv.toDataURL('image/jpeg', 0.72));
+        }catch(e){ rej(e); }
+      };
+      im.src=fr.result;
+    };
+    fr.readAsDataURL(file);
+  });
+}
+async function tkSetImg(id, file){
+  const it=draft && draft.items.find(x=>x.id===id); if(!it) return;
+  try{
+    it.img=await tkShrink(file);
+    tkBankDraw(); tkSumDraw();
+    toast(`${it.text} 그림을 넣었어요 🖼️`);
+  }catch(e){ toast('그림을 읽지 못했어요'); }
+}
+/* 화면 캡처를 그대로 붙여넣기 — 「📋 붙여넣기」를 누른 낱말 자리에 들어간다 */
+document.addEventListener('paste', (e)=>{
+  if(!tkPasteTarget || !draft || draft.mode!=='talk') return;
+  const list=(e.clipboardData && e.clipboardData.items) || [];
+  for(const it of list){
+    if(it.type && it.type.indexOf('image')===0){
+      const f=it.getAsFile();
+      if(f){ e.preventDefault(); const id=tkPasteTarget; tkPasteTarget=null; tkSetImg(id, f); }
+      return;
+    }
+  }
+  toast('복사한 그림이 없어요. 화면을 캡처한 뒤 다시 붙여넣어 주세요');
+});
+/* ---------- 그림 저장·불러오기 (목록마다 문서 하나) ---------- */
+async function tkLoadPix(listId){
+  if(!listId) return;
+  const pix=await sGet(pixKey(listId), null);
+  if(!pix || !pix.map || !draft) return;
+  let hit=false;
+  draft.items.forEach(i=>{ const u=pix.map[i.text]; if(u && !i.img){ i.img=u; hit=true; } });
+  if(hit && draft.mode==='talk'){ tkBankDraw(); tkSumDraw(); }
+}
+async function tkSavePix(listId, items){
+  if(!listId) return;
+  const map={}; let size=0;
+  items.forEach(i=>{ if(i.img){ map[i.text]=i.img; size+=i.img.length; } });
+  if(!Object.keys(map).length){ await sDel(pixKey(listId)); return; }
+  if(size>TK_PIX_MAX) toast('그림 용량이 커요. 저장이 안 되면 그림 수를 줄여 주세요');
+  await sSet(pixKey(listId), { list:listId, map, updatedAt:Date.now() });
+}
+
+/* ---------- 대화 한 판 그리기 (선생님 TV·학생 태블릿 공용) ---------- */
+function tkFill(text, w, hide){
+  const t=esc(text||'');
+  if(!TK_BLANK.test(text||'')) return t;
+  const inner = (hide || !w)? '?' : esc(w.t);
+  return t.replace(/_{2,}/g, `<span class="tk-blank" data-tkb="en">${inner}</span>`);
+}
+function tkPlain(text, w){ return String(text||'').replace(/_{2,}/g, w? w.t : '').replace(/\s+/g,' ').trim(); }
+function tkFace(w, pix){
+  const src=(pix||{})[w.t];
+  if(src) return `<img src="${src}" alt="${esc(w.t)}">`;
+  return `<span class="emo">${w.e? esc(w.e) : '🔤'}</span>`;
+}
+function tkStep(s){ return (s.order||[])[s.idx] || {c:0, swap:false}; }
+function tkConvOf(s){ return (s.convs||[])[tkStep(s).c] || {lines:[]}; }
+function tkShownWord(s){ return (s.pick>=0 && (s.bank||[])[s.pick]) || null; }
+/* 룰렛 칸 — 낱말 꾸러미를 몇 바퀴 이어 붙이고 마지막 칸에 뽑힌 낱말을 둔다. 여기서 멈춘다. */
+function tkReelHTML(s, pix){
+  const bank=s.bank||[];
+  if(!bank.length) return '';
+  const pick=(s.pick>=0 && bank[s.pick])? bank[s.pick] : bank[0];
+  const loops=Math.max(2, Math.min(4, Math.ceil(10/bank.length)));
+  const cells=[];
+  for(let r=0;r<loops;r++) for(const b of bank) cells.push(b);
+  cells.push(pick);
+  return `<div class="tk-reel"><div class="tk-reel-strip" id="tkStrip" data-n="${cells.length}">
+    ${cells.map(b=>`<div class="tk-cell">
+      <div class="pic">${tkFace(b,pix)}</div>
+      <div class="w">${esc(b.t)}</div>${b.m? `<div class="m">${esc(b.m)}</div>`:''}</div>`).join('')}
+  </div></div>`;
+}
+/* 룰렛을 제자리에 놓는다 — animate면 맨 위에서 시작해 마지막 칸까지 굴러간다 */
+function tkReelPlace(animate){
+  const strip=$('tkStrip'); if(!strip) return;
+  const first=strip.firstElementChild;
+  const h=(first && first.offsetHeight) || 216;
+  const end=-(((+strip.dataset.n)||1)-1)*h;
+  strip.style.transition='none';
+  strip.style.transform=`translateY(${animate? 0 : end}px)`;
+  if(!animate) return;
+  void strip.offsetHeight;                       /* 시작 위치를 먼저 그리게 한다 */
+  strip.style.transition='transform 2.4s cubic-bezier(.13,.72,.18,1)';
+  strip.style.transform=`translateY(${end}px)`;
+  clearTimeout(TK.spinT);
+  TK.spinT=setTimeout(tkSpinDone, 2500);
+}
+/* 룰렛이 멈추면 문장의 빈칸을 채운다 (화면 전체를 다시 그리지 않아 흔들리지 않는다) */
+function tkSpinDone(){
+  if(!TK || !TK.sess) return;
+  TK.spinning=false;
+  const w=tkShownWord(TK.sess);
+  document.querySelectorAll('[data-tkb]').forEach(el=>{ el.textContent = w? w.t : '?'; });
+}
+function tkSlideHTML(s, pix){
+  const st=tkStep(s), conv=tkConvOf(s), w=tkShownWord(s);
+  const hide=!!(TK && TK.spinning);              /* 룰렛이 도는 동안에는 빈칸을 감춰 둔다 */
+  const nameA=s.nameA||'A', nameB=s.nameB||'B';
+  const named=(nameA!=='A' || nameB!=='B');
+  const mapA=st.swap? nameB : nameA, mapB=st.swap? nameA : nameB;   /* 딱지 A·B가 이번 판에 맡는 사람 */
+  return `<div class="tk-slide">
+    <div class="head">
+      <span class="num">${s.idx+1} / ${(s.order||[]).length}판</span>
+      <span class="num">💬 대화 ${st.c+1}</span>
+      ${st.swap? '<span class="tk-swap">🔄 역할 바꾸기</span>' : ''}
+      ${named? `<span class="num">A = ${esc(mapA)} · B = ${esc(mapB)}</span>` : ''}
+    </div>
+    ${tkConvHasBlank(conv)? tkReelHTML(s, pix) : ''}
+    ${conv.lines.map((l,i)=>{
+      /* 역할을 바꾸는 판에서는 같은 문장을 반대쪽 사람이 읽는다 — 딱지가 A↔B로 바뀐다 */
+      const letter = st.swap ? (l.r==='A'?'B':'A') : l.r;
+      return `
+      <div class="tk-line ${letter==='B'?'b':'a'}">
+        <span class="who">${letter}</span>
+        <div class="tx">
+          <div class="en">${tkFill(l.en, w, hide)}</div>
+        </div>
+        <button class="say" data-tsay="${i}" title="들어보기">🔊</button>
+      </div>`;}).join('')}
+  </div>`;
+}
+function tkBindSay(root, s){
+  const conv=tkConvOf(s), w=tkShownWord(s);
+  (root||app).querySelectorAll('[data-tsay]').forEach(el=> el.onclick=()=>{
+    const l=conv.lines[+el.dataset.tsay]; if(l) speak(tkPlain(l.en, w)); });
+}
+/* ---------- 진행 상태 (선생님·학생 공용) ---------- */
+let TK=null;
+function tkLeave(){
+  if(!TK) return;
+  (TK.unsubs||[]).forEach(u=>{ try{ u(); }catch(e){} });
+  clearTimeout(TK.spinT);
+  TK=null; speakStop();
+}
+/* 룰렛 — 낱말이 촤르륵 돌다가 선생님 기기가 뽑아 둔 낱말에서 멈춘다 */
+/* 새 낱말이 뽑혔으면 이번에 그릴 때 룰렛을 굴린다 (그리기 전에 정해 두어야 빈칸을 감출 수 있다) */
+function tkSpinArm(s){
+  if(!TK || !s || s.status!=='playing') return;
+  if(s.spin===TK.spunFor) return;
+  TK.spunFor=s.spin;
+  TK.spinning=(s.pick>=0 && (s.bank||[]).length>0);
+}
+/* 그린 뒤에 부른다 — 굴릴 때만 움직이고, 아니면 뽑힌 칸에 그대로 놓는다 */
+function tkSpinAfterDraw(){
+  if(!TK) return;
+  if($('tkStrip')) tkReelPlace(!!TK.spinning);
+  if(!TK.spinning) return;
+}
+
+/* ---------- 선생님: 반 고르기 → 대화 고르기 → 진행 ---------- */
+function talkSetup(){
+  tkLeave();
+  if(!DB.classes.length){ app.innerHTML=`<button class="back" onclick="textbookRoomTeacher()">← 교과서 활동</button>
+    <div class="card empty"><span class="em">🏫</span>먼저 <b>학급·학생</b>에서 학급을 만들어 주세요.</div>`; return; }
+  app.innerHTML=`<button class="back" onclick="textbookRoomTeacher()">← 교과서 활동</button>
+    <div class="card"><h2 style="margin-top:4px">💬 대화하기 — 어느 반인가요?</h2>
+      <p class="muted">학생들은 <b>학생 → 💬 또박또박 영어로 대화하기</b>로 들어와 기다립니다.</p>
+      <div class="grid-cards" style="margin-top:14px">${DB.classes.map(c=>`
+        <div class="tile" data-c="${c.id}"><span class="emoji">🏫</span><div class="t">${esc(c.name)}</div>
+        <div class="s">${c.students.length}명</div></div>`).join('')}</div></div>`;
+  app.querySelectorAll('[data-c]').forEach(el=> el.onclick=()=> talkOpenClass(el.dataset.c));
+}
+async function talkOpenClass(cid){
+  const cls=DB.classes.find(x=>x.id===cid);
+  const old=await sGet(talkKey(cid), null);
+  if(!old) return talkPickAssignment(cid);
+  app.innerHTML=`<button class="back" onclick="talkSetup()">← 반 다시 고르기</button>
+    <div class="card center">
+      <h2 style="margin-top:4px">${esc(cls?cls.name:'')}에 하던 대화가 있어요</h2>
+      <p class="muted">💬 ${esc(old.title)} · ${old.idx+1} / ${(old.order||[]).length}판 ·
+        ${old.status==='playing'? '진행 중' : old.status==='done'? '끝남' : '시작 전'}</p>
+      <div style="margin-top:16px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap">
+        <button class="btn lg" id="tkResume">이어서 진행하기 ▶</button>
+        <button class="btn ghost" id="tkFresh">다른 대화 고르기</button>
+        <button class="btn ghost" id="tkDrop">🗑 활동 닫기</button>
+      </div></div>`;
+  $('tkResume').onclick=()=> talkRun(old);
+  $('tkFresh').onclick=()=> talkPickAssignment(cid);
+  $('tkDrop').onclick=async ()=>{
+    if(!confirm('활동을 닫을까요?\n학생 태블릿에서 대화가 사라져요.')) return;
+    await talkCloseGame(cid); toast('활동을 닫았어요'); talkPickAssignment(cid);
+  };
+}
+function talkPickAssignment(cid){
+  const cls=DB.classes.find(x=>x.id===cid);
+  const asgs=DB.assignments.filter(a=>a.classId===cid && a.mode==='talk').sort((a,b)=> b.createdAt-a.createdAt);
+  app.innerHTML=`<button class="back" onclick="talkSetup()">← 반 다시 고르기</button>
+    <div class="card"><h2 style="margin-top:4px">💬 ${esc(cls?cls.name:'')} — 어떤 대화를 할까요?</h2>
+      <p class="muted">「과제 만들기」에서 이 반에 배부한 대화입니다. 누르면 바로 시작 준비가 돼요.</p></div>
+    <div id="tkList"></div>`;
+  const el=$('tkList');
+  if(!asgs.length){
+    el.innerHTML=`<div class="card empty"><span class="em">🌱</span>이 반에 배부한 대화가 없어요.<br>
+      <span class="muted">「과제 만들기 → ③ 과제 유형에서 <b>💬 대화하기</b> 선택 → 학급 고르기」로 만들어 주세요.</span>
+      <div style="margin-top:14px"><button class="btn" id="tkGoMake">📝 과제 만들러 가기</button></div></div>`;
+    $('tkGoMake').onclick=()=>{ draft=null; createAssignment(); };
+    return;
+  }
+  el.innerHTML=asgs.map(a=>{
+    const t=a.talk||{}; const convs=t.convs||[];
+    const tag=[a.grade,a.unit,a.lesson].filter(Boolean).join(' / ');
+    const first=(convs[0] && convs[0].lines[0] && convs[0].lines[0].en) || '';
+    return `<div class="card" style="margin-bottom:12px; cursor:pointer" data-a="${a.id}">
+      <h3 style="margin:0 0 4px">💬 ${esc(a.title)}</h3>
+      <p class="muted" style="margin:0 0 6px">${tag||''} · 대화 ${convs.length}개 → ${convs.length*2}판 ·
+        꾸러미 낱말 ${a.items.length}개 · 역할 ${esc(t.nameA||'A')} / ${esc(t.nameB||'B')}</p>
+      ${first? `<p style="font-family:'Andika'; margin:0; color:var(--ink-soft)">${esc(first)}</p>`:''}
+    </div>`;
+  }).join('');
+  el.querySelectorAll('[data-a]').forEach(c=> c.onclick=()=> talkStartFromAssignment(c.dataset.a));
+}
+/* 과제에 저장해 둔 대화 그대로 활동을 연다 — 학생 태블릿은 '대기'부터 시작 */
+async function talkStartFromAssignment(aid){
+  const a=DB.assignments.find(x=>x.id===aid); if(!a) return;
+  const cls=DB.classes.find(x=>x.id===a.classId);
+  const t=a.talk||{};
+  const convs=(t.convs||[]).filter(c=>(c.lines||[]).length);
+  if(!convs.length){ toast('이 과제에는 대화가 없어요'); return; }
+  const sess={ id:'tk'+uid(), classId:a.classId, className:cls?cls.name:'', asgId:a.id, listId:a.listId||'',
+    title:a.title, nameA:t.nameA||'A', nameB:t.nameB||'B', convs,
+    bank:(a.items||[]).map(tkWordOf).filter(w=>w.t),
+    order:tkOrder(convs), idx:0, pick:-1, spin:0, status:'ready', at:Date.now(), updatedAt:Date.now() };
+  const ok=await sSet(talkKey(a.classId), sess);
+  if(!ok) return;
+  talkRun(sess);
+}
+async function talkRun(sess){
+  tkLeave();
+  TK={ role:'teacher', sess, unsubs:[], pix:{}, rolling:false, roll:null };
+  tkRunDraw();
+  if(sess.listId){ const pix=await sGet(pixKey(sess.listId), null);
+    if(TK && TK.role==='teacher'){ TK.pix=(pix&&pix.map)||{}; tkRunDraw(); } }
+}
+async function tkPush(){
+  if(!TK || TK.role!=='teacher') return false;
+  TK.sess.updatedAt=Date.now();
+  return await sSet(talkKey(TK.sess.classId), TK.sess);
+}
+/* 지금 판에 빈칸이 있으면 낱말을 하나 뽑는다 (바로 앞과 같은 낱말은 되도록 피한다) */
+function tkPickWord(s){
+  const conv=tkConvOf(s), bank=s.bank||[];
+  if(!tkConvHasBlank(conv) || !bank.length){ s.pick=-1; return; }
+  let p=Math.floor(Math.random()*bank.length);
+  if(bank.length>1 && p===s.pick) p=(p+1)%bank.length;
+  s.pick=p; s.spin=(s.spin||0)+1;
+}
+async function tkGo(delta){
+  const s=TK.sess;
+  const last=(s.order||[]).length-1;
+  const ni=s.idx+delta;
+  if(ni<0) return;
+  if(ni>last){ s.status='done'; await tkPush(); tkRunDraw(); return; }
+  s.idx=ni; s.status='playing'; tkPickWord(s);
+  await tkPush(); tkSpinArm(s); tkRunDraw();
+}
+function tkRunDraw(){
+  if(!TK || TK.role!=='teacher') return;
+  const s=TK.sess, last=(s.order||[]).length-1;
+  const head=`<button class="back" id="tkBack">← 대화 다시 고르기</button>
+    <div class="card noanim"><div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap">
+      <h2 style="margin:4px 0; flex:1">💬 ${esc(s.title)}</h2>
+      <span class="muted">${esc(s.className||'')}</span></div>`;
+  if(s.status==='ready'){
+    app.innerHTML=`${head}
+      <p class="muted">학생 태블릿에는 지금 <b>“A와 B 역할을 정해 주세요”</b> 안내가 떠 있어요.
+        짝끼리 역할을 정했으면 시작하세요.</p>
+      <p class="muted" style="font-size:.85rem">같은 대화를 두 번 하는데, 두 번째 판에서는 <b>A·B 딱지가 서로 바뀌어</b>
+        A를 맡은 학생이 반대쪽 문장을 읽게 됩니다.</p>
+      <p class="muted" style="font-size:.85rem">대화 ${s.convs.length}개 · 역할을 바꿔 한 번 더 하므로 모두 <b>${s.order.length}판</b>이에요.
+        (한 판 안에서 <b>🎲 다른 낱말</b>로 몇 번이든 반복할 수 있어요. 대화를 더 늘리려면 「과제 만들기」에서 <b>＋ 대화 추가</b>)</p>
+      <div class="center" style="margin-top:14px">
+        <button class="btn lg coral" id="tkStart">▶ 시작하기</button>
+        <button class="btn ghost" id="tkClose" style="margin-left:8px">🗑 활동 닫기</button>
+      </div></div>`;
+  } else if(s.status==='done'){
+    app.innerHTML=`${head}
+      <p class="muted">대화를 모두 마쳤어요. 학생 화면에도 끝났다고 나옵니다. 🎉</p>
+      <div class="center" style="margin-top:14px">
+        <button class="btn" id="tkAgain">🔁 처음부터 다시</button>
+        <button class="btn ghost" id="tkClose" style="margin-left:8px">🗑 활동 닫기</button>
+      </div></div>`;
+  } else {
+    app.innerHTML=`${head}
+      <p class="muted">학생 태블릿에도 이 화면이 그대로 떠 있어요. 낱말을 바꿔 가며 여러 번 연습한 뒤
+        <b>다음 판 ▶</b>으로 넘기세요.</p></div>
+      <div class="card noanim">${tkSlideHTML(s, TK.pix)}</div>
+      <div class="card noanim center">
+        <button class="btn ghost" id="tkPrev" ${s.idx<=0?'disabled':''}>◀ 이전 판</button>
+        ${tkConvHasBlank(tkConvOf(s))? '<button class="btn ghost" id="tkSpin" style="margin-left:8px">🎲 다른 낱말로 한 번 더</button>':''}
+        <button class="btn coral" id="tkNext" style="margin-left:8px">${s.idx>=last? '끝내기 🎉' : '다음 판 ▶'}</button>
+        <p class="muted" style="margin:12px 0 0; font-size:.85rem">
+          🎲 <b>다른 낱말로 한 번 더</b> — 같은 대화 그대로, 룰렛만 다시 돌려요 (몇 번이든)<br>
+          ▶ <b>다음 판</b> — ${s.idx>=last? '마지막 판이에요. 누르면 활동이 끝나요' : `다음 판(${s.idx+2}/${s.order.length})으로 넘어가요`}</p>
+        <div style="margin-top:12px"><button class="btn ghost sm" id="tkClose">🗑 활동 닫기</button></div>
+      </div>`;
+    tkBindSay(app, s);
+    tkSpinAfterDraw();
+  }
+  const bk=$('tkBack'); if(bk) bk.onclick=()=>{ const cid=s.classId; tkLeave(); talkPickAssignment(cid); };
+  const st=$('tkStart'); if(st) st.onclick=async ()=>{ s.status='playing'; s.idx=0; tkPickWord(s);
+    await tkPush(); tkSpinArm(s); tkRunDraw(); };
+  const ag=$('tkAgain'); if(ag) ag.onclick=async ()=>{ s.status='playing'; s.idx=0; tkPickWord(s);
+    await tkPush(); tkSpinArm(s); tkRunDraw(); };
+  const pv=$('tkPrev'); if(pv) pv.onclick=()=> tkGo(-1);
+  const nx=$('tkNext'); if(nx) nx.onclick=()=> tkGo(1);
+  const sp=$('tkSpin'); if(sp) sp.onclick=async ()=>{ tkPickWord(s); await tkPush(); tkSpinArm(s); tkRunDraw(); };
+  const cl=$('tkClose'); if(cl) cl.onclick=async ()=>{
+    if(!confirm('활동을 닫을까요?\n학생 태블릿에서 대화가 사라져요.')) return;
+    const cid=s.classId; await talkCloseGame(cid); tkLeave(); toast('활동을 닫았어요'); talkPickAssignment(cid); };
+}
+async function talkCloseGame(cid){ await sDel(talkKey(cid)); }
+
+/* ---------- 학생: 기다렸다가 선생님이 시작하면 대화가 뜬다 ---------- */
+async function talkStudent(){
+  tkLeave(); bingoLeave();
+  session.role='student'; refreshWho();
+  TK={ role:'student', sess:null, unsubs:[], pix:{}, pixFor:'', rolling:false, roll:null, spin:-1 };
+  app.innerHTML=`<button class="back" onclick="talkStudentQuit()">← 이름 다시 고르기</button>
+    <div id="tkWrap"><div class="card empty"><span class="em">⏳</span>불러오는 중...</div></div>`;
+  const apply=async (v)=>{
+    if(!TK || TK.role!=='student') return;
+    TK.sess=v||null;
+    const s=TK.sess;
+    if(s) tkSpinArm(s);              /* 새 낱말이면 그리기 전에 정해 둔다 — 답이 먼저 보이면 안 된다 */
+    tkStudentDraw();
+    if(s && s.listId && TK.pixFor!==s.listId){
+      TK.pixFor=s.listId;
+      const pix=await sGet(pixKey(s.listId), null);
+      if(TK && TK.role==='student'){ TK.pix=(pix&&pix.map)||{}; tkStudentDraw(); }
+    }
+  };
+  if(fbReady && window.__store){
+    TK.unsubs.push(window.__store.watch(colName('app'), keyRef(talkKey(session.classId)).id, (v)=>{ apply(v); }));
+  } else {
+    await apply(await sGet(talkKey(session.classId), null));
+  }
+}
+function talkStudentQuit(){ tkLeave(); studentPickName(session.classId); }
+function tkStudentDraw(){
+  const wrap=$('tkWrap'); if(!wrap || !TK) return;
+  const s=TK.sess;
+  const nameA=(s&&s.nameA)||'A', nameB=(s&&s.nameB)||'B';
+  if(!s || s.status==='ready'){
+    wrap.innerHTML=`<div class="card">
+      <h2 style="margin-top:4px">💬 ${s? esc(s.title) : '대화하기'}</h2>
+      <div class="tk-wait">
+        <p class="big">A와 B 역할을 정해 주세요</p>
+        <p class="muted" style="margin:0">짝과 가위바위보로 정해도 좋아요. 정한 <b>글자(A·B)</b>를 기억해요!</p>
+        <div class="tk-roles">
+          <div class="tk-role"><div class="r">A</div><div class="nm">${esc(nameA)}</div></div>
+          <div class="tk-role b"><div class="r">B</div><div class="nm">${esc(nameB)}</div></div>
+        </div>
+        <p class="muted" style="margin:10px 0 0">${s? '선생님이 시작하면 대화가 나와요 ⏳' : '아직 선생님이 대화를 열지 않았어요 ⏳'}</p>
+      </div></div>`;
+    return;
+  }
+  if(s.status==='done'){
+    wrap.innerHTML=`<div class="card center">
+      <div style="font-size:3.4rem">🎉</div>
+      <h2 style="margin:6px 0">대화 연습 끝!</h2>
+      <p class="muted">${esc(s.title)} · 모두 ${(s.order||[]).length}판을 마쳤어요. 참 잘했어요!</p></div>`;
+    return;
+  }
+  wrap.innerHTML=`<div class="card noanim">${tkSlideHTML(s, TK.pix)}</div>
+    <p class="muted center" style="margin:0 0 10px">짝과 번갈아 말해 봐요. 선생님이 넘기면 다음 대화가 나와요 🙂</p>`;
+  tkBindSay(wrap, s);
+  tkSpinAfterDraw();
 }
 
 /* ============================ TRACING ENGINE ============================ */
