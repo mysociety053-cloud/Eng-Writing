@@ -237,6 +237,14 @@
     display:flex; align-items:center; justify-content:center; font-size:1.8rem; overflow:hidden; padding:0; box-shadow:none;}
   .tk-thumb img{width:100%; height:100%; object-fit:cover;}
   .tk-thumb.armed{border-color:var(--coral); border-style:dashed; background:#FFF6F2;}
+  /* 낱말 사진 — 이모지 자리에 그대로 들어간다 (글자 크기를 따라 커지고 작아진다) */
+  .pic-img{width:1em; height:1em; object-fit:cover; border-radius:.16em; display:inline-block;
+    vertical-align:-.13em; background:#fff;}
+  .emo-row{flex-wrap:wrap;}
+  .emo-row .tk-thumb{width:52px; height:44px; border-radius:10px; flex:0 0 auto; font-size:1.5rem;}
+  .emo-row .tk-thumb .n{font-size:.66rem; color:var(--ink-soft); font-family:'Gowun Dodum';}
+  .emo-row .bg-emo:disabled{opacity:.45;}
+  .emo-row .bg-emo-cyc.on{color:var(--coral);}
   .tk-etx{background:#fff; border:2px solid var(--border); border-radius:12px; padding:8px 12px; min-width:0;}
   .tk-etx b{font-family:'Andika'; font-size:1.02rem; word-break:break-word;}
   .tk-etx small{display:block; color:var(--ink-soft); font-size:.82rem;}
@@ -631,6 +639,7 @@
     .pb .pbc{aspect-ratio:1; border:1.5pt solid #333; border-radius:3mm; display:flex;
       align-items:center; justify-content:center; font-size:20pt; overflow:hidden; text-align:center; padding:1mm;}
     .pb .pbc .w{font-size:9pt; word-break:keep-all;}
+    .pb .pbc .pic-img{width:1.7em; height:1.7em;}
   }
 </style>
 </head>
@@ -849,6 +858,37 @@ $('signOutBtn').onclick = signOutTeacher;
 
 function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),1800); }
 function esc(s){ return (s==null?'':String(s)).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+/* ---------- 프리젠터(무선 리모컨)로 화면 넘기기 ----------
+   PPT 리모컨은 거의 모두 '다음 = PageDown 또는 →', '이전 = PageUp 또는 ←' 를 보낸다.
+   화면에 있는 단추에 data-pres="next" / data-pres="prev" 만 붙여 두면 리모컨이 그 단추를 누른다.
+   (화면이 바뀌면 단추도 함께 사라지므로 따로 정리할 것이 없다) */
+/* 화면 아래에 붙이는 안내 한 줄. what 을 주면 그 화면에서 무엇이 넘어가는지 알려 준다 */
+function presHint(what){
+  return `<p class="muted center" style="margin:10px 0 0; font-size:.82rem">🎛️ 프리젠터(무선 리모컨)나
+    키보드의 ${what || '<b>▶ / ◀</b>'} (PageDown · PageUp) 로도 넘길 수 있어요</p>`;
+}
+function presBtn(kind){
+  const el=document.querySelector('[data-pres="'+kind+'"]');
+  return (el && !el.disabled) ? el : null;
+}
+document.addEventListener('keydown', (e)=>{
+  if(e.ctrlKey || e.altKey || e.metaKey || e.shiftKey) return;
+  const t=e.target;
+  if(t && (/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) || t.isContentEditable)) return;
+  if(document.querySelector('.emopick.show, .mg-ov, .grp-ov')) return;   /* 창이 떠 있으면 그대로 둔다 */
+  /* 리모컨의 '시작/끝내기' 단추는 F5(새로 고침)를 보내는 것이 많다 —
+     진행 중인 화면에서 실수로 화면이 날아가지 않게 막는다 (Ctrl+R 은 그대로 된다) */
+  if(e.key==='F5' && document.querySelector('[data-pres]')){ e.preventDefault(); return; }
+  let kind='';
+  if(e.key==='PageDown' || e.key==='ArrowRight') kind='next';
+  else if(e.key==='PageUp' || e.key==='ArrowLeft') kind='prev';
+  if(!kind) return;
+  const b=presBtn(kind);
+  if(!b) return;
+  e.preventDefault();
+  b.click();
+});
 
 /* ============================ HOME / ROLE ============================ */
 function renderHome(){
@@ -1588,7 +1628,7 @@ function loadListIntoDraft(listId, mode){
   }
   const ta=DB.assignments.find(x=> x.listId===l.id && x.mode==='talk');   /* 이 낱말로 만든 대화가 있으면 대화문·역할 이름을 이어 쓴다 */
   if(ta && ta.talk) draft.talk=tkCloneSetting(ta.talk);
-  if(mode==='talk') tkLoadPix(l.id);                     /* 낱말 그림은 따로 저장돼 있어 뒤이어 붙인다 */
+  tkLoadPix(l.id);                                       /* 낱말 사진은 따로 저장돼 있어 뒤이어 붙인다 */
   assignmentForm();
   const what={ write:'쓰기', speak:'말하기', talk:'대화하기', dict:'받아쓰기 문제지', bingo:'듣기 빙고', mingle:'카드 미션', board:'보드게임',
                land:'땅따먹기', balance:'밸런스 게임' }[draft.mode];
@@ -1836,6 +1876,7 @@ function loadLandIntoDraft(setId){
             repeat:3, classIds:(s.classIds||[]).slice(), mode:'land', sourceListId: l? l.id : null,
             land:{ id:s.id, players:s.players, n:s.n, cells:s.cells.map(c=>({i:c.i})) },
             loadMeta:{ grade:s.grade||'', unit:(l&&l.unit)||'', lesson:(l&&l.lesson)||'', title:s.title||'' } };
+  if(l) tkLoadPix(l.id);                 /* 넣어 둔 사진도 그대로 이어 쓴다 */
   assignmentForm();
   toast('땅따먹기를 불러왔어요 🚩');
 }
@@ -1847,6 +1888,7 @@ function loadBoardIntoDraft(setId){
             repeat:3, classIds:(s.classIds||[]).slice(), mode:'board', sourceListId: l? l.id : null,
             board:{ id:s.id, players:s.players, size:s.size||s.tiles.length, tiles:s.tiles.slice() },
             loadMeta:{ grade:s.grade||'', unit:(l&&l.unit)||'', lesson:(l&&l.lesson)||'', title:s.title||'' } };
+  if(l) tkLoadPix(l.id);                 /* 넣어 둔 사진도 그대로 이어 쓴다 */
   assignmentForm();
   toast('보드게임을 불러왔어요 🎲');
 }
@@ -1859,6 +1901,7 @@ function loadMingleIntoDraft(setId){
             mingle:{ id:s.id, pub:s.pub||MG_PUBS[0], goal:s.goal, cap:s.cap,
                      lines:(s.lines||[]).map((x,i)=>({ role:x.role||(i%2?'B':'A'), en:x.en, ko:x.ko||'' })) },
             loadMeta:{ grade:s.grade||'', unit:(l&&l.unit)||'', lesson:(l&&l.lesson)||'', title:s.title||'' } };
+  if(l) tkLoadPix(l.id);                 /* 넣어 둔 사진도 그대로 이어 쓴다 */
   assignmentForm();
   toast('카드 미션을 불러왔어요 🃏');
 }
@@ -2168,7 +2211,8 @@ function assignmentForm(){
       <div class="hr"></div>
       <h3 style="margin-top:0">칸에 보일 그림</h3>
       <p class="muted" style="margin:0 0 10px">위 ②에서 <b>체크한 낱말</b>이 칸마다 하나씩 들어가요 (3개 이상).
-        칸이 낱말보다 많으면 같은 낱말이 여러 칸에 나옵니다.</p>
+        칸이 낱말보다 많으면 같은 낱말이 여러 칸에 나옵니다.<br>
+        사진을 쓰려면 <b>📁</b>로 파일을 고르거나, 사진을 복사한 뒤 <b>📋</b>를 누르고 <b>Ctrl+V</b> 하세요.</p>
       <div id="ldEmoWrap"></div>
       <div class="hr"></div>
       <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap">
@@ -2212,7 +2256,8 @@ function assignmentForm(){
       <div class="hr"></div>
       <h3 style="margin-top:0">미션 칸에 보일 그림</h3>
       <p class="muted" style="margin:0 0 10px">위 ②에서 <b>체크한 낱말</b>이 미션 칸에 들어가요 (3개 이상).
-        말판이 낱말보다 길면 같은 낱말이 여러 칸에 나옵니다.</p>
+        말판이 낱말보다 길면 같은 낱말이 여러 칸에 나옵니다.<br>
+        사진을 쓰려면 <b>📁</b>로 파일을 고르거나, 사진을 복사한 뒤 <b>📋</b>를 누르고 <b>Ctrl+V</b> 하세요.</p>
       <div id="bdEmoWrap"></div>
       <div class="hr"></div>
       <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap">
@@ -2262,7 +2307,8 @@ function assignmentForm(){
       <div class="hr"></div>
       <h3 style="margin-top:0">카드에 보일 그림</h3>
       <p class="muted" style="margin:0 0 10px">위 ②에서 <b>체크한 낱말</b>이 주제 카드가 돼요 (2종 이상).
-        <b>🔎</b>로 고르거나 칸에 <b>이모지를 직접</b> 넣으세요. 비우면 <b>🃏</b> 로 나옵니다.</p>
+        <b>🔎</b>로 고르거나 칸에 <b>이모지를 직접</b> 넣으세요. 비우면 <b>🃏</b> 로 나옵니다.<br>
+        사진을 쓰려면 <b>📁</b>로 파일을 고르거나, 사진을 복사한 뒤 <b>📋</b>를 누르고 <b>Ctrl+V</b> 하세요.</p>
       <div id="mgEmoWrap"></div>
       <div id="mgMsg"></div>
       <div class="hr"></div>
@@ -2311,7 +2357,8 @@ function assignmentForm(){
       <div class="hr"></div>
       <h3 style="margin-top:0">칸에 보일 그림</h3>
       <p class="muted" style="margin:0 0 10px">위 ②에서 <b>체크한 항목</b>이 빙고에 쓰여요 (3개 이상, 6~12개 권장).
-        <b>🔎</b>로 목록에서 고르거나 칸에 <b>이모지를 직접</b> 넣으세요. 비우면 <b>뜻(한글)</b>이 글자로 나옵니다.</p>
+        <b>🔎</b>로 목록에서 고르거나 칸에 <b>이모지를 직접</b> 넣으세요. 비우면 <b>뜻(한글)</b>이 글자로 나옵니다.<br>
+        사진을 쓰려면 <b>📁</b>로 파일을 고르거나, 사진을 복사한 뒤 <b>📋</b>를 누르고 <b>Ctrl+V</b> 하세요.</p>
       ${chosen.length? `<div id="bgEmoRows">${emojiRowsHTML(chosen)}</div>`
         : '<p class="muted">② 에서 항목을 먼저 골라 주세요.</p>'}
       <p class="muted" style="margin-top:8px">${chosen.length<3? '⚠️ 표현을 <b>3개 이상</b> 골라야 빙고를 만들 수 있어요.' : `고른 표현 ${chosen.length}개`}</p>`;
@@ -2490,7 +2537,7 @@ function renderBoardCards(){
 }
 /* 미리보기용 말판 — 낱말이나 칸 수가 바뀌면 새로 만든다 */
 function bdDraftSet(){
-  const b=draft.board, items=bdChosen().map(i=>({ en:i.text, ko:i.meaning||'',
+  const b=draft.board, items=bdChosen().map(i=>({ en:i.text, ko:i.meaning||'', img:i.img||'',
     em:(i.emoji && i.emoji!=='-') ? i.emoji : (mgSuggest(i.text,i.meaning)[0] || '📝') }));
   const sig=items.map(i=>i.en).join('|')+'#'+b.size;
   /* 불러온 말판은 처음 한 번은 그대로 둔다. 그 뒤에 낱말·칸 수가 바뀌면 새로 만든다. */
@@ -2534,7 +2581,7 @@ function renderLandCards(){
 }
 /* 미리보기용 땅 — 낱말이나 크기가 바뀌면 새로 뿌린다 */
 function ldDraftSet(){
-  const g=draft.land, items=bdChosen().map(i=>({ en:i.text, ko:i.meaning||'',
+  const g=draft.land, items=bdChosen().map(i=>({ en:i.text, ko:i.meaning||'', img:i.img||'',
     em:(i.emoji && i.emoji!=='-') ? i.emoji : (mgSuggest(i.text,i.meaning)[0] || '📝') }));
   const sig=items.map(i=>i.en).join('|')+'#'+g.n;
   /* 불러온 땅은 처음 한 번은 그대로 둔다. 그 뒤에 낱말·크기가 바뀌면 새로 뿌린다. */
@@ -2763,7 +2810,7 @@ async function saveAssignment(){
     });
   });
   await sSet(KEYS.assignments, DB.assignments);
-  if(isTalk) await tkSavePix(listId, items);      /* 낱말 그림은 목록마다 따로 저장한다 */
+  await tkSavePix(listId, items);                 /* 낱말 사진은 목록마다 따로 저장한다 */
   const n=draft.classIds.length;
   draft=null;
   toast(isBingo? `${n}개 학급에 빙고를 배부했어요! 👂`
@@ -2819,6 +2866,8 @@ async function saveMingleSet(items, chosen, meta){
   const listId = await saveListToLibrary({ grade:meta.grade, unit:meta.unit, lesson:meta.lesson, title,
     sourceListId: draft.sourceListId || (prev && prev.listId) || null }, items, {silent:true});
 
+  await tkSavePix(listId, items);              /* 낱말 사진도 같은 목록에 남긴다 */
+
   const rec={ id: m.id || ('m'+uid()), title, grade:meta.grade||'', pub:m.pub||MG_PUBS[0],
     classIds, cards, lines, goal, cap, listId: listId || (prev && prev.listId) || null,
     ver: prev ? ((prev.ver||1) + (reset?1:0)) : 1,
@@ -2873,6 +2922,8 @@ async function saveBoardSet(items, chosen, meta){
   const listId = await saveListToLibrary({ grade:meta.grade, unit:meta.unit, lesson:meta.lesson, title,
     sourceListId: draft.sourceListId || (prev && prev.listId) || null }, items, {silent:true});
 
+  await tkSavePix(listId, items);              /* 낱말 사진도 같은 목록에 남긴다 */
+
   const rec={ id: b.id || ('b'+uid()), title, grade:meta.grade||'', classIds,
     items:bItems, tiles, players, size, listId: listId || (prev && prev.listId) || null,
     ver: prev ? ((prev.ver||1) + (reset?1:0)) : 1,
@@ -2924,6 +2975,8 @@ async function saveLandSet(items, chosen, meta){
   /* 낱말은 보관함에도 남겨 두어 다른 활동으로 그대로 다시 쓸 수 있게 한다 */
   const listId = await saveListToLibrary({ grade:meta.grade, unit:meta.unit, lesson:meta.lesson, title,
     sourceListId: draft.sourceListId || (prev && prev.listId) || null }, items, {silent:true});
+
+  await tkSavePix(listId, items);              /* 낱말 사진도 같은 목록에 남긴다 */
 
   const rec={ id: g.id || ('g'+uid()), title, grade:meta.grade||'', classIds,
     items:lItems, cells, n, players, listId: listId || (prev && prev.listId) || null,
@@ -3569,16 +3622,20 @@ function tkBankDraw(){
     </div>`).join('') : '<p class="muted">② 에서 빈칸에 넣을 낱말을 적고 체크해 주세요.</p>';
   const find=id=> draft.items.find(x=>x.id===id);
   box.querySelectorAll('[data-tfile], [data-tpic]').forEach(el=> el.onclick=()=>{
-    tkFileTarget = el.dataset.tfile || el.dataset.tpic; tkFileInput().click(); });
+    tkFileTarget = el.dataset.tfile || el.dataset.tpic;
+    tkPicRedraw = ()=>{ tkBankDraw(); tkSumDraw(); };
+    tkFileInput().click(); });
   box.querySelectorAll('[data-tpaste]').forEach(el=> el.onclick=()=>{
     tkPasteTarget = (tkPasteTarget===el.dataset.tpaste)? null : el.dataset.tpaste;
+    tkPicRedraw = ()=>{ tkBankDraw(); tkSumDraw(); };
     tkBankDraw();
-    if(tkPasteTarget) toast('이제 Ctrl+V 를 누르면 그림이 들어가요 📋'); });
+    if(tkPasteTarget) toast('이제 Ctrl+V 를 누르면 사진이 들어가요 📋'); });
   box.querySelectorAll('[data-temo]').forEach(el=> el.onclick=()=>{
     const it=find(el.dataset.temo); if(!it) return;
     emojiPickOpen({ text:it.text, meaning:it.meaning||'', cur:(it.emoji&&it.emoji!=='-')?it.emoji:'',
       cands: mgSuggest(it.text, it.meaning).slice(0,4),
-      onPick:(e)=>{ it.emoji=e||''; it.emojiAuto=false; it.emojiFor=it.text; tkBankDraw(); tkSumDraw(); } }); });
+      onPick:(e)=>{ it.emoji=e||''; it.img=''; it.emojiAuto=false; it.emojiFor=it.text; tkBankDraw(); tkSumDraw(); },
+      onPic:(u)=>{ it.img=u; it.emojiAuto=false; tkBankDraw(); tkSumDraw(); } }); });
   box.querySelectorAll('[data-tclr]').forEach(el=> el.onclick=()=>{
     const it=find(el.dataset.tclr); if(!it) return;
     it.img=''; it.emoji=''; it.emojiAuto=false; tkBankDraw(); tkSumDraw(); });
@@ -3596,7 +3653,35 @@ function tkSumDraw(){
     룰렛 빈칸이 있는 대화 ${blanks}개 · 꾸러미 낱말 ${chosen.length}개(그림 ${pics}개)`;
 }
 /* ---------- 그림 넣기 (파일·붙여넣기) ---------- */
-let tkFileTarget=null, tkPasteTarget=null;
+/* 모든 과제(빙고·카드 미션·보드게임·땅따먹기·대화하기)가 같은 그림 장치를 쓴다 */
+let tkFileTarget=null, tkPasteTarget=null, tkPicRedraw=null;
+/* 이모지 자리에 들어갈 사진 한 칸 */
+function picImg(src, alt){ return `<img class="pic-img" src="${src}" alt="${esc(alt||'')}">`; }
+/* 붙여넣은 내용에서 그림 파일만 꺼낸다 */
+function picFromPaste(e){
+  const list=(e.clipboardData && e.clipboardData.items) || [];
+  for(const it of list){
+    if(it.type && it.type.indexOf('image')===0){ const f=it.getAsFile(); if(f) return f; }
+  }
+  return null;
+}
+/* 파일로 사진 고르기 — 줄인 그림(dataURL)을 돌려준다 */
+function picFileAsk(cb){
+  let el=$('picFileIn');
+  if(!el){
+    el=document.createElement('input'); el.type='file'; el.accept='image/*';
+    el.id='picFileIn'; el.style.display='none'; document.body.appendChild(el);
+  }
+  el.onchange=()=>{ const f=el.files && el.files[0]; el.value=''; if(!f) return;
+    tkShrink(f).then(u=> cb(u)).catch(()=> toast('사진을 읽지 못했어요')); };
+  el.click();
+}
+/* 그림이 바뀐 뒤 어느 화면을 다시 그릴지 */
+function picAfterSet(){
+  if(tkPicRedraw){ try{ tkPicRedraw(); }catch(e){} return; }
+  if(draft && draft.mode==='talk'){ tkBankDraw(); tkSumDraw(); return; }
+  asgSyncBingo();
+}
 function tkFileInput(){
   let el=$('tkFileIn');
   if(!el){
@@ -3634,38 +3719,80 @@ async function tkSetImg(id, file){
   const it=draft && draft.items.find(x=>x.id===id); if(!it) return;
   try{
     it.img=await tkShrink(file);
-    tkBankDraw(); tkSumDraw();
+    it.emojiAuto=false;                    /* 사진을 넣었으면 추천 그림이 덮어쓰지 않게 */
+    picAfterSet();
     toast(`${it.text} 그림을 넣었어요 🖼️`);
   }catch(e){ toast('그림을 읽지 못했어요'); }
 }
 /* 화면 캡처를 그대로 붙여넣기 — 「📋 붙여넣기」를 누른 낱말 자리에 들어간다 */
 document.addEventListener('paste', (e)=>{
-  if(!tkPasteTarget || !draft || draft.mode!=='talk') return;
-  const list=(e.clipboardData && e.clipboardData.items) || [];
-  for(const it of list){
-    if(it.type && it.type.indexOf('image')===0){
-      const f=it.getAsFile();
-      if(f){ e.preventDefault(); const id=tkPasteTarget; tkPasteTarget=null; tkSetImg(id, f); }
-      return;
-    }
+  const f=picFromPaste(e);
+  /* ① 그림 고르기 창이 열려 있으면 그쪽이 먼저다 (글자 붙여넣기는 그대로 지나간다) */
+  if(emoPick && emoPick.onPic){
+    if(!f) return;
+    e.preventDefault();
+    const cb=emoPick.onPic; emojiPickClose();
+    tkShrink(f).then(u=> cb(u)).catch(()=> toast('사진을 읽지 못했어요'));
+    return;
   }
-  toast('복사한 그림이 없어요. 화면을 캡처한 뒤 다시 붙여넣어 주세요');
+  /* ② 「붙여넣기」를 눌러 둔 낱말 자리 */
+  if(!tkPasteTarget || !draft) return;
+  if(!f){ toast('복사한 그림이 없어요. 화면을 캡처한 뒤 다시 붙여넣어 주세요'); return; }
+  e.preventDefault();
+  const id=tkPasteTarget; tkPasteTarget=null; tkSetImg(id, f);
 });
+/* ---------- 놀이 화면에서 쓸 사진 (한 번 읽어 두고 계속 쓴다) ---------- */
+const PIXC={};                          /* 목록 id → { 낱말: 사진 } */
+async function pixMap(listId){
+  if(!listId) return {};
+  if(PIXC[listId]) return PIXC[listId];
+  const d=await sGet(pixKey(listId), null);
+  PIXC[listId]=(d && d.map) || {};
+  return PIXC[listId];
+}
+/* 화면에서만 쓰는 값은 '숨은 값'으로 넣는다 — 세트를 다시 저장할 때 사진이 딸려 들어가지 않도록.
+   (문서가 커져서 저장이 막히거나, 내용이 바뀐 것으로 잘못 보여 학생 기록이 초기화되는 것을 막는다) */
+function pixHide(o, key, val){
+  try{ Object.defineProperty(o, key, { value:val, enumerable:false, writable:true, configurable:true }); }
+  catch(e){ o[key]=val; }
+}
+/* 세트(카드 미션·보드게임·땅따먹기)의 낱말에 사진을 붙여 둔다 — 한 번만 읽는다 */
+async function pixAttach(set, redraw){
+  if(!set || !set.listId || set.__pix) return;
+  pixHide(set, '__pix', 1);
+  const map=await pixMap(set.listId);
+  if(!Object.keys(map).length) return;
+  let hit=false;
+  (set.cards||[]).concat(set.items||[]).forEach(c=>{
+    const u=map[c.en]; if(u){ pixHide(c, 'img', u); hit=true; }
+  });
+  if(hit && redraw){ try{ redraw(); }catch(e){} }
+}
 /* ---------- 그림 저장·불러오기 (목록마다 문서 하나) ---------- */
 async function tkLoadPix(listId){
   if(!listId) return;
+  if(draft) draft.pixReady=false;         /* 다 읽기 전에 저장하면 사진이 날아가므로 표시해 둔다 */
   const pix=await sGet(pixKey(listId), null);
-  if(!pix || !pix.map || !draft) return;
+  if(!draft) return;
+  draft.pixReady=true;
+  if(!pix || !pix.map) return;
   let hit=false;
-  draft.items.forEach(i=>{ const u=pix.map[i.text]; if(u && !i.img){ i.img=u; hit=true; } });
-  if(hit && draft.mode==='talk'){ tkBankDraw(); tkSumDraw(); }
+  draft.items.forEach(i=>{ const u=pix.map[i.text]; if(u && !i.img){ i.img=u; i.emojiAuto=false; hit=true; } });
+  if(!hit) return;
+  if(draft.mode==='talk'){ tkBankDraw(); tkSumDraw(); }
+  else asgSyncBingo();                    /* 빙고·카드 미션·보드게임·땅따먹기 설정도 다시 그린다 */
 }
 async function tkSavePix(listId, items){
   if(!listId) return;
   const map={}; let size=0;
   items.forEach(i=>{ if(i.img){ map[i.text]=i.img; size+=i.img.length; } });
-  if(!Object.keys(map).length){ await sDel(pixKey(listId)); return; }
+  if(!Object.keys(map).length){
+    if(draft && draft.pixReady===false) return;   /* 아직 못 읽었을 뿐이면 지우지 않는다 */
+    delete PIXC[listId];
+    await sDel(pixKey(listId)); return;
+  }
   if(size>TK_PIX_MAX) toast('그림 용량이 커요. 저장이 안 되면 그림 수를 줄여 주세요');
+  PIXC[listId]=map;                               /* 방금 넣은 사진이 놀이 화면에 바로 나오도록 */
   await sSet(pixKey(listId), { list:listId, map, updatedAt:Date.now() });
 }
 
@@ -3899,7 +4026,7 @@ function tkRunDraw(){
       <p class="muted" style="font-size:.85rem">대화 ${s.convs.length}개 · 역할을 바꿔 한 번 더 하므로 모두 <b>${s.order.length}판</b>이에요.
         (한 판 안에서 <b>🎲 다른 낱말</b>로 몇 번이든 반복할 수 있어요. 대화를 더 늘리려면 「과제 만들기」에서 <b>＋ 대화 추가</b>)</p>
       <div class="center" style="margin-top:14px">
-        <button class="btn lg coral" id="tkStart">▶ 시작하기</button>
+        <button class="btn lg coral" id="tkStart" data-pres="next">▶ 시작하기</button>
         <button class="btn ghost" id="tkClose" style="margin-left:8px">🗑 활동 닫기</button>
       </div></div>`;
   } else if(s.status==='done'){
@@ -3915,12 +4042,13 @@ function tkRunDraw(){
         <b>다음 판 ▶</b>으로 넘기세요.</p></div>
       <div class="card noanim">${tkSlideHTML(s, TK.pix)}</div>
       <div class="card noanim center">
-        <button class="btn ghost" id="tkPrev" ${s.idx<=0?'disabled':''}>◀ 이전 판</button>
+        <button class="btn ghost" id="tkPrev" data-pres="prev" ${s.idx<=0?'disabled':''}>◀ 이전 판</button>
         ${tkConvHasBlank(tkConvOf(s))? '<button class="btn ghost" id="tkSpin" style="margin-left:8px">🎲 다른 낱말로 한 번 더</button>':''}
-        <button class="btn coral" id="tkNext" style="margin-left:8px">${s.idx>=last? '끝내기 🎉' : '다음 판 ▶'}</button>
+        <button class="btn coral" id="tkNext" data-pres="next" style="margin-left:8px">${s.idx>=last? '끝내기 🎉' : '다음 판 ▶'}</button>
         <p class="muted" style="margin:12px 0 0; font-size:.85rem">
           🎲 <b>다른 낱말로 한 번 더</b> — 같은 대화 그대로, 룰렛만 다시 돌려요 (몇 번이든)<br>
           ▶ <b>다음 판</b> — ${s.idx>=last? '마지막 판이에요. 누르면 활동이 끝나요' : `다음 판(${s.idx+2}/${s.order.length})으로 넘어가요`}</p>
+        ${presHint('<b>▶</b> 다음 판 · <b>◀</b> 이전 판')}
         <div style="margin-top:12px"><button class="btn ghost sm" id="tkClose">🗑 활동 닫기</button></div>
       </div>`;
     tkBindSay(app, s);
@@ -4568,7 +4696,13 @@ function bingoLinesOf(n){
 }
 function bingoDoneLines(marks,n){ return bingoLinesOf(n).filter(l=>l.every(i=>marks[i])); }
 function bgShuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); const t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
-function bgFace(it){ return it.e? `<span class="e">${it.e}</span>` : `<span class="w">${esc(it.m||it.t)}</span>`; }
+/* 낱말에 사진을 넣어 두었으면 이모지 대신 사진이 나온다 */
+function bgPic(it){ return (BG && BG.pix && it && BG.pix[it.t]) || ''; }
+function bgFace(it){
+  const u=bgPic(it);
+  if(u) return `<span class="e">${picImg(u, it.t)}</span>`;
+  return it.e? `<span class="e">${it.e}</span>` : `<span class="w">${esc(it.m||it.t)}</span>`;
+}
 
 /* ---------- 한 번의 호출은 세 단계로 흐른다 ----------
    ① 호루라기(집중)  ② 문장 1회 듣기  ③ 생각하며 빙고판 누르기
@@ -4800,7 +4934,7 @@ function emojiFirst(s){
   }
 }
 function emojiPickOpen(opts){
-  emoPick=Object.assign({ q:'', cat:'', cands:[], cur:'', meaning:'', direct:'' }, opts);
+  emoPick=Object.assign({ q:'', cat:'', cands:[], cur:'', meaning:'', direct:'', onPic:null }, opts);
   emojiPickDraw();
   $('emoPick').classList.add('show');
   setTimeout(()=>{ const s=$('emoQ'); if(s) s.focus(); }, 60);
@@ -4846,6 +4980,10 @@ function emojiPickDraw(){
     </div>
     <div class="body">${secs}</div>
     <div class="ft" style="flex-direction:column; align-items:stretch; gap:10px">
+      ${emoPick.onPic? `<div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap">
+        <button class="btn ghost sm" id="emoPicFile">📁 사진 넣기</button>
+        <span class="muted" style="font-size:.8rem">사진을 <b>복사</b>한 뒤 이 창에서 <b>Ctrl+V</b> 를 눌러도 돼요</span>
+      </div>` : ''}
       <div>
         <div class="muted" style="font-size:.8rem; margin-bottom:5px">
           찾는 그림이 없나요? <b>이모지를 직접 넣을 수 있어요</b>
@@ -4884,6 +5022,8 @@ function emojiPickDraw(){
   syncDirect();
   $('emoNone').onclick=()=> emojiPickSet('');
   $('emoClose').onclick=emojiPickClose;
+  const pf=$('emoPicFile');                 /* 이모지 대신 사진을 쓰고 싶을 때 */
+  if(pf) pf.onclick=()=>{ const cb=emoPick.onPic; picFileAsk(u=>{ emojiPickClose(); cb(u); }); };
 }
 function emojiPickCell(d, cur){
   return `<button data-pick="${esc(d[0])}" class="${d[0]===cur?'on':''}" title="${esc(d[2]||'')}">${d[0]}</button>`;
@@ -4895,12 +5035,19 @@ $('emoPick').onclick=(e)=>{ if(e.target.id==='emoPick') emojiPickClose(); };   /
 function emojiRowsHTML(items){
   return items.map((i,k)=>{
     const cur=i.emoji==='-'? '' : (i.emoji||'');
-    return `<div class="item-row">
+    const armed = tkPasteTarget===i.id ? ' armed' : '';
+    const thumb = i.img ? `<img src="${i.img}" alt="">`
+                : (cur ? esc(cur) : '<span class="n">그림</span>');
+    return `<div class="item-row emo-row">
+      <button class="tk-thumb${armed}" data-emopic="${k}" title="사진 넣기">${thumb}</button>
       <input class="bg-emo" data-emoin="${k}" value="${esc(cur)}" placeholder="글자" maxlength="8"
-        title="이모지를 직접 넣거나 붙여넣기 (비우면 한글 뜻이 글자로 나와요)" aria-label="${esc(i.text)} 그림">
+        title="이모지를 직접 넣거나 붙여넣기 (비우면 한글 뜻이 글자로 나와요)" aria-label="${esc(i.text)} 그림"${i.img?' disabled':''}>
       <button class="bg-emo-cyc" data-emocyc="${k}" title="추천 그림으로 바꾸기">🔄</button>
       <button class="bg-emo-cyc" data-emopick="${k}" title="그림 목록에서 고르기">🔎</button>
       <span class="txt">${esc(i.text)}${i.meaning?`<span class="muted" style="font-size:.85rem"> — ${esc(i.meaning)}</span>`:''}</span>
+      <button class="bg-emo-cyc" data-emofile="${k}" title="사진 파일 넣기">📁</button>
+      <button class="bg-emo-cyc${armed?' on':''}" data-emopaste="${k}" title="사진 붙여넣기 (누르고 Ctrl+V)">📋</button>
+      ${i.img? `<button class="bg-emo-cyc" data-emoclr="${k}" title="사진 지우기">✕</button>` : ''}
     </div>`;
   }).join('');
 }
@@ -4914,7 +5061,7 @@ function emojiRowsBind(root, items, redraw, sugg){
   });
   root.querySelectorAll('[data-emocyc]').forEach(b=> b.onclick=()=>{
     const i=items[+b.dataset.emocyc], cands=cand(i);
-    i.emojiAuto=false;
+    i.emojiAuto=false; i.img='';                       /* 사진 대신 이모지로 돌아간다 */
     if(!cands.length){ i.emoji='-'; return redraw(); }
     const cur=i.emoji==='-'? '' : (i.emoji||'');
     const at=cands.indexOf(cur);
@@ -4925,7 +5072,25 @@ function emojiRowsBind(root, items, redraw, sugg){
     const k=+b.dataset.emopick, i=items[k];
     emojiPickOpen({ text:i.text, meaning:i.meaning||'', cands:cand(i),
       cur:(i.emoji==='-'?'':(i.emoji||'')),
-      onPick:(e)=>{ i.emoji = e || '-'; i.emojiAuto=false; redraw(); } });
+      onPick:(e)=>{ i.emoji = e || '-'; i.img=''; i.emojiAuto=false; redraw(); },
+      onPic:(u)=>{ i.img=u; i.emojiAuto=false; redraw(); } });
+  });
+  /* 사진 — 파일에서 고르거나 화면을 캡처해 붙여넣는다 (이모지 대신 쓴다) */
+  const setPic=(i,u)=>{ i.img=u; i.emojiAuto=false; redraw(); };
+  root.querySelectorAll('[data-emofile], [data-emopic]').forEach(b=> b.onclick=()=>{
+    const d=b.dataset;
+    const i=items[+(d.emofile!==undefined ? d.emofile : d.emopic)];
+    picFileAsk(u=> setPic(i,u));
+  });
+  root.querySelectorAll('[data-emopaste]').forEach(b=> b.onclick=()=>{
+    const i=items[+b.dataset.emopaste];
+    tkPasteTarget = (tkPasteTarget===i.id) ? null : i.id;
+    tkPicRedraw = redraw;
+    redraw();
+    if(tkPasteTarget) toast('이제 Ctrl+V 를 누르면 사진이 들어가요 📋');
+  });
+  root.querySelectorAll('[data-emoclr]').forEach(b=> b.onclick=()=>{
+    const i=items[+b.dataset.emoclr]; i.img=''; i.emojiAuto=false; redraw();
   });
 }
 /* ---------- 선생님: 진행 ---------- */
@@ -4936,6 +5101,9 @@ function bingoRun(sess){
        autoT:0, tickT:0, paused:false, nextAt:0 };
   const cls=DB.classes.find(x=>x.id===sess.classId);
   BG.roster = cls? cls.students : [];
+  BG.pix={};                                        /* 낱말에 넣어 둔 사진 (있으면 이모지 대신 나온다) */
+  if(sess.listId) pixMap(sess.listId).then(m=>{
+    if(BG && BG.role==='teacher' && BG.sess && BG.sess.id===sess.id){ BG.pix=m; bingoRunDraw(); } });
   if(fbReady && window.__store){
     BG.unsubs.push(window.__store.watchWhere(colName('progress'), 'value.sess', sess.id, (rows)=>{
       BG.players=rows; bingoRunDraw();
@@ -5036,7 +5204,8 @@ function bingoRunDraw(){
   /* 들려준 표현은 게임이 끝난 뒤에만 공개한다 (놓친 학생이 뒤늦게 따라 찍는 것도 막는다) */
   const review= s.status!=='done' ? '' : `<div class="card noanim">
       <h3 style="margin:0 0 10px">🔎 들려준 표현 (${s.calls.length}번)</h3>
-      <div class="bg-review">${s.calls.map((c,k)=>`<span><b>${k+1}</b> ${s.items[c].e||''} ${esc(s.items[c].t)}</span>`).join('')}</div>
+      <div class="bg-review">${s.calls.map((c,k)=>`<span><b>${k+1}</b> ${
+        bgPic(s.items[c])? picImg(bgPic(s.items[c]), s.items[c].t) : (s.items[c].e||'')} ${esc(s.items[c].t)}</span>`).join('')}</div>
     </div>`;
   /* 명단과 학생 기록을 합친다 — 아직 안 들어온 학생도 보이도록 */
   const byId={}; BG.players.forEach(p=> byId[p.sid]=p);
@@ -5053,8 +5222,8 @@ function bingoRunDraw(){
       <div class="bg-stage${stageCls}">${stage}</div>
       <div class="center" style="margin-top:14px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap">
         ${s.status==='ready'?`<button class="btn ghost" id="bgLearn">📖 표현 익히기</button>`:''}
-        ${s.status!=='done'?`<button class="btn lg" id="bgNext">${s.calls.length?'다음 표현 ▶':'첫 표현 들려주기 ▶'}</button>`:''}
-        ${s.calls.length&&s.status!=='done'?`<button class="btn ghost" id="bgAgain">🔁 다시 들려주기</button>`:''}
+        ${s.status!=='done'?`<button class="btn lg" id="bgNext" data-pres="next">${s.calls.length?'다음 표현 ▶':'첫 표현 들려주기 ▶'}</button>`:''}
+        ${s.calls.length&&s.status!=='done'?`<button class="btn ghost" id="bgAgain" data-pres="prev">🔁 다시 들려주기</button>`:''}
         ${s.status!=='done'?`<button class="btn ghost" id="bgEnd">게임 끝내기</button>`
           :`<button class="btn coral" id="bgNew">새 게임 만들기</button>`}
         <button class="btn ghost" id="bgClose">🗑 게임 닫기</button>
@@ -5079,6 +5248,7 @@ function bingoRunDraw(){
         <div><b>${wins}</b><span>빙고 완성</span></div>
       </div>
       <p class="muted center">${s.n}×${s.n} · ${s.target}빙고 · 표현 ${s.items.length}개 · ${esc(s.className||'')}</p>
+      ${s.status!=='done'? presHint('<b>▶</b> 다음 표현 · <b>◀</b> 다시 들려주기') : ''}
     </div>
     <div class="card noanim">
       <h3 style="margin:0 0 10px">학생별 현황</h3>
@@ -5122,18 +5292,20 @@ function bingoLearnDraw(){
   app.innerHTML=`<button class="back" id="lnClose">← 게임 화면으로</button>
     <div class="card noanim">
       <div class="bg-stage" style="min-height:300px">
-        <div class="em" style="font-size:7rem">${it.e||'🔤'}</div>
+        <div class="em" style="font-size:7rem">${bgPic(it)? picImg(bgPic(it), it.t) : (it.e||'🔤')}</div>
         <div class="tx">${esc(it.t)}</div>
         ${it.m?`<div class="mn" style="font-size:1.2rem">${esc(it.m)}</div>`:''}
       </div>
       <div class="center" style="margin-top:14px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap">
-        <button class="btn ghost" id="lnPrev" ${L.i===0?'disabled':''}>◀ 이전</button>
+        <button class="btn ghost" id="lnPrev" data-pres="prev" ${L.i===0?'disabled':''}>◀ 이전</button>
         <button class="btn" id="lnSay">🔊 다시 들려주기</button>
-        <button class="btn ghost" id="lnNext" ${L.i>=s.items.length-1?'disabled':''}>다음 ▶</button>
+        <button class="btn ghost" id="lnNext" data-pres="next" ${L.i>=s.items.length-1?'disabled':''}>다음 ▶</button>
       </div>
       <p class="muted center" style="margin-top:12px">${L.i+1} / ${s.items.length} · 학생들과 함께 듣고 따라 말해 보세요</p>
+      ${presHint()}
       <div class="bg-review" style="margin-top:12px; justify-content:center">
-        ${s.items.map((x,k)=>`<span data-ln="${k}" style="cursor:pointer; ${k===L.i?'border-color:var(--green); background:#E9F6F0':''}">${x.e||''} ${esc(x.t)}</span>`).join('')}
+        ${s.items.map((x,k)=>`<span data-ln="${k}" style="cursor:pointer; ${k===L.i?'border-color:var(--green); background:#E9F6F0':''}">${
+          bgPic(x)? picImg(bgPic(x), x.t) : (x.e||'')} ${esc(x.t)}</span>`).join('')}
       </div>
     </div>`;
   $('lnClose').onclick=()=>{ BG.learn=null; speakStop(); bingoRunDraw(); };
@@ -5151,7 +5323,8 @@ function bingoPrint(){
   $('printArea').innerHTML=list.map(st=>{
     const b=bingoBoard(s.id+'|'+st.id, s.n, s.items.length);
     const cells=b.map(v=>{ const it=s.items[v];
-      return `<div class="pbc">${it.e? it.e : `<span class="w">${esc(it.m||it.t)}</span>`}</div>`; }).join('');
+      return `<div class="pbc">${bgPic(it)? picImg(bgPic(it), it.t)
+        : (it.e? it.e : `<span class="w">${esc(it.m||it.t)}</span>`)}</div>`; }).join('');
     return `<div class="pb"><h3>${esc(s.title)} — ${esc(st.name)}</h3>
       <div class="pbgrid" style="grid-template-columns:repeat(${s.n},1fr)">${cells}</div>
       <p style="font-size:9pt; margin-top:3mm">들은 표현을 찾아 한 칸만 ○표 하세요 · ${s.target}빙고가 되면 손을 들어요</p></div>`;
@@ -5182,6 +5355,10 @@ function bingoStudentQuit(){ bingoLeave(); studentPickName(session.classId); }
 /* 새 게임이 열리면 내 판을 새로 만든다 */
 function bingoStudentSync(){
   const s=BG.sess;
+  if(s && s.listId && BG.pixFor!==s.listId){        /* 낱말 사진은 게임마다 한 번만 읽는다 */
+    BG.pixFor=s.listId;
+    pixMap(s.listId).then(m=>{ if(BG && BG.role==='student'){ BG.pix=m; bingoStudentDraw(); } });
+  }
   if(s && (!BG.me || BG.me.sess!==s.id || !BG.me.marks || BG.me.marks.length!==s.n*s.n)){
     BG.me={ sess:s.id, sid:session.studentId, name:session.name, marks:Array(s.n*s.n).fill(false),
       lines:0, bingo:false, lastCall:-1, lastCell:-1, updatedAt:Date.now() };
@@ -5278,7 +5455,8 @@ function bingoPracticeDraw(wrap){
   const prompt = p.dir==='toPic'
     ? `<div class="pr-ask"><div class="tx">${esc(it.t)}</div>${it.m?`<div class="mn">${esc(it.m)}</div>`:''}
          <button class="btn sm ghost" id="prSay" style="margin-top:10px">🔊 들어보기</button></div>`
-    : `<div class="pr-ask"><div class="pr-big">${it.e||esc(it.m||it.t)}</div></div>`;
+    : `<div class="pr-ask"><div class="pr-big">${
+        bgPic(it)? picImg(bgPic(it), it.t) : (it.e||esc(it.m||it.t))}</div></div>`;
   const opts=q.opts.map(oi=>{
     const o=s.items[oi];
     const cls=['pr-opt', p.justOk&&oi===q.ans?'ok':'', p.wrongSel===oi?'no':''].join(' ');
@@ -5325,7 +5503,7 @@ function bingoStudentDraw(){
   const done=(s.status!=='playing')||me.bingo;
   const cells=board.map((v,i)=>{ const it=s.items[v];
     const cls=['bg-cell', me.marks[i]?(lit.has(i)?'mk lit':'mk'):'', done?'dis':'', BG.shake===i?'shake':''].join(' ');
-    const face= it.e? `<span class="e">${it.e}</span>` : `<span class="w">${esc(it.m||it.t)}</span>`;
+    const face=bgFace(it);
     return `<button class="${cls}" data-cell="${i}" aria-label="${esc(it.m||it.t)}">${face}</button>`;
   }).join('');
   /* 학생 화면에도 정답을 띄우지 않는다 — 소리로만 찾는 활동이라 화면에 답이 뜨면 게임이 무너진다.
@@ -5402,6 +5580,8 @@ function mgClassNames(set){
   return list.length ? list.map(c=>c.name).join(', ') : '배부된 학급 없음(지워진 학급)';
 }
 function mgSet(id){ return (DB.mingle||[]).find(s=>s.id===id) || null; }
+/* 카드 한 칸 — 사진을 넣어 두었으면 사진, 아니면 이모지 */
+function mgFace(c, fb){ return (c && c.img) ? picImg(c.img, c.en) : esc((c && c.em) || fb || '🃏'); }
 function mgTotal(p){ return (p && p.board ? p.board : []).reduce((a,b)=>a+b,0); }
 /* 그림 추천 — 듣기 빙고와 같은 사전을 쓴다(영어 키워드 + 한글 이름) */
 function mgSuggest(en, ko){
@@ -5471,6 +5651,7 @@ function mingleStudent(){
 
 async function mingleEnter(setId){
   const set=mgSet(setId); if(!set) return;
+  await pixAttach(set);                            /* 낱말에 넣어 둔 사진을 카드에 붙인다 */
   const cls=DB.classes.find(c=>c.id===session.classId);
   app.innerHTML='<div class="card empty"><span class="em">🃏</span>카드를 준비하고 있어요…</div>';
   const r=await mgEnsure(set, session.classId, { id:session.studentId, name:session.name });
@@ -5486,6 +5667,7 @@ async function mingleEnter(setId){
 
 function mingleMission(){
   if(!MG || !MG.set) return mingleStudent();
+  pixAttach(MG.set, mingleMission);
   mgWide(true);
   const st=MG.set, p=MG.prog, my=st.cards[p.card]||st.cards[0];
   const total=mgTotal(p), got=(p.stamps||[]).length, done=got>=total;
@@ -5507,7 +5689,7 @@ function mingleMission(){
       <div>
         <div class="mg-my">
           <div class="lbl">MY CARD</div>
-          <div class="em">${my.em||'🃏'}</div>
+          <div class="em">${mgFace(my)}</div>
           <div class="en">${esc(my.en)}</div>
           <div class="ko">${esc(my.ko||'')}</div>
         </div>
@@ -5540,7 +5722,7 @@ function mingleMission(){
               ? `<div class="mg-slot on" style="color:${MG_INKS[(i+k)%MG_INKS.length]}; --r:${(k*37)%17-8}deg">${esc(list[k])}</div>`
               : '<div class="mg-slot"></div>').join('');
             return `<div class="mg-btile ${cls2}">
-              <div class="r1"><span class="em">${c.em||'🃏'}</span>
+              <div class="r1"><span class="em">${mgFace(c)}</span>
                 <span class="nd">${need===0 ? '×0' : list.length+'/'+need+'명'}</span></div>
               <div class="w">${esc(c.en)}</div>
               <div class="mg-slots">${slots}</div></div>`;
@@ -5562,7 +5744,7 @@ function mgReveal(){
     <button class="btn mg-skip">건너뛰기</button>
     <div class="mg-flip"><div class="in">
       <div class="mg-face bk">🃏<br>카드 뽑기</div>
-      <div class="mg-face fr"><div class="em">${c.em||'🃏'}</div>
+      <div class="mg-face fr"><div class="em">${mgFace(c)}</div>
         <div class="en">${esc(c.en)}</div><div class="ko">${esc(c.ko||'')}</div></div>
     </div></div>
     <div class="mg-hint">카드를 눌러 뒤집어요!</div>`;
@@ -5596,9 +5778,9 @@ function mgRoulette(ov){
         <div class="mg-wheel" id="mgWheel" style="background:conic-gradient(${grad})">
           ${vals.map((v,i)=>`<span style="--a:${i*segA+segA/2}deg">${v}</span>`).join('')}
         </div>
-        <div class="mg-hub" id="mgHub">${st.cards[0].em||'🃏'}</div>
+        <div class="mg-hub" id="mgHub">${mgFace(st.cards[0])}</div>
       </div>
-      <div class="mg-tally">${st.cards.map((c,i)=>`<div class="c${i===0?' now':''}" id="mgC${i}">${c.em||'🃏'}<b>?</b></div>`).join('')}</div>
+      <div class="mg-tally">${st.cards.map((c,i)=>`<div class="c${i===0?' now':''}" id="mgC${i}">${mgFace(c)}<b>?</b></div>`).join('')}</div>
       <button class="btn coral lg" id="mgSpin" style="width:250px">🎡 룰렛 돌리기!</button>
     </div>`;
   ov.querySelector('.mg-skip').onclick=()=> ov.remove();
@@ -5627,7 +5809,7 @@ function mgRoulette(ov){
       stat.textContent=`${st.cards[step].em||''} ${st.cards[step].en} 친구 ${n}명!`;
       step++;
       if(step<K){
-        hub.textContent=st.cards[step].em||'🃏';
+        hub.innerHTML=mgFace(st.cards[step]);
         $('mgC'+step).classList.add('now');
         setTimeout(()=>{ if(!document.body.contains(ov)) return; stat.textContent=ask(); spin(); }, 500);
       } else {
@@ -5676,7 +5858,7 @@ async function mingleFriend(pid){
     <button class="back" onclick="mingleSign()">← 이름 다시 고르기</button>
     <div class="card">
       <div class="mg-friend">
-        <div class="em">${fc.em||'🃏'}</div>
+        <div class="em">${mgFace(fc)}</div>
         <div class="t">${esc(friend.name)} 님의 카드는 <b style="color:var(--coral)">${esc(fc.en)}</b>!</div>
         <div class="muted">${esc(fc.ko||'')}</div>
       </div>
@@ -5847,6 +6029,7 @@ function mgDashWatch(){
 function mgDashDraw(){
   if(!MG || MG.role!=='teacher') return;
   const st=mgSet(MG.setId), cls=DB.classes.find(c=>c.id===MG.cid);
+  pixAttach(st, mgDashDraw);
   const sub=$('mgDSub'), box=$('mgDList');
   if(!st || !box) return;
   if(!cls){
@@ -5859,7 +6042,7 @@ function mgDashDraw(){
     const r=by[s.id];
     const total = r ? (mgTotal(r) || st.goal) : st.goal;
     return { nm:s.name, n: r ? (r.stamps||[]).length : 0, total,
-             em: r ? ((st.cards[r.card]||{}).em || '🃏') : '—' };
+             em: r ? mgFace(st.cards[r.card]) : '—' };
   }).sort((a,b)=> (b.n/b.total)-(a.n/a.total) || a.nm.localeCompare(b.nm,'ko'));
   const fin=rows.filter(r=>r.n>=r.total).length;
   sub.innerHTML=`${esc(cls.name)} · 목표 ${st.goal}명 · <b>${fin}</b>명 완료 / ${cls.students.length}명`;
@@ -5959,7 +6142,8 @@ function bdBoardHTML(set, room, opt){
     const toks=here.map(p=>`<span>${BD_TOKENS[room.players.indexOf(p)%BD_TOKENS.length]}</span>`).join('');
     const cur = room && room.players[room.turn] && room.players[room.turn].pos===i;
     let face='', word='';
-    if(t.t==='mission'){ const it=set.items[t.i]||{}; face=(it.em||'📝'); word=esc(it.en||''); }
+    if(t.t==='mission'){ const it=set.items[t.i]||{};
+      face = it.img? picImg(it.img, it.en) : (it.em||'📝'); word=esc(it.en||''); }
     else { const s=bdSpecial(t.t); face = t.em || (s? s.em : '·'); if(t.d) word=(t.t==='back'?'-':'+')+t.d; }
     return `<div class="bd-cell ${t.t}${cur?' here':''}" style="grid-row:${row+1}; grid-column:${col+1}"
         title="${t.t==='mission'? esc((set.items[t.i]||{}).en||'') : (bdSpecial(t.t)||{}).name||''}">
@@ -6082,6 +6266,7 @@ function bdTeacherDraw(){
   if(!BD || BD.role!=='teacher') return;
   const set=bdSet(BD.setId), cls=DB.classes.find(c=>c.id===BD.cid), wrap=$('bdWrap');
   if(!set || !cls || !wrap) return;
+  pixAttach(set, bdTeacherDraw);                   /* 낱말에 넣어 둔 사진 */
   const nameOf=(sid)=>{ const s=cls.students.find(x=>x.id===sid); return s? s.name : '(나간 학생)'; };
   if(!BD.sess){                       /* 아직 안 뽑았다 — TV를 켜고 함께 보는 화면 */
     wrap.outerHTML=`<div id="bdWrap" class="card center">
@@ -6237,6 +6422,7 @@ function bdStudentDraw(){
   if(!BD || BD.role!=='student') return;
   const set=bdSet(BD.setId), room=BD.room, wrap=$('bdWrap');
   if(!set || !room || !wrap) return;
+  pixAttach(set, bdStudentDraw);                   /* 낱말에 넣어 둔 사진 */
   const me=room.players.findIndex(p=>p.sid===session.studentId);
   const myTurn = me>=0 && me===room.turn;
   const cur=room.players[room.turn]||{};
@@ -6255,7 +6441,7 @@ function bdStudentDraw(){
     const t=set.tiles[room.tile]||{}, it=set.items[t.i]||{};
     panel=`<div class="card center">
       <p class="muted" style="margin:0">${esc(cur.name)} 님의 미션</p>
-      <div style="font-size:3rem; line-height:1.2">${it.em||'📝'}</div>
+      <div style="font-size:3rem; line-height:1.2">${it.img? picImg(it.img, it.en) : (it.em||'📝')}</div>
       <div style="font-family:'Andika'; font-size:1.7rem; margin:2px 0">${esc(it.en||'')}</div>
       ${it.ko?`<p class="muted" style="margin:0">${esc(it.ko)}</p>`:''}
       <div class="row" style="justify-content:center; margin-top:10px">
@@ -6667,7 +6853,7 @@ function blRunDraw(){
       <p class="muted"><b>${esc(cls.name)}</b> · ${set.choices}개 중 하나 · ${set.rounds}문제 ·
         ${set.limit? `한 문제 ⏱ ${set.limit}초` : '시간 제한 없음'}</p>
       <div style="font-size:3.2rem; margin:14px 0">🚪</div>
-      <button class="btn lg coral" id="blOpen">▶️ 대기실 열기</button>
+      <button class="btn lg coral" id="blOpen" data-pres="next">▶️ 대기실 열기</button>
       <p class="muted" style="margin:12px 0 0; font-size:.83rem">대기실을 열면 학생 태블릿에 이 게임이 나타나요.<br>
         모두 들어온 것을 확인하고 <b>시작하기</b>를 누르면 1번 문제가 열립니다.</p>`;
     $('blOpen').onclick=blOpenLobby;
@@ -6688,7 +6874,7 @@ function blRunDraw(){
       <div class="bl-score" style="margin:10px 0 4px">${joined.length} <span class="muted" style="font-size:1rem">/ ${total}명 들어옴</span></div>
       <div style="margin:10px 0 4px; line-height:2.1">${roster||'<span class="muted">학생이 없어요</span>'}</div>
       <div class="hr"></div>
-      <button class="btn lg coral" id="blStart">▶️ 시작하기 (1번 문제)</button>
+      <button class="btn lg coral" id="blStart" data-pres="next">▶️ 시작하기 (1번 문제)</button>
       <div style="margin-top:12px"><button class="btn ghost sm" id="blClose">🔚 게임 닫기</button></div>
       <p class="muted" style="margin:12px 0 0; font-size:.83rem">아직 안 들어온 학생이 있어도 시작할 수 있어요.
         늦게 들어온 학생은 진행 중인 문제부터 함께 풀어요.</p>`;
@@ -6763,12 +6949,13 @@ function blRunDraw(){
                     : '모두 답했어요! 🎉'}</p>
     <div class="hr"></div>
     <div class="center" style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap">
-      <button class="btn lg coral" id="blNextR">${last? '🏁 끝내고 결과 보기' : '⏭ 다음 문제 시작'}</button>
-      <button class="btn ghost" id="blRedo">🔄 이 문제 다시 (시간 초기화)</button>
+      <button class="btn lg coral" id="blNextR" data-pres="next">${last? '🏁 끝내고 결과 보기' : '⏭ 다음 문제 시작'}</button>
+      <button class="btn ghost" id="blRedo" data-pres="prev">🔄 이 문제 다시 (시간 초기화)</button>
       <button class="btn ghost" id="blClose">🔚 게임 닫기</button>
     </div>
     <p class="muted center" style="margin:10px 0 0; font-size:.83rem">
-      학생 화면은 <b>「다음 문제 시작」을 누를 때까지</b> 이 문제에 머물러 있어요.</p>`;
+      학생 화면은 <b>「다음 문제 시작」을 누를 때까지</b> 이 문제에 머물러 있어요.</p>
+    ${presHint('<b>▶</b> 다음 문제 · <b>◀</b> 이 문제 다시')}`;
   $('blNextR').onclick=()=> blGoRound(i+1);
   $('blRedo').onclick=()=> blGoRound(i);
   $('blClose').onclick=blCloseGame;
@@ -7188,7 +7375,7 @@ function ldBoardHTML(set, room, opt){
     const isHit  = room && room.shot && room.shot.to===idx;
     return `<div class="ld-cell${own?' p'+c.o:''}${isFrom?' from':''}${isHit?' hit':''}"
         title="${esc(it.en||'')}">
-      <span class="em">${it.em||'📝'}</span>
+      <span class="em">${it.img? picImg(it.img, it.en) : (it.em||'📝')}</span>
       <span class="wd">${esc(it.en||'')}</span>
       ${own?`<span class="fg">${LD_TOKENS[c.o%LD_TOKENS.length]}</span>`:''}
       ${isFrom?'<span class="st">🪨</span>':''}
@@ -7309,6 +7496,7 @@ function ldTeacherDraw(){
   if(!LD || LD.role!=='teacher') return;
   const set=ldSet(LD.setId), cls=DB.classes.find(c=>c.id===LD.cid), wrap=$('ldWrap');
   if(!set || !cls || !wrap) return;
+  pixAttach(set, ldTeacherDraw);                   /* 낱말에 넣어 둔 사진 */
   const nameOf=(sid)=>{ const s=cls.students.find(x=>x.id===sid); return s? s.name : '(나간 학생)'; };
   if(!LD.sess){                       /* 아직 안 뽑았다 */
     wrap.outerHTML=`<div id="ldWrap" class="card center">
@@ -7473,6 +7661,7 @@ function ldStudentDraw(){
   if(!LD || LD.role!=='student') return;
   const set=ldSet(LD.setId), room=LD.room, wrap=$('ldWrap');
   if(!set || !room || !wrap) return;
+  pixAttach(set, ldStudentDraw);                   /* 낱말에 넣어 둔 사진 */
   const me=room.players.findIndex(p=>p.sid===session.studentId);
   const myTurn = me>=0 && me===room.turn;
   const cur=room.players[room.turn]||{};
@@ -7490,10 +7679,11 @@ function ldStudentDraw(){
   } else if(room.phase==='mission'){
     const c=room.cells[room.shot.to]||{}, it=set.items[c.i]||{};
     const kind=room.shot.hit;
+    const itFace = it.img? picImg(it.img, it.en) : (it.em||'📝');
     panel=`<div class="card center">
       <p class="muted" style="margin:0">${esc(cur.name)} 님의 미션 ${
         kind==='steal'? '<b style="color:var(--coral-d)">— 남의 땅 뺏기!</b>' : '— 빈 땅 차지하기'}</p>
-      <div style="font-size:3rem; line-height:1.2">${it.em||'📝'}</div>
+      <div style="font-size:3rem; line-height:1.2">${itFace}</div>
       <div style="font-family:'Andika'; font-size:1.7rem; margin:2px 0">${esc(it.en||'')}</div>
       ${it.ko?`<p class="muted" style="margin:0">${esc(it.ko)}</p>`:''}
       <div class="row" style="justify-content:center; margin-top:10px">
