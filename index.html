@@ -863,19 +863,20 @@ function esc(s){ return (s==null?'':String(s)).replace(/[&<>"']/g,c=>({'&':'&amp
    PPT 리모컨은 거의 모두 '다음 = PageDown 또는 →', '이전 = PageUp 또는 ←' 를 보낸다.
    화면에 있는 단추에 data-pres="next" / data-pres="prev" 만 붙여 두면 리모컨이 그 단추를 누른다.
    (화면이 바뀌면 단추도 함께 사라지므로 따로 정리할 것이 없다) */
-/* 화면 아래에 붙이는 안내 한 줄. what 을 주면 그 화면에서 무엇이 넘어가는지 알려 준다 */
-function presHint(what){
+/* 화면 아래에 붙이는 안내 한 줄. 그 화면에서 리모컨이 무엇을 하는지 알려 준다 */
+function presHint(what, tail){
   return `<p class="muted center" style="margin:10px 0 0; font-size:.82rem">🎛️ 프리젠터(무선 리모컨)나
-    키보드의 ${what || '<b>▶ / ◀</b>'} (PageDown · PageUp) 로도 넘길 수 있어요</p>`;
+    키보드의 ${what || '<b>▶ / ◀</b>'} (PageDown · PageUp) ${tail || '로도 넘길 수 있어요'}</p>`;
 }
 function presBtn(kind){
   const el=document.querySelector('[data-pres="'+kind+'"]');
   return (el && !el.disabled) ? el : null;
 }
 /* 리모컨은 한 번 눌러도 신호를 두 번 보내는 것이 있어, 한 번 누르면 두 칸이 넘어가 버린다.
-   그래서 넘긴 직후 잠깐은 다시 넘기지 않는다. */
+   그래서 넘긴 직후 잠깐은 다시 넘기지 않는다.
+   연출이 긴 단추(룰렛 등)는 data-pres-gap 으로 더 길게 준다. */
 const PRES_GAP=600;
-let presLast=0, presArmEl=null, presArmAt=0;
+let presLast=0;
 document.addEventListener('keydown', (e)=>{
   if(e.ctrlKey || e.altKey || e.metaKey || e.shiftKey) return;
   const t=e.target;
@@ -893,16 +894,8 @@ document.addEventListener('keydown', (e)=>{
   if(!b) return;
   e.preventDefault();
   const now=Date.now();
-  if(now-presLast < PRES_GAP) return;      /* 한 번 눌렀는데 두 번 온 신호 */
-  /* 활동을 끝내는 단추는 리모컨으로 한 번에 눌리지 않게 한다 — 한 번 더 눌러야 진짜 끝난다.
-     (마우스로 직접 누를 때는 예전 그대로 바로 실행된다) */
-  const warn=b.getAttribute('data-pres-warn');
-  if(warn && (presArmEl!==b || now-presArmAt > 6000)){
-    presArmEl=b; presArmAt=now; presLast=now;
-    toast(warn);
-    return;
-  }
-  presArmEl=null;
+  const gap=+(b.getAttribute('data-pres-gap')) || PRES_GAP;
+  if(now-presLast < gap) return;           /* 한 번 눌렀는데 두 번 온 신호 · 연출이 끝나기 전 */
   presLast=now;
   b.click();
 });
@@ -4059,15 +4052,15 @@ function tkRunDraw(){
         <b>다음 판 ▶</b>으로 넘기세요.</p></div>
       <div class="card noanim">${tkSlideHTML(s, TK.pix)}</div>
       <div class="card noanim center">
-        <button class="btn ghost" id="tkPrev" data-pres="prev" ${s.idx<=0?'disabled':''}>◀ 이전 판</button>
-        ${tkConvHasBlank(tkConvOf(s))? '<button class="btn ghost" id="tkSpin" style="margin-left:8px">🎲 다른 낱말로 한 번 더</button>':''}
-        <button class="btn coral" id="tkNext" data-pres="next" style="margin-left:8px"${
-          s.idx>=last? ' data-pres-warn="마지막 판이에요. 리모컨을 한 번 더 누르면 활동이 끝나요"':''
-        }>${s.idx>=last? '끝내기 🎉' : '다음 판 ▶'}</button>
+        <button class="btn ghost" id="tkPrev" ${s.idx<=0?'disabled':''}>◀ 이전 판</button>
+        ${tkConvHasBlank(tkConvOf(s))? '<button class="btn ghost" id="tkSpin" data-pres="next" data-pres-gap="2600" style="margin-left:8px">🎲 다른 낱말로 한 번 더</button>':''}
+        <button class="btn coral" id="tkNext" style="margin-left:8px">${s.idx>=last? '끝내기 🎉' : '다음 판 ▶'}</button>
         <p class="muted" style="margin:12px 0 0; font-size:.85rem">
           🎲 <b>다른 낱말로 한 번 더</b> — 같은 대화 그대로, 룰렛만 다시 돌려요 (몇 번이든)<br>
           ▶ <b>다음 판</b> — ${s.idx>=last? '마지막 판이에요. 누르면 활동이 끝나요' : `다음 판(${s.idx+2}/${s.order.length})으로 넘어가요`}</p>
-        ${presHint('<b>▶</b> 다음 판 · <b>◀</b> 이전 판')}
+        ${tkConvHasBlank(tkConvOf(s))
+          ? presHint('<b>▶</b>', '로 🎲 <b>다른 낱말</b>을 계속 뽑을 수 있어요 · 판 넘기기·끝내기는 마우스로 눌러 주세요')
+          : '<p class="muted center" style="margin:10px 0 0; font-size:.82rem">🎛️ 이 대화에는 빈칸(___)이 없어서 뽑을 낱말이 없어요 · 판 넘기기는 마우스로 눌러 주세요</p>'}
         <div style="margin-top:12px"><button class="btn ghost sm" id="tkClose">🗑 활동 닫기</button></div>
       </div>`;
     tkBindSay(app, s);
@@ -6968,15 +6961,15 @@ function blRunDraw(){
                     : '모두 답했어요! 🎉'}</p>
     <div class="hr"></div>
     <div class="center" style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap">
-      <button class="btn lg coral" id="blNextR" data-pres="next"${
-        last? ' data-pres-warn="마지막 문제예요. 리모컨을 한 번 더 누르면 결과 화면으로 가요"':''
+      <button class="btn lg coral" id="blNextR"${last? '' : ' data-pres="next"'
       }>${last? '🏁 끝내고 결과 보기' : '⏭ 다음 문제 시작'}</button>
       <button class="btn ghost" id="blRedo" data-pres="prev">🔄 이 문제 다시 (시간 초기화)</button>
       <button class="btn ghost" id="blClose">🔚 게임 닫기</button>
     </div>
     <p class="muted center" style="margin:10px 0 0; font-size:.83rem">
       학생 화면은 <b>「다음 문제 시작」을 누를 때까지</b> 이 문제에 머물러 있어요.</p>
-    ${presHint('<b>▶</b> 다음 문제 · <b>◀</b> 이 문제 다시')}`;
+    ${last? presHint('<b>◀</b>', '로 이 문제를 다시 할 수 있어요 · <b>끝내고 결과 보기</b>는 마우스로 눌러 주세요')
+          : presHint('<b>▶</b> 다음 문제 · <b>◀</b> 이 문제 다시')}`;
   $('blNextR').onclick=()=> blGoRound(i+1);
   $('blRedo').onclick=()=> blGoRound(i);
   $('blClose').onclick=blCloseGame;
