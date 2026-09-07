@@ -872,6 +872,10 @@ function presBtn(kind){
   const el=document.querySelector('[data-pres="'+kind+'"]');
   return (el && !el.disabled) ? el : null;
 }
+/* 리모컨은 한 번 눌러도 신호를 두 번 보내는 것이 있어, 한 번 누르면 두 칸이 넘어가 버린다.
+   그래서 넘긴 직후 잠깐은 다시 넘기지 않는다. */
+const PRES_GAP=600;
+let presLast=0, presArmEl=null, presArmAt=0;
 document.addEventListener('keydown', (e)=>{
   if(e.ctrlKey || e.altKey || e.metaKey || e.shiftKey) return;
   const t=e.target;
@@ -880,6 +884,7 @@ document.addEventListener('keydown', (e)=>{
   /* 리모컨의 '시작/끝내기' 단추는 F5(새로 고침)를 보내는 것이 많다 —
      진행 중인 화면에서 실수로 화면이 날아가지 않게 막는다 (Ctrl+R 은 그대로 된다) */
   if(e.key==='F5' && document.querySelector('[data-pres]')){ e.preventDefault(); return; }
+  if(e.repeat) return;                     /* 단추를 꾹 눌러 자동으로 반복되는 것은 무시한다 */
   let kind='';
   if(e.key==='PageDown' || e.key==='ArrowRight') kind='next';
   else if(e.key==='PageUp' || e.key==='ArrowLeft') kind='prev';
@@ -887,6 +892,18 @@ document.addEventListener('keydown', (e)=>{
   const b=presBtn(kind);
   if(!b) return;
   e.preventDefault();
+  const now=Date.now();
+  if(now-presLast < PRES_GAP) return;      /* 한 번 눌렀는데 두 번 온 신호 */
+  /* 활동을 끝내는 단추는 리모컨으로 한 번에 눌리지 않게 한다 — 한 번 더 눌러야 진짜 끝난다.
+     (마우스로 직접 누를 때는 예전 그대로 바로 실행된다) */
+  const warn=b.getAttribute('data-pres-warn');
+  if(warn && (presArmEl!==b || now-presArmAt > 6000)){
+    presArmEl=b; presArmAt=now; presLast=now;
+    toast(warn);
+    return;
+  }
+  presArmEl=null;
+  presLast=now;
   b.click();
 });
 
@@ -4044,7 +4061,9 @@ function tkRunDraw(){
       <div class="card noanim center">
         <button class="btn ghost" id="tkPrev" data-pres="prev" ${s.idx<=0?'disabled':''}>◀ 이전 판</button>
         ${tkConvHasBlank(tkConvOf(s))? '<button class="btn ghost" id="tkSpin" style="margin-left:8px">🎲 다른 낱말로 한 번 더</button>':''}
-        <button class="btn coral" id="tkNext" data-pres="next" style="margin-left:8px">${s.idx>=last? '끝내기 🎉' : '다음 판 ▶'}</button>
+        <button class="btn coral" id="tkNext" data-pres="next" style="margin-left:8px"${
+          s.idx>=last? ' data-pres-warn="마지막 판이에요. 리모컨을 한 번 더 누르면 활동이 끝나요"':''
+        }>${s.idx>=last? '끝내기 🎉' : '다음 판 ▶'}</button>
         <p class="muted" style="margin:12px 0 0; font-size:.85rem">
           🎲 <b>다른 낱말로 한 번 더</b> — 같은 대화 그대로, 룰렛만 다시 돌려요 (몇 번이든)<br>
           ▶ <b>다음 판</b> — ${s.idx>=last? '마지막 판이에요. 누르면 활동이 끝나요' : `다음 판(${s.idx+2}/${s.order.length})으로 넘어가요`}</p>
@@ -6949,7 +6968,9 @@ function blRunDraw(){
                     : '모두 답했어요! 🎉'}</p>
     <div class="hr"></div>
     <div class="center" style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap">
-      <button class="btn lg coral" id="blNextR" data-pres="next">${last? '🏁 끝내고 결과 보기' : '⏭ 다음 문제 시작'}</button>
+      <button class="btn lg coral" id="blNextR" data-pres="next"${
+        last? ' data-pres-warn="마지막 문제예요. 리모컨을 한 번 더 누르면 결과 화면으로 가요"':''
+      }>${last? '🏁 끝내고 결과 보기' : '⏭ 다음 문제 시작'}</button>
       <button class="btn ghost" id="blRedo" data-pres="prev">🔄 이 문제 다시 (시간 초기화)</button>
       <button class="btn ghost" id="blClose">🔚 게임 닫기</button>
     </div>
