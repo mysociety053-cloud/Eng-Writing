@@ -617,7 +617,27 @@
   .wm-card:active{transform:translateY(3px); box-shadow:0 2px 0 var(--shadow);}
   .wm-card .back,.wm-card .face{position:absolute; inset:0; display:flex; flex-direction:column;
     align-items:center; justify-content:center; gap:3px; padding:6px; text-align:center;}
-  .wm-card .back{background:linear-gradient(140deg,#EFF6F3,#DDEAE5); font-size:1.9rem; color:#9DBDB2;}
+  /* 뒷면은 이모지 대신 직접 그린다 — 기기마다 모양이 다르지 않고, 알록달록해서 아이들이 좋아한다.
+     네 가지 색이 돌아가며 깔려 진짜 카드 한 벌처럼 보인다 */
+  .wm-card .back{color:#fff; background-color:#3FA089;
+    background-image:
+      radial-gradient(circle at 21% 20%, rgba(255,255,255,.42) 0 15%, transparent 16%),
+      radial-gradient(circle at 82% 80%, rgba(255,255,255,.28) 0 11%, transparent 12%),
+      radial-gradient(circle at 86% 18%, rgba(255,255,255,.20) 0 7%, transparent 8%),
+      repeating-linear-gradient(45deg, rgba(255,255,255,.13) 0 9px, transparent 9px 18px);}
+  .wm-card:nth-child(4n+2) .back{background-color:#4F97CE;}
+  .wm-card:nth-child(4n+3) .back{background-color:#EF8A66;}
+  .wm-card:nth-child(4n+4) .back{background-color:#A97BD5;}
+  .wm-card .back i{font-style:normal; font-family:'Jua';
+    font-size:clamp(1.4rem,5.6vw,2rem); line-height:1;
+    width:clamp(40px,13vw,56px); height:clamp(40px,13vw,56px); border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(255,255,255,.24); border:3px solid rgba(255,255,255,.6);
+    text-shadow:0 2px 0 rgba(0,0,0,.13);}
+  .wm-card:not(.hit):not(.open):active .back i{transform:scale(.9);}
+  .wm-backpv{display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin:0 0 12px;}
+  .wm-backpv .wm-card{width:66px; box-shadow:0 4px 0 var(--shadow);}
+  .wm-backpv .muted{font-size:.83rem;}
   .wm-card .face{background:#fff; animation:wm-in .18s ease both;}
   @keyframes wm-in{from{opacity:0; transform:scale(.86);} to{opacity:1; transform:scale(1);}}
   .wm-card .face .w{font-family:'Andika'; font-size:clamp(.82rem,2.6vw,1.1rem); line-height:1.15;
@@ -1130,7 +1150,7 @@ function missionRoomStudent(){
         <div class="tile" id="goLand"><span class="emoji">🚩</span><div class="t">땅따먹기</div><div class="s">돌 던져 땅 넓히기</div></div>
         <div class="tile" id="goBalance"><span class="emoji">⚖️</span><div class="t">밸런스 게임</div><div class="s">선생님과 함께 번호 고르기</div></div>
         <div class="tile" id="goLadder"><span class="emoji">🪜</span><div class="t">사다리타기</div><div class="s">낱말 골라 점수 얻기</div></div>
-        <div class="tile" id="goMatch"><span class="emoji">🎴</span><div class="t">낱말 짝맞추기</div><div class="s">혼자 카드 뒤집어 짝 찾기</div></div>
+        <div class="tile" id="goMatch"><span class="emoji">🔮</span><div class="t">낱말 짝맞추기</div><div class="s">혼자 카드 뒤집어 짝 찾기</div></div>
       </div>
     </div>`;
   $('goBingo').onclick = ()=>{ studentMode='bingo'; studentPickClass(); };
@@ -1574,7 +1594,7 @@ function missionRoomTeacher(){
         <div class="tile" id="mLand"><span class="emoji">🚩</span><div class="t">땅따먹기</div><div class="s">돌 던져 땅 차지하기</div></div>
         <div class="tile" id="mBalance"><span class="emoji">⚖️</span><div class="t">밸런스 게임</div><div class="s">PPT 문제에 번호로 답하기</div></div>
         <div class="tile" id="mLadder"><span class="emoji">🪜</span><div class="t">사다리타기</div><div class="s">낱말 골라 점수 모으기</div></div>
-        <div class="tile" id="mMatch"><span class="emoji">🎴</span><div class="t">낱말 짝맞추기</div><div class="s">학생이 혼자 하는 카드 놀이</div></div>
+        <div class="tile" id="mMatch"><span class="emoji">🔮</span><div class="t">낱말 짝맞추기</div><div class="s">학생이 혼자 하는 카드 놀이</div></div>
       </div>
     </div>`;
   $('mBingo').onclick = bingoSetup;
@@ -1669,7 +1689,7 @@ function createAssignment(){
     { k:'__land__',    c:'land',    em:'🚩', nm:'땅따먹기',    n:(DB.land||[]).length,    head:'🚩 만들어 둔 땅따먹기' },
     { k:'__balance__', c:'balance', em:'⚖️', nm:'밸런스 게임', n:(DB.balance||[]).length, head:'⚖️ 만들어 둔 밸런스 게임' },
     { k:'__ladder__',  c:'ladder',  em:'🪜', nm:'사다리타기',  n:(DB.ladder||[]).length,  head:'🪜 만들어 둔 사다리타기' },
-    { k:'__match__',   c:'match',   em:'🎴', nm:'낱말 짝맞추기', n:(DB.match||[]).length, head:'🎴 만들어 둔 낱말 짝맞추기' }];
+    { k:'__match__',   c:'match',   em:'🔮', nm:'낱말 짝맞추기', n:(DB.match||[]).length, head:'🔮 만들어 둔 낱말 짝맞추기' }];
   const any = lists.length || ACTS.some(a=>a.n);
   const gChips = grades.map(g=>`<span class="chip lib-g" data-g="${esc(g)}">${esc(g)}
       <b>${lists.filter(l=>(l.grade||'').trim()===g).length}</b></span>`).join('')
@@ -1756,11 +1776,11 @@ function createAssignment(){
         bs? '<span class="pill board">🎲 보드게임</span>':'',
         gs? '<span class="pill land">🚩 땅따먹기</span>':'',
         ss? '<span class="pill ladder">🪜 사다리타기</span>':'',
-        ws? '<span class="pill match">🎴 낱말 짝맞추기</span>':''
+        ws? '<span class="pill match">🔮 낱말 짝맞추기</span>':''
       ].filter(Boolean).join(' ');
       return `<div class="card" style="margin-bottom:12px">
         <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap">
-          <h3 style="margin:0; flex:1">${ws?'🎴':(ss?'🪜':(gs?'🚩':(bs?'🎲':(ms?'🃏':(l.bingo?'👂':'📄')))))} ${esc(l.name)}</h3>
+          <h3 style="margin:0; flex:1">${ws?'🔮':(ss?'🪜':(gs?'🚩':(bs?'🎲':(ms?'🃏':(l.bingo?'👂':'📄')))))} ${esc(l.name)}</h3>
           <span class="muted">낱말 ${l.items.length}개</span>
         </div>
         <p class="muted" style="margin:5px 0 6px">${tag||'학년 미지정'}${emoCount?` · 그림 ${emoCount}개 지정됨`:''}</p>
@@ -1783,7 +1803,7 @@ function createAssignment(){
             <button class="btn sm" data-load="${l.id}|board">🎲 보드게임${bs?' (이어서)':''}</button>
             <button class="btn sm" data-load="${l.id}|land">🚩 땅따먹기${gs?' (이어서)':''}</button>
             <button class="btn sm" data-load="${l.id}|ladder">🪜 사다리타기${ss?' (이어서)':''}</button>
-            <button class="btn sm" data-load="${l.id}|match">🎴 낱말 짝맞추기${ws?' (이어서)':''}</button></div>
+            <button class="btn sm" data-load="${l.id}|match">🔮 낱말 짝맞추기${ws?' (이어서)':''}</button></div>
         </div>
         <div style="display:flex; gap:8px; flex-wrap:wrap">
           <button class="btn ${l.bingo?'':'ghost'} sm" data-bingo="${l.id}">${l.bingo?'👂 빙고놀이용 ✓':'👂 빙고놀이용으로 표시'}</button>
@@ -2165,12 +2185,12 @@ function loadLadderIntoDraft(setId){
 /* 만들어 둔 낱말 짝맞추기 목록 */
 function renderMatchSetList(el, redraw){
   const sets=wmSets();
-  if(!sets.length){ el.innerHTML=`<div class="card empty"><span class="em">🎴</span>아직 만든 낱말 짝맞추기가 없어요.<br>
-    「＋ 새 과제 만들기」에서 <b>③ 과제 유형 → 🎴 낱말 짝맞추기</b>를 고르면 만들 수 있어요.</div>`; return; }
+  if(!sets.length){ el.innerHTML=`<div class="card empty"><span class="em">🔮</span>아직 만든 낱말 짝맞추기가 없어요.<br>
+    「＋ 새 과제 만들기」에서 <b>③ 과제 유형 → 🔮 낱말 짝맞추기</b>를 고르면 만들 수 있어요.</div>`; return; }
   el.innerHTML = sets.map(s=>`
     <div class="card" style="margin-bottom:12px">
       <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap">
-        <h3 style="margin:0; flex:1">🎴 ${esc(s.title)}</h3>
+        <h3 style="margin:0; flex:1">🔮 ${esc(s.title)}</h3>
         <span class="pill match">낱말 짝맞추기</span><span class="muted">${s.stages}단계</span>
       </div>
       <p class="muted" style="margin:5px 0 6px">${esc(s.grade||'학년 미지정')} ·
@@ -2180,7 +2200,7 @@ function renderMatchSetList(el, redraw){
         wmItems(s).slice(0,12).map(i=>esc((i.em||'')+' '+i.en)).join(', ')}${wmItems(s).length>12?' …':''}</p>
       <p class="muted" style="font-size:.82rem; margin:0 0 10px">🏫 ${esc(wmClassNames(s))}</p>
       <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px">
-        <button class="btn sm" data-wmload="${esc(s.id)}">🎴 이 짝맞추기 고치기 / 다시 부여</button>
+        <button class="btn sm" data-wmload="${esc(s.id)}">🔮 이 짝맞추기 고치기 / 다시 부여</button>
         <button class="btn ghost sm" data-wmdel="${esc(s.id)}">삭제</button>
       </div>
       ${(()=>{ const l=listOfWmSet(s); return l? `
@@ -2222,7 +2242,7 @@ function loadMatchIntoDraft(setId){
             loadMeta:{ grade:s.grade||'', unit:(l&&l.unit)||'', lesson:(l&&l.lesson)||'', title:s.title||'' } };
   if(l) tkLoadPix(l.id);                 /* 넣어 둔 사진도 그대로 이어 쓴다 */
   assignmentForm();
-  toast('낱말 짝맞추기를 불러왔어요 🎴');
+  toast('낱말 짝맞추기를 불러왔어요 🔮');
 }
 function loadBalanceIntoDraft(setId){
   const s=blSet(setId); if(!s) return;
@@ -2503,7 +2523,7 @@ function assignmentForm(){
             <button data-mt="land" class="${draft.mode==='land'?'on':''}">🚩 땅따먹기</button>
             <button data-mt="balance" class="${draft.mode==='balance'?'on':''}">⚖️ 밸런스 게임</button>
             <button data-mt="ladder" class="${draft.mode==='ladder'?'on':''}">🪜 사다리타기</button>
-            <button data-mt="match" class="${draft.mode==='match'?'on':''}">🎴 낱말 짝맞추기</button>
+            <button data-mt="match" class="${draft.mode==='match'?'on':''}">🔮 낱말 짝맞추기</button>
           </div></div>
       </div>
       <p class="muted" style="font-size:.82rem; margin:-4px 0 12px 2px" id="modeHint"></p>
@@ -2858,7 +2878,7 @@ function assignmentForm(){
     const kind=d.src.kind, pool=kind!=='manual';
     const have=wmDraftCount();
     $('matchBox').innerHTML=`
-      <div class="mg-note" style="margin:0 0 14px">🎴 학생이 <b>자기 태블릿에서 혼자</b> 하는 놀이예요.
+      <div class="mg-note" style="margin:0 0 14px">🔮 학생이 <b>자기 태블릿에서 혼자</b> 하는 놀이예요.
         카드를 두 장 뒤집어 <b>영어 카드</b>와 <b>뜻 카드</b>가 짝이면 그대로 열려 있고,
         아니면 다시 덮여요. 판을 다 맞추면 <b>다음 단계</b>로 올라가고 카드가 한 짝씩 늘어납니다.<br>
         적게 뒤집어 맞출수록 <b>별 ⭐</b>을 많이 받아요. (최고 별 3개)</div>
@@ -3297,7 +3317,7 @@ function renderLinkNote(){
   const ss = (draft.ladder && draft.ladder.id) ? sdSet(draft.ladder.id) : sdSetOfList(l);
   if(ss) spots.push(`🪜 사다리타기 「${esc(ss.title)}」`);
   const ws = (draft.match && draft.match.id) ? wmSet(draft.match.id) : wmSetOfList(l);
-  if(ws) spots.push(`🎴 낱말 짝맞추기 「${esc(ws.title)}」`);
+  if(ws) spots.push(`🔮 낱말 짝맞추기 「${esc(ws.title)}」`);
   if(!spots.length){ box.innerHTML=''; return; }
   const warn = (ms && draft.mode!=='mingle') || (bs && draft.mode!=='board') || (gs && draft.mode!=='land')
     || (ss && draft.mode!=='ladder') || (ws && draft.mode!=='match');
@@ -3408,7 +3428,7 @@ const WM_MINP = 3;                 /* 판이 되려면 낱말이 적어도 3개�
 const WM_MAXP = 10;                /* 한 판에 10짝(카드 20장)이면 태블릿에서 꽉 찬다 */
 function wmSaveLabel(){
   return (draft && draft.match && draft.match.id)
-    ? '🎴 고친 내용 저장하기' : '🎴 선택한 학급에 낱말 짝맞추기 배부하기';
+    ? '🔮 고친 내용 저장하기' : '🔮 선택한 학급에 낱말 짝맞추기 배부하기';
 }
 function wmChosen(){ return draft.items.filter(i=>i.sel && (i.text||'').trim()); }
 /* 낱말을 어디서 가져올까 — ②에 적은 것만 / 보관함의 학년·단원에서 / 보관함 전체
@@ -3530,8 +3550,14 @@ function renderMatchPreview(){
   const items=all.slice(0,n);
   const cards=[];
   items.forEach((it,k)=>{ cards.push({ p:k, side:'en', it }); cards.push({ p:k, side:'ko', it }); });
-  box.innerHTML = `<div class="wm-board">${cards.map(c=>
-    `<div class="wm-card open">${wmFaceHTML(c, d.showKo!==false)}</div>`).join('')}</div>`;
+  box.innerHTML = `<div class="wm-backpv">
+      <div class="wm-card"><div class="back"><i>?</i></div></div>
+      <div class="wm-card"><div class="back"><i>?</i></div></div>
+      <div class="wm-card"><div class="back"><i>?</i></div></div>
+      <span class="muted">← 뒤집기 전에는 이런 카드예요 (색은 자리마다 달라요)</span>
+    </div>
+    <div class="wm-board">${cards.map(c=>
+      `<div class="wm-card open">${wmFaceHTML(c, d.showKo!==false)}</div>`).join('')}</div>`;
 }
 /* 카드 앞면 — 영어 카드는 글씨만, 뜻 카드는 그림(+한글) */
 function wmFaceHTML(c, showKo){
@@ -4329,7 +4355,7 @@ async function saveMatchSet(items, chosen, meta){
   const lrec=DB.lists.find(x=>x.id===listId);
   if(lrec && lrec.matchId!==rec.id){ lrec.matchId=rec.id; lrec.updatedAt=Date.now(); await sSet(KEYS.lists, DB.lists); }
   draft=null;
-  toast(`${classIds.length}개 학급에 낱말 짝맞추기를 배부했어요! 🎴`);
+  toast(`${classIds.length}개 학급에 낱말 짝맞추기를 배부했어요! 🔮`);
   createAssignment();
 }
 
@@ -10395,9 +10421,9 @@ function matchTeacher(){
   app.innerHTML=`
     <button class="back" onclick="missionRoomTeacher()">← 미션 활동</button>
     <div class="card">
-      <h2 style="margin-top:4px">🎴 낱말 짝맞추기</h2>
+      <h2 style="margin-top:4px">🔮 낱말 짝맞추기</h2>
       <p class="muted">학생이 <b>자기 태블릿에서 혼자</b> 하는 놀이예요. 선생님이 진행을 잡을 것은 없고,
-        배부해 두면 학생 화면 <b>미션 활동 → 🎴 낱말 짝맞추기</b>에 바로 나옵니다.<br>
+        배부해 두면 학생 화면 <b>미션 활동 → 🔮 낱말 짝맞추기</b>에 바로 나옵니다.<br>
         아이들이 모은 <b>별</b>은 아래 <b>「별 모은 것 보기」</b>에서 확인해요.</p>
       <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:12px">
         <button class="btn" id="wmMake">＋ 새 짝맞추기 만들기</button>
@@ -10407,7 +10433,7 @@ function matchTeacher(){
     ${sets.length? sets.map(s=>`
       <div class="card" style="margin-bottom:12px">
         <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap">
-          <h3 style="margin:0; flex:1">🎴 ${esc(s.title)}</h3>
+          <h3 style="margin:0; flex:1">🔮 ${esc(s.title)}</h3>
           <span class="pill match">${s.stages}단계</span>
         </div>
         <p class="muted" style="margin:5px 0 6px">${esc(s.grade||'학년 미지정')} ·
@@ -10421,7 +10447,7 @@ function matchTeacher(){
           <button class="btn ghost sm" data-wmedit="${esc(s.id)}">고치기 / 다시 부여</button>
         </div>
       </div>`).join('')
-    : `<div class="card empty"><span class="em">🎴</span>아직 만든 짝맞추기가 없어요.<br>
+    : `<div class="card empty"><span class="em">🔮</span>아직 만든 짝맞추기가 없어요.<br>
         <b>＋ 새 짝맞추기 만들기</b>로 시작해요.</div>`}`;
   $('wmMake').onclick = ()=>{ draft={ items:[], repeat:3, classIds:[], mode:'match' }; assignmentForm(); };
   $('wmRecs').onclick = ()=> matchDash();
@@ -10437,7 +10463,7 @@ function matchDash(){
   app.innerHTML=`<button class="back" onclick="matchTeacher()">← 낱말 짝맞추기</button>
     <div class="card"><h2 style="margin-top:4px">⭐ 어느 판을 볼까요?</h2>
       <div class="grid-cards" style="margin-top:12px">${sets.map(s=>`
-        <div class="tile" data-wmd="${esc(s.id)}"><span class="emoji">🎴</span>
+        <div class="tile" data-wmd="${esc(s.id)}"><span class="emoji">🔮</span>
           <div class="t">${esc(s.title)}</div><div class="s">${s.stages}단계 · 낱말 ${wmItems(s).length}개</div></div>`).join('')}
       </div></div>`;
   app.querySelectorAll('[data-wmd]').forEach(el=> el.onclick=()=> matchDashSet(el.dataset.wmd));
@@ -10450,7 +10476,7 @@ function matchDashSet(setId){
       <div class="card empty"><span class="em">🏫</span>배부된 학급이 없어요.</div>`; return; }
   if(cls.length===1) return matchDashClass(setId, cls[0].id);
   app.innerHTML=`<button class="back" onclick="matchDash()">← 판 고르기</button>
-    <div class="card"><h2 style="margin-top:4px">🎴 ${esc(set.title)} — 어느 반을 볼까요?</h2>
+    <div class="card"><h2 style="margin-top:4px">🔮 ${esc(set.title)} — 어느 반을 볼까요?</h2>
       <div class="grid-cards" style="margin-top:12px">${cls.map(c=>`
         <div class="tile" data-wmc="${esc(c.id)}"><span class="emoji">🏫</span>
           <div class="t">${esc(c.name)}</div><div class="s">${c.students.length}명</div></div>`).join('')}
@@ -10502,16 +10528,16 @@ async function matchStudent(){
   const mine=wmSets().filter(s=> !s.classIds || !s.classIds.length || s.classIds.includes(session.classId));
   const wrap=$('wmWrap'); if(!wrap || !WM) return;
   if(!mine.length){
-    wrap.outerHTML=`<div id="wmWrap" class="card empty"><span class="em">🎴</span>
+    wrap.outerHTML=`<div id="wmWrap" class="card empty"><span class="em">🔮</span>
       아직 받은 짝맞추기가 없어요.<br>선생님이 배부하면 여기에 나와요!
       <div class="center" style="margin-top:12px"><button class="btn ghost sm" onclick="matchStudent()">🔄 다시 확인</button></div></div>`;
     return;
   }
   if(mine.length>1){
     wrap.outerHTML=`<div id="wmWrap" class="card">
-      <h2 style="margin-top:4px">🎴 어떤 낱말로 할까요?</h2>
+      <h2 style="margin-top:4px">🔮 어떤 낱말로 할까요?</h2>
       <div class="grid-cards" style="margin-top:12px">${mine.map(s=>`
-        <div class="tile" data-wmpick="${esc(s.id)}"><span class="emoji">🎴</span>
+        <div class="tile" data-wmpick="${esc(s.id)}"><span class="emoji">🔮</span>
           <div class="t">${esc(s.title)}</div>
           <div class="s">${s.stages}단계 · 낱말 ${wmItems(s).length}개</div></div>`).join('')}</div></div>`;
     app.querySelectorAll('[data-wmpick]').forEach(el=> el.onclick=()=> wmOpen(el.dataset.wmpick));
@@ -10634,7 +10660,7 @@ function wmDraw(){
   const html=(inner, cls)=>{ wrap.className=cls||'card'; wrap.innerHTML=inner; };
 
   if(WM.view==='empty'){
-    html(`<div class="empty"><span class="em">🎴</span>이 판에 쓸 낱말이 아직 모자라요.<br>
+    html(`<div class="empty"><span class="em">🔮</span>이 판에 쓸 낱말이 아직 모자라요.<br>
       선생님께 말씀드려 주세요!
       <div class="center" style="margin-top:12px">
         <button class="btn ghost sm" onclick="matchStudent()">🔄 다시 확인</button></div></div>`, 'card');
@@ -10645,7 +10671,7 @@ function wmDraw(){
     const next=Math.min(me.stage, set.stages-1);
     const allDone=me.stage>=set.stages;
     const pool=wmItems(set);
-    html(`<h2 style="margin-top:4px">🎴 ${esc(set.title)}</h2>
+    html(`<h2 style="margin-top:4px">🔮 ${esc(set.title)}</h2>
       <p class="muted">카드를 두 장 뒤집어 <b>영어</b>와 <b>뜻</b>이 짝이면 그대로 열려 있어요.<br>
         적게 뒤집어 맞출수록 <b>별</b>을 많이 받아요!</p>
       <div class="center" style="margin:16px 0 6px">
@@ -10678,7 +10704,7 @@ function wmDraw(){
         const open=WM.open.includes(k), hit=WM.hit.includes(k);
         const miss=WM.miss && WM.miss.includes(k);
         return `<div class="wm-card${hit?' hit':(open?' open':'')}${miss?' miss':''}${(hit||open||WM.busy)?' lock':''}" data-wmk="${k}">
-          ${(open||hit)? wmFaceHTML(c, set.showKo!==false) : '<div class="back">🎴</div>'}</div>`; }).join('')}
+          ${(open||hit)? wmFaceHTML(c, set.showKo!==false) : '<div class="back"><i>?</i></div>'}</div>`; }).join('')}
       </div>
       <div class="center" style="margin-top:14px">
         <button class="back" id="wmStop">← 그만하고 단계 보기</button></div>`);
