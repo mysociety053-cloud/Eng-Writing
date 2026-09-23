@@ -138,6 +138,9 @@
   .badge.try{background:#FCE6DF; color:var(--coral-d);}
   @keyframes pop{from{transform:scale(.6); opacity:0;} to{transform:scale(1); opacity:1;}}
   .line-tools{display:flex; gap:8px; justify-content:flex-end; margin-top:4px;}
+  /* 지우개 — 켜져 있으면 단추가 눌린 채로 보이고, 공책 칸 위에서는 문지른 곳만 지워진다 */
+  .btn.ghost.eraser-on{background:#FCE6DF; border-color:var(--coral-d); color:var(--coral-d); box-shadow:0 1px 0 var(--coral-d);}
+  .erasing .ink{cursor:cell;}
   .model-card{background:#FFFCF4; border:2px dashed var(--green); border-radius:14px; padding:6px 10px;}
   .toast{position:fixed; left:50%; bottom:26px; transform:translateX(-50%) translateY(20px);
     background:var(--ink); color:#fff; padding:12px 20px; border-radius:14px; font-family:'Jua';
@@ -5655,7 +5658,8 @@ function buildItemCard(it, idx){
     <div class="line-tools" data-itemtools="${it.id}" style="justify-content:space-between; align-items:center; ${allDone?'display:none':''}">
       <span class="muted" data-status="${it.id}">왼쪽 칸부터 차례로 써요</span>
       <span style="display:flex; gap:8px">
-        <button class="btn ghost sm" data-clearitem="${it.id}">지우기</button>
+        <button class="btn ghost sm" data-eraseitem="${it.id}">🧽 지우개</button>
+        <button class="btn ghost sm" data-clearitem="${it.id}">모두 지우기</button>
         <button class="btn sm" data-checkitem="${it.id}">확인</button>
       </span>
     </div>`;
@@ -5731,14 +5735,17 @@ function initItemCanvases(it){
       drawGlyphs(tlctx, it.text, bw, bh, '#000','700', {center:true,padding:8});
       const inkLogic=document.createElement('canvas'); inkLogic.width=bw; inkLogic.height=bh;
       const ilctx=inkLogic.getContext('2d');
-      cell._engine={ itemId:it.id, k, bw, bh, ictx, bctx, tlctx, ilctx, targetLogic, inkLogic, drawn:false, fontSize:r.size };
+      cell._engine={ itemId:it.id, k, bw, bh, ictx, bctx, tlctx, ilctx, targetLogic, inkLogic, drawn:false, fontSize:r.size,
+        isErasing:()=> card.classList.contains('erasing') };
       if(!isDone && !cell.classList.contains('future')) attachDrawing(cell, ink);
     });
   });
   // single toolbar acts on the active (next unfinished) cell of this item
   const clearB=card.querySelector(`[data-clearitem="${it.id}"]`);
   const checkB=card.querySelector(`[data-checkitem="${it.id}"]`);
-  if(clearB) clearB.onclick=()=>{ const k=activeIdx(it.id); if(k>=0) clearLine(it.id,k); };
+  const eraseB=card.querySelector(`[data-eraseitem="${it.id}"]`);
+  if(clearB) clearB.onclick=()=>{ const k=activeIdx(it.id); if(k>=0) clearLine(it.id,k); setEraser(card, eraseB, false); };
+  if(eraseB) eraseB.onclick=()=> setEraser(card, eraseB, !card.classList.contains('erasing'));
   if(checkB) checkB.onclick=()=>{ const k=activeIdx(it.id); if(k>=0) checkLine(it.id,k); };
 }
 
@@ -5750,11 +5757,19 @@ function attachDrawing(cell, ink){
     return { x:(p.clientX-r.left)*(e.bw/r.width), y:(p.clientY-r.top)*(e.bh/r.height) }; };
   const stroke=(ctx,a,b,lw,col)=>{ ctx.lineCap='round'; ctx.lineJoin='round'; ctx.lineWidth=lw; ctx.strokeStyle=col;
     ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke(); };
-  const down=(ev)=>{ ev.preventDefault(); drawing=true; last=pos(ev); e.drawn=true;
-    e.ictx.fillStyle='#1B3A6B'; e.ictx.beginPath(); e.ictx.arc(last.x,last.y,lwV*0.55,0,7); e.ictx.fill();
-    e.ilctx.fillStyle='#000'; e.ilctx.beginPath(); e.ilctx.arc(last.x,last.y,lwL*0.55,0,7); e.ilctx.fill(); };
+  /* 지우개 — 보이는 판과 채점용 판을 같은 굵기로 함께 지워야 채점이 화면과 어긋나지 않는다 */
+  const lwE=Math.max(18, (e.fontSize||40)*0.45);
+  const erasing=()=> !!(e.isErasing && e.isErasing());
+  const dot=(ctx,p,r,col)=>{ ctx.fillStyle=col; ctx.beginPath(); ctx.arc(p.x,p.y,r,0,7); ctx.fill(); };
+  const eraseAt=(fn)=>{ [e.ictx,e.ilctx].forEach(c=>{ c.save(); c.globalCompositeOperation='destination-out'; fn(c); c.restore(); }); };
+  const down=(ev)=>{ ev.preventDefault(); drawing=true; last=pos(ev);
+    if(erasing()){ eraseAt(c=> dot(c,last,lwE/2,'#000')); return; }
+    e.drawn=true;
+    dot(e.ictx,last,lwV*0.55,'#1B3A6B'); dot(e.ilctx,last,lwL*0.55,'#000'); };
   const move=(ev)=>{ if(!drawing)return; ev.preventDefault(); const p=pos(ev);
-    stroke(e.ictx,last,p,lwV,'#1B3A6B'); stroke(e.ilctx,last,p,lwL,'#000'); last=p; };
+    if(erasing()) eraseAt(c=> stroke(c,last,p,lwE,'#000'));
+    else { stroke(e.ictx,last,p,lwV,'#1B3A6B'); stroke(e.ilctx,last,p,lwL,'#000'); }
+    last=p; };
   const up=()=>{ drawing=false; };
   ink.addEventListener('mousedown',down); ink.addEventListener('mousemove',move);
   window.addEventListener('mouseup',up);
@@ -5762,6 +5777,11 @@ function attachDrawing(cell, ink){
   ink.addEventListener('touchend',up);
 }
 
+/* 연필 ↔ 지우개 — host(카드·문장 칸)에 'erasing'을 달아 두고, 단추 글자도 함께 바꾼다 */
+function setEraser(host, btn, on){
+  if(host) host.classList.toggle('erasing', on);
+  if(btn){ btn.classList.toggle('eraser-on', on); btn.textContent= on? '✏️ 연필로' : '🧽 지우개'; }
+}
 function clearLine(itemId,k){
   const cell=app.querySelector(`[data-cell="${itemId}|${k}"]`); if(!cell) return;
   const e=cell._engine; if(!e) return;
@@ -5816,6 +5836,8 @@ async function checkLine(itemId,k){
   badge.className='badge ok show'; badge.textContent='✓';
   if(st) st.textContent = r.verdict==='great'? '딱 맞췄어요! 💯' : '잘 했어요! 다음 칸을 써요 ✓';
   cell.classList.add('locked');
+  const card=cell.closest('[data-item]');
+  setEraser(card, card && card.querySelector(`[data-eraseitem="${itemId}"]`), false);
   drawNotebook(e.bctx,e.bw,e.bh,2);
   drawGlyphs(e.bctx, engineState.a.items.find(i=>i.id===itemId).text, e.bw, e.bh, '#1F1D19','700', {center:true,padding:8});
   // record progress
@@ -5998,7 +6020,7 @@ function fwDraw(){
   if(!FW) return;
   const it=FW.items[FW.idx];
   FW.phase= fwSolved(it)? 'done' : 'write';
-  FW.wrong=[]; FW.trace=false; FW.tracedOk=false; FW.msg=null;
+  FW.wrong=[]; FW.trace=false; FW.tracedOk=false; FW.msg=null; FW.eraser=false;
   fwBankDraw();
   $('fwCard').innerHTML=`
     <div class="fw-nav" id="fwNav"></div>
@@ -6027,7 +6049,8 @@ function fwInitCanvas(){
   const tlctx=tg.getContext('2d');
   const size=fwGlyphs(tlctx, sent, w, h, '#000', sent);
   const il=document.createElement('canvas'); il.width=w; il.height=h;
-  const e={ bw:w, bh:h, ictx, bctx, tlctx, ilctx: il.getContext('2d'), drawn:false, fontSize:size, sent };
+  const e={ bw:w, bh:h, ictx, bctx, tlctx, ilctx: il.getContext('2d'), drawn:false, fontSize:size, sent,
+    isErasing:()=> !!(FW && FW.eraser) };
   wrap._engine=e; FW.eng=e;
   fwBgDraw();
   attachDrawing(wrap, ink);
@@ -6077,12 +6100,12 @@ function fwSync(){
       const hintLeft=FW_HINT_MAX(mode) - st.used;
       left.push(`<button class="btn ghost sm" id="fwHintB" ${hintLeft<=0?'disabled':''}>💡 힌트${
         mode==='step' && hintLeft>0 ? ` (${hintLeft})` : ''}</button>`);
-      right.push(`<button class="btn ghost sm" id="fwClear">지우기</button>`);
+      right.push(fwEraserBtn(), `<button class="btn ghost sm" id="fwClear">모두 지우기</button>`);
       right.push(`<button class="btn sm" id="fwDoneB">✅ 다 썼어요</button>`);
     } else {
       left.push(`<button class="btn ghost sm" id="fwSay">🔊 들어보기</button>`);
       if(!FW.trace) left.push(`<button class="btn ghost sm" id="fwTrace">✏️ 따라 써 보기</button>`);
-      else { right.push(`<button class="btn ghost sm" id="fwClear">지우기</button>`);
+      else { right.push(fwEraserBtn(), `<button class="btn ghost sm" id="fwClear">모두 지우기</button>`);
              right.push(`<button class="btn sm" id="fwCheck">확인</button>`); }
       const nx=fwNextIdx();
       right.push(nx<0 ? `<button class="btn sm" id="fwFinish">🎉 다 했어요</button>`
@@ -6092,6 +6115,7 @@ function fwSync(){
       <span style="display:flex; gap:8px; flex-wrap:wrap">${right.join('')}</span>`;
     const b=(id,fn)=>{ const el=$(id); if(el) el.onclick=fn; };
     b('fwHintB', fwHintUse);
+    b('fwEraser', ()=>{ FW.eraser=!FW.eraser; setEraser($('fwLine'), $('fwEraser'), FW.eraser); });
     b('fwClear', ()=>{ fwClearInk(); fwMsg(FW.trace? '연한 글자 위에 또박또박 따라 써 봐요 ✍️' : '다시 써 봐요 ✍️'); });
     b('fwDoneB', fwDone);
     b('fwSay', ()=> speak(it.text));
@@ -6108,7 +6132,11 @@ function fwSync(){
   }
   fwPickDraw();
 }
+function fwEraserBtn(){
+  return `<button class="btn ghost sm ${FW.eraser?'eraser-on':''}" id="fwEraser">${FW.eraser?'✏️ 연필로':'🧽 지우개'}</button>`;
+}
 function fwClearInk(){
+  FW.eraser=false; setEraser($('fwLine'), $('fwEraser'), false);
   const e=FW.eng; if(!e) return;
   e.ictx.clearRect(0,0,e.bw,e.bh); e.ilctx.clearRect(0,0,e.bw,e.bh); e.drawn=false;
 }
