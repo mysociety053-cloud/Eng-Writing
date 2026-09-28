@@ -5364,13 +5364,18 @@ async function tkPush(){
   TK.sess.updatedAt=Date.now();
   return await sSet(talkKey(TK.sess.classId), TK.sess);
 }
-/* 지금 판에 빈칸이 있으면 낱말을 하나 뽑는다 (바로 앞과 같은 낱말은 되도록 피한다) */
+/* 지금 판에 빈칸이 있으면 낱말을 하나 뽑는다.
+   꾸러미 낱말이 한 번씩 다 나와야 다음 바퀴가 시작된다 — 남은 낱말(s.left)에서만 뽑고,
+   다 쓰면 다시 채우되 바퀴가 바뀌는 순간에도 바로 앞 낱말은 피한다 */
 function tkPickWord(s){
   const conv=tkConvOf(s), bank=s.bank||[];
   if(!tkConvHasBlank(conv) || !bank.length){ s.pick=-1; return; }
-  let p=Math.floor(Math.random()*bank.length);
-  if(bank.length>1 && p===s.pick) p=(p+1)%bank.length;
-  s.pick=p; s.spin=(s.spin||0)+1;
+  let left=(s.left||[]).filter(i=> i>=0 && i<bank.length);
+  if(!left.length) left=bank.map((_,i)=>i);
+  const can=left.filter(i=> i!==s.pick);
+  const p=(can.length? can : left)[Math.floor(Math.random()*(can.length||left.length))];
+  s.pick=p; left.splice(left.indexOf(p),1);
+  s.left=left; s.spin=(s.spin||0)+1;
 }
 async function tkGo(delta){
   const s=TK.sess;
@@ -7328,19 +7333,50 @@ function mgSuggest(en, ko){
   return out.slice(0,12);
 }
 
+/* 카드 나눠 주기 — 반 명단 전체에 카드를 골고루 돌린다.
+   세트·반마다 정해진 씨앗으로 섞으므로 어느 기기에서 계산해도 같은 결과가 나온다 (따로 저장하지 않는다).
+   이렇게 해야 "우리 반에 이 카드를 가진 친구가 몇 명인지"를 알고 보드를 짤 수 있다 */
+const MG_DEAL=2;                                       /* 배정 방식 번호 — 예전(무작위) 배정과 구별 */
+function mgRng(str){
+  let h=2166136261;
+  for(let i=0;i<str.length;i++){ h^=str.charCodeAt(i); h=Math.imul(h,16777619); }
+  return ()=>{ h=(h+0x6D2B79F5)|0; let t=Math.imul(h^(h>>>15), 1|h);
+    t=(t+Math.imul(t^(t>>>7), 61|t))^t; return ((t^(t>>>14))>>>0)/4294967296; };
+}
+function mgDeal(set, cid){
+  const K=set.cards.length, cls=DB.classes.find(c=>c.id===cid);
+  const ids=(cls? cls.students : []).map(s=>s.id).sort();
+  const rnd=mgRng(`${set.id}|${set.ver||0}|${cid}`);
+  const mix=a=>{ for(let i=a.length-1;i>0;i--){ const j=Math.floor(rnd()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
+  mix(ids);
+  const order=mix([...Array(K).keys()]);               /* 남는 카드가 늘 앞 카드가 되지 않도록 카드 순서도 섞는다 */
+  const deal=new Map();
+  ids.forEach((id,k)=> deal.set(id, order[k%K]));
+  return deal;
+}
 /* 배정: 내 카드 1장 + 카드별 만날 친구 수
-   내 카드는 이미 내가 갖고 있으니 보드에도 룰렛에도 넣지 않는다 (남은 카드마다 최소 1명, 카드당 최대 cap명) */
-function mgMakeAssign(set){
+   내 카드는 이미 내가 갖고 있으니 보드에도 룰렛에도 넣지 않는다.
+   카드별 인원은 '우리 반에서 그 카드를 가진 친구 수'와 '카드당 최대 cap명' 중 작은 쪽을 넘지 않는다
+   → 반 전체에 1명뿐인 카드를 2명 찾으라는 일이 생기지 않는다. 다 모아도 목표에 못 미치면 목표를 줄인다 */
+function mgMakeAssign(set, cid, sid){
   const K=set.cards.length;
-  const card=Math.floor(Math.random()*K);
-  const cap=Math.max(1, set.cap||3);
+  const deal=mgDeal(set, cid);
+  const card=deal.has(sid)? deal.get(sid) : Math.floor(Math.random()*K);
   if(K<2) return { card, board:Array(K).fill(1) };     /* 카드가 한 종뿐인 옛 세트는 그대로 */
-  const board=Array(K).fill(1);
-  board[card]=0;                                       /* ← 내 카드는 0명 */
-  let left=Math.max(0, (set.goal||K)-(K-1)), guard=0;
-  while(left>0 && guard++<800){
-    const i=Math.floor(Math.random()*K);
-    if(i!==card && board[i]<cap){ board[i]++; left--; }
+  const cap=Math.max(1, set.cap||3);
+  const holders=Array(K).fill(0);
+  deal.forEach((c,id)=>{ if(id!==sid) holders[c]++; });
+  const room=holders.map((h,i)=> i===card? 0 : Math.min(cap, h));   /* ← 내 카드는 0명 */
+  const board=Array(K).fill(0);
+  let left=Math.max(0, set.goal||K);
+  /* 가진 친구가 있는 카드마다 먼저 1명씩, 그다음 남는 인원을 자리 있는 카드에 흩뿌린다 */
+  const has=[...Array(K).keys()].filter(i=> room[i]>0);
+  for(let i=has.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [has[i],has[j]]=[has[j],has[i]]; }
+  has.forEach(i=>{ if(left>0){ board[i]=1; left--; } });
+  while(left>0){
+    const open=has.filter(i=> board[i]<room[i]);
+    if(!open.length) break;
+    board[open[Math.floor(Math.random()*open.length)]]++; left--;
   }
   return { card, board };
 }
@@ -7361,7 +7397,9 @@ async function mgEnsure(set, cid, stu){
   let made=false, fixed=false;
   const resolve=(cur)=>{
     made=false; fixed=false;
-    if(cur && cur.ver===set.ver && Array.isArray(cur.board) && cur.board.length===set.cards.length){
+    /* 예전 방식(반 현황을 안 보고 무작위)으로 받은 배정은, 아직 도장이 하나도 없을 때만 새로 짠다 */
+    const stale = cur && cur.deal!==MG_DEAL && !(cur.stamps||[]).length;
+    if(cur && !stale && cur.ver===set.ver && Array.isArray(cur.board) && cur.board.length===set.cards.length){
       /* 내 카드가 보드에 남아 있는 옛 배정이면 그 몫만 다른 카드로 옮긴다 (카드·도장은 그대로) */
       if(set.cards.length>1 && (cur.board[cur.card]||0)>0){
         fixed=true;
@@ -7371,9 +7409,9 @@ async function mgEnsure(set, cid, stu){
       return null;                                   /* 그대로 쓴다 → 쓰기 없음 */
     }
     made=true;
-    const a=mgMakeAssign(set);
+    const a=mgMakeAssign(set, cid, stu.id);
     return { setId:set.id, classId:cid, sid:stu.id, name:stu.name, mgKey:set.id+'|'+cid,
-             ver:set.ver, card:a.card, board:a.board, stamps:[], startedAt:Date.now() };
+             ver:set.ver, deal:MG_DEAL, card:a.card, board:a.board, stamps:[], startedAt:Date.now() };
   };
   if(fbReady && window.__store && window.__store.ensure){
     try{ const val=await window.__store.ensure(ref.col, ref.id, resolve); return { doc:val, made, fixed }; }
@@ -7526,7 +7564,8 @@ function mgReveal(){
    스핀 횟수 = 내 카드를 뺀 카드 수 (목표가 25명이어도 연출 시간은 그대로) */
 function mgRoulette(ov){
   const st=MG.set, p=MG.prog;
-  const idx=st.cards.map((c,i)=>i).filter(i=> i!==p.card);   /* 내 카드를 뺀 카드 차례 */
+  /* 내 카드와, 우리 반에 가진 친구가 없어 0명인 카드는 빼고 돌린다 */
+  const idx=st.cards.map((c,i)=>i).filter(i=> i!==p.card && (p.board[i]||0)>0);
   const K=idx.length;
   if(!K){ ov.remove(); return; }                             /* 카드가 한 종뿐이면 돌릴 것이 없다 */
   const SEG=8, cap=Math.max(1, st.cap||3);
