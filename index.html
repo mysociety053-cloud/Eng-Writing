@@ -882,17 +882,26 @@ const KEYS = { classes:'v1:classes', assignments:'v1:assignments', settings:'v1:
 let fbReady=false, backendError='';
 const mem={}; // 백엔드 연결 전/실패 시 임시 메모리(기기 간 공유 안 됨)
 function colName(name){ return COLLECTION_PREFIX+name; }
+/* 선생님마다 저장 공간이 따로 있다 — eng_t/{선생님 uid}/app · eng_t/{선생님 uid}/progress
+   OWNER 는 지금 이 기기가 보고 있는 선생님. 선생님 기기는 로그인한 계정, 학생 기기는 입력한 '선생님 코드'로 정해진다.
+   (예전에는 모두가 eng_app 하나를 같이 써서 다른 선생님의 학급이 다 보였다) */
+let OWNER='';
+function ownerCol(name){ return `${COLLECTION_PREFIX}t/${OWNER}/${name}`; }
 function keyRef(key){
-  if(key.indexOf('v1:prog:')===0) return { col:colName('progress'), id:key.slice(8).replace(/:/g,'__') };
-  return { col:colName('app'), id:key.replace(/^v1:/,'').replace(/:/g,'_') };
+  if(key.indexOf('v1:diag:')===0) return { col:colName('diag'), id:key.slice(8) };   /* 연결 점검용 — 선생님과 무관 */
+  if(key.indexOf('v1:prog:')===0) return { col:ownerCol('progress'), id:key.slice(8).replace(/:/g,'__') };
+  return { col:ownerCol('app'), id:key.replace(/^v1:/,'').replace(/:/g,'_') };
 }
+function hasSpace(key){ return !!OWNER || key.indexOf('v1:diag:')===0; }
 async function sGet(key, def){
-  if(fbReady && window.__store){ try{ const {col,id}=keyRef(key); const v=await window.__store.get(col,id);
+  if(fbReady && window.__store){ if(!hasSpace(key)) return def;
+    try{ const {col,id}=keyRef(key); const v=await window.__store.get(col,id);
     return v===undefined ? def : v; }catch(e){ console.warn('sGet',key,e); return def; } }
   return (key in mem)? mem[key] : def;
 }
 async function sSet(key, val){
-  if(fbReady && window.__store){ try{ const {col,id}=keyRef(key); await window.__store.set(col,id,val); return true; }
+  if(fbReady && window.__store){ if(!hasSpace(key)){ toast('선생님 코드가 정해지지 않아 저장하지 못했어요'); return false; }
+    try{ const {col,id}=keyRef(key); await window.__store.set(col,id,val); return true; }
     catch(e){ console.warn('sSet',key,e);
       const msg=(e&&(e.code||e.message))||'';
       if(/permission/i.test(msg)) toast('저장 권한이 없어요. 선생님 계정/보안 규칙의 이메일을 확인하세요.');
@@ -902,22 +911,81 @@ async function sSet(key, val){
 }
 const progKey = (aid,sid)=> `v1:prog:${aid}:${sid}`;
 async function sDel(key){
-  if(fbReady && window.__store){ try{ const {col,id}=keyRef(key); await window.__store.del(col,id); return true; }catch(e){ console.warn('sDel',key,e); return false; } }
+  if(fbReady && window.__store){ if(!hasSpace(key)) return false; try{ const {col,id}=keyRef(key); await window.__store.del(col,id); return true; }catch(e){ console.warn('sDel',key,e); return false; } }
   delete mem[key]; return true;
 }
+let liveUnsubs=[];
 function setupLiveSync(){
-  if(!(fbReady && window.__store)) return;
-  const c=colName('app');
-  window.__store.watch(c,'classes', v=> DB.classes=v||[]);
-  window.__store.watch(c,'assignments', v=> DB.assignments=v||[]);
-  window.__store.watch(c,'lists', v=> DB.lists=v||[]);
-  window.__store.watch(c,'mingle', v=> DB.mingle=v||[]);
-  window.__store.watch(c,'board', v=> DB.board=v||[]);
-  window.__store.watch(c,'land', v=> DB.land=v||[]);
-  window.__store.watch(c,'balance', v=> DB.balance=v||[]);
-  window.__store.watch(c,'ladder', v=> DB.ladder=v||[]);
-  window.__store.watch(c,'match', v=> DB.match=v||[]);
-  window.__store.watch(c,'settings', v=>{ if(v) applyVoiceSetting(v); });
+  liveUnsubs.forEach(u=>{ try{ u(); }catch(e){} }); liveUnsubs=[];
+  if(!(fbReady && window.__store && OWNER)) return;
+  const c=ownerCol('app'), me=OWNER;
+  /* 다른 선생님으로 바뀐 직후 늦게 도착한 옛 값이 덮어쓰지 않게 OWNER 를 확인한다 */
+  const w=(id, cb)=> liveUnsubs.push(window.__store.watch(c, id, v=>{ if(OWNER===me) cb(v); }));
+  w('classes', v=> DB.classes=v||[]);
+  w('assignments', v=> DB.assignments=v||[]);
+  w('lists', v=> DB.lists=v||[]);
+  w('mingle', v=> DB.mingle=v||[]);
+  w('board', v=> DB.board=v||[]);
+  w('land', v=> DB.land=v||[]);
+  w('balance', v=> DB.balance=v||[]);
+  w('ladder', v=> DB.ladder=v||[]);
+  w('match', v=> DB.match=v||[]);
+  w('settings', v=>{ if(v) applyVoiceSetting(v); });
+}
+/* 이 기기가 보는 선생님을 바꾸고 그 선생님의 자료를 새로 불러온다 */
+async function useOwner(uid){
+  uid=uid||'';
+  if(uid===OWNER && (!uid || liveUnsubs.length)) return;
+  OWNER=uid;
+  DB = { classes:[], assignments:[], lists:[], mingle:[], board:[], land:[], balance:[], ladder:[], match:[] };
+  if(!(fbReady && OWNER)){ setupLiveSync(); return; }
+  const [classes, assignments, lists, mingle, board, land, balance, ladder, match] = await Promise.all(
+    [KEYS.classes, KEYS.assignments, KEYS.lists, KEYS.mingle, KEYS.board, KEYS.land, KEYS.balance, KEYS.ladder, KEYS.match]
+      .map(k=> sGet(k, [])));
+  if(OWNER!==uid) return;                       /* 불러오는 사이에 또 바뀌었다 */
+  Object.assign(DB, { classes, assignments, lists, mingle, board, land, balance, ladder, match });
+  await loadVoiceSetting();     // 선생님이 정한 목소리·속도를 학생 기기도 그대로 쓴다
+  setupLiveSync();
+}
+
+/* ---------- 선생님 코드 ----------
+   학생 기기는 로그인하지 않으므로 '어느 선생님의 학급인지'를 코드로 고른다.
+   eng_codes/{코드} = { uid } · 선생님 공간 app/code = 그 선생님의 코드.
+   학생 기기에는 마지막으로 쓴 코드를 기억해 두고, 링크에 ?t=코드 를 붙이면 입력 없이 들어온다. */
+const TCODE_LS='eng_teacher_code';
+const TCODE_ABC='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';   /* 헷갈리는 0/O · 1/I 는 뺐다 */
+function lsGet(k){ try{ return localStorage.getItem(k)||''; }catch(e){ return ''; } }
+function lsSet(k,v){ try{ if(v) localStorage.setItem(k,v); else localStorage.removeItem(k); }catch(e){} }
+function normCode(s){ return String(s||'').toUpperCase().replace(/[^A-Z0-9]/g,''); }
+let myCode='';        /* 로그인한 선생님 자신의 코드 */
+let stuCode='';       /* 학생 기기가 고른 선생님 코드 */
+async function codeLookup(code){
+  code=normCode(code); if(!code || !(fbReady && window.__store)) return '';
+  try{ const v=await window.__store.get(colName('codes'), code); return (v && v.uid) || ''; }catch(e){ return ''; }
+}
+/* 선생님 코드를 찾아 두고, 없으면 새로 만든다 (겹치면 다른 코드로 다시) */
+async function ensureMyCode(){
+  if(!OWNER || !window.__store) return '';
+  let c=await sGet('v1:code', '');
+  if(c && await codeLookup(c)===OWNER){ myCode=c; return c; }
+  for(let i=0; i<8; i++){
+    const cand=Array.from({length:6},()=>TCODE_ABC[Math.floor(Math.random()*TCODE_ABC.length)]).join('');
+    try{
+      const got=await window.__store.ensure(colName('codes'), cand, cur=> cur? null : { uid:OWNER, at:Date.now() });
+      if(got && got.uid===OWNER){ await sSet('v1:code', cand); myCode=cand; return cand; }
+    }catch(e){ console.warn('code', e); }
+  }
+  return '';
+}
+function studentLink(code){ return location.origin + location.pathname + '?t=' + encodeURIComponent(code); }
+/* 지금 로그인 상태에 맞게 OWNER 를 정한다 — 선생님이면 자기 공간, 아니면 학생이 고른 코드의 공간 */
+async function syncOwner(){
+  if(isTeacherSignedIn()){ const u=window.__auth.current(); await useOwner(u && u.uid); return; }
+  myCode='';
+  if(!stuCode) stuCode=lsGet(TCODE_LS);
+  const uid = stuCode ? await codeLookup(stuCode) : '';
+  if(stuCode && !uid){ stuCode=''; lsSet(TCODE_LS,''); }
+  await useOwner(uid);
 }
 
 /* ============================ APP STATE ============================ */
@@ -946,17 +1014,9 @@ async function boot(){
   const b = window.__backend || { ready:false };
   fbReady = !!b.ready; backendError = b.error||'';
   if(fbReady){
-    DB.classes = await sGet(KEYS.classes, []);
-    DB.assignments = await sGet(KEYS.assignments, []);
-    DB.lists = await sGet(KEYS.lists, []);
-    DB.mingle = await sGet(KEYS.mingle, []);
-    DB.board = await sGet(KEYS.board, []);
-    DB.land = await sGet(KEYS.land, []);
-    DB.balance = await sGet(KEYS.balance, []);
-    DB.ladder = await sGet(KEYS.ladder, []);
-    DB.match = await sGet(KEYS.match, []);
-    await loadVoiceSetting();     // 선생님이 정한 목소리·속도를 학생 기기도 그대로 쓴다
-    setupLiveSync();
+    /* 링크에 ?t=코드 가 붙어 오면 그 선생님의 학생으로 들어온다 */
+    try{ const t=normCode(new URLSearchParams(location.search).get('t')); if(t){ stuCode=t; lsSet(TCODE_LS,t); } }catch(e){}
+    await syncOwner();
   }
   await document.fonts.ready.catch(()=>{});
   if(!BACKEND_READY){ renderSetupNeeded(); return; }
@@ -973,26 +1033,34 @@ function renderSetupNeeded(){
         <li><b>Firestore Database → 데이터베이스 추가</b> → <b>프로덕션 모드</b>, 위치 <b>asia-northeast3</b>, ID <b>english-trace</b>로 생성.</li>
         <li><b>Authentication → 시작하기</b> → 로그인 방법에서 <b>이메일/비밀번호</b>와 <b>익명</b> 두 가지를 <b>사용 설정</b>.</li>
         <li><b>⚙️ 프로젝트 설정 → 내 앱</b>의 <b>firebaseConfig</b> 복사 → 파일 위쪽 <b>FIREBASE_CONFIG</b>에 붙여넣고, <b>DATABASE_ID</b>를 <code>english-trace</code>로.</li>
-        <li>그 전용 DB의 <b>규칙(Rules)</b> 탭에 아래 규칙을 붙여넣고 <b>게시</b>. (이메일은 선생님 본인 것으로 바꾸기)</li>
+        <li>그 전용 DB의 <b>규칙(Rules)</b> 탭에 아래 규칙을 붙여넣고 <b>게시</b>.</li>
         <li><b>Netlify Drop</b>(netlify.com/drop)에 파일을 올려 링크 완성 → 학생들에게 공유.</li>
-        <li>그 링크로 들어가 <b>선생님</b> → <b>계정 만들기</b>로 위 4번에 적은 이메일/비번 계정을 한 번 생성하면 끝!</li>
+        <li>그 링크로 들어가 <b>선생님</b> → <b>계정 만들기</b>. 선생님마다 계정을 만들면 자료가 따로 저장되고, 학생은 선생님 코드로 들어와요.</li>
       </ol>
       <div style="background:#FBF3E0; border:2px solid var(--gold); border-radius:12px; padding:12px; margin-top:6px">
-        <b>보안 규칙</b> — 쓰기는 선생님 계정만, 읽기·진행 저장은 인증된 사용자(학생 익명 포함):
+        <b>보안 규칙</b> — 선생님마다 자기 공간(eng_t/{uid})에만 쓸 수 있고, 학생(익명)은 기록만 남겨요:
         <code style="font-size:.8rem; display:block; margin-top:6px; white-space:pre-wrap">rules_version = '2';
 service cloud.firestore {
   match /databases/{db}/documents {
-    match /eng_app/{doc} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null
-        && request.auth.token.email == 'teacher@example.com';
+    function signed(){ return request.auth != null; }
+    function teacher(){ return signed() &amp;&amp; request.auth.token.firebase.sign_in_provider != 'anonymous'; }
+    match /eng_t/{owner}/app/{doc} {
+      allow read: if signed();
+      allow write: if teacher() &amp;&amp; request.auth.uid == owner;
     }
-    match /eng_progress/{doc} {
-      allow read, write: if request.auth != null;
+    match /eng_t/{owner}/progress/{doc} {
+      allow read, write: if signed();
+    }
+    match /eng_codes/{code} {
+      allow read: if signed();
+      allow create: if teacher() &amp;&amp; request.resource.data.value.uid == request.auth.uid;
+    }
+    match /eng_diag/{doc} {
+      allow read, write: if signed();
     }
   }
 }</code>
-        <span class="muted" style="font-size:.8rem">※ <b>teacher@example.com</b>을 선생님 이메일로 꼭 바꾸세요. 이 이메일 계정만 학급·과제를 만들 수 있어요. (접두사 eng_를 바꿨다면 규칙 이름도 맞추기)</span>
+        <span class="muted" style="font-size:.8rem">※ 접두사 eng_를 바꿨다면 규칙 이름도 맞추기</span>
       </div>
       <p class="muted" style="margin-top:12px">설정을 마치면 이 화면 대신 시작 화면이 떠요. 연결은 <b>🔧 연결 상태 확인</b>으로 점검할 수 있어요.</p>
       <div class="center" style="margin-top:8px"><button class="btn" id="goDiag2">🔧 연결 상태 확인</button></div>
@@ -1041,6 +1109,7 @@ async function signOutTeacher(){
   bingoLeave(); mingleLeave(); bdLeave(); ldLeave(); blLeave(); sdLeave(); wmLeave(); tkLeave();
   session={role:null,name:null,classId:null,studentId:null};
   if(window.__auth) await window.__auth.signOutToAnon();
+  await syncOwner();          /* 이 기기에서 선생님 자료를 내린다 */
   toast('로그아웃했어요');
   renderHome();
 }
@@ -1110,14 +1179,55 @@ function renderHome(){
       <p class="center" style="margin:16px 0 0"><button class="back" id="goDiag" style="font-size:.85rem">🔧 연결 상태 확인</button></p>
     </div>`;
   $('goTeacher').onclick = teacherLogin;
-  $('goStudent').onclick = studentMenu;
+  $('goStudent').onclick = studentEnter;
   $('goDiag').onclick = diagnosticsScreen;
 }
 /* 로그인 상태가 늦게(또는 다른 탭에서) 바뀌어도 시작 화면과 머리말이 따라오게 한다 */
-window.__onUser = ()=>{ try{ refreshWho(); if(!session.role && $('goTeacher')) renderHome(); }catch(e){} };
+window.__onUser = ()=>{ try{ refreshWho(); if(!session.role && $('goTeacher')) renderHome(); }catch(e){}
+  /* 다른 탭에서 로그인·로그아웃해도 보는 선생님 공간이 따라가게 한다 */
+  if(window.__booted && fbReady) syncOwner().catch(e=>console.warn('owner',e)); };
 
+/* 학생 입구 — 어느 선생님의 학급인지 정해져 있어야 들어간다 */
+function studentEnter(){
+  if(OWNER || !fbReady) studentMenu(); else studentCodeScreen();
+}
+function studentCodeScreen(){
+  bingoLeave(); mingleLeave(); bdLeave(); ldLeave(); blLeave(); sdLeave(); wmLeave(); tkLeave();
+  app.innerHTML = `
+    <button class="back" onclick="renderHome()">← 처음으로</button>
+    <div class="card center" style="max-width:440px; margin:0 auto">
+      <h2 style="margin-top:4px">🔑 선생님 코드</h2>
+      <p class="muted">선생님이 알려 준 코드 6글자를 넣어요.<br>한 번 넣으면 이 기기가 기억해요.</p>
+      <input id="tcIn" maxlength="8" autocomplete="off" autocapitalize="characters" spellcheck="false"
+        style="font-size:2rem; letter-spacing:.3em; text-align:center; text-transform:uppercase; width:100%" placeholder="ABC123">
+      <button class="btn lg" style="width:100%; margin-top:12px" id="tcGo">들어가기</button>
+    </div>`;
+  const go=async ()=>{
+    const code=normCode($('tcIn').value);
+    if(code.length<4) return toast('코드를 다시 확인해요');
+    const b=$('tcGo'); b.disabled=true; b.textContent='찾는 중...';
+    const uid=await codeLookup(code);
+    if(!uid){ b.disabled=false; b.textContent='들어가기'; return toast('없는 코드예요. 선생님께 다시 물어봐요'); }
+    stuCode=code; lsSet(TCODE_LS, code);
+    await useOwner(uid);
+    studentMenu();
+  };
+  $('tcGo').onclick=go;
+  $('tcIn').addEventListener('keydown', e=>{ if(e.key==='Enter') go(); });
+  setTimeout(()=>{ try{ $('tcIn').focus(); }catch(e){} }, 50);
+}
+/* 다른 선생님 반으로 옮길 때 — 기억한 코드를 지우고 다시 입력 */
+async function studentChangeCode(){
+  stuCode=''; lsSet(TCODE_LS,'');
+  await useOwner('');
+  studentCodeScreen();
+}
 function studentMenu(){
   bingoLeave(); mingleLeave(); bdLeave(); ldLeave(); blLeave(); sdLeave(); wmLeave(); tkLeave();
+  if(fbReady && !OWNER) return studentCodeScreen();
+  const codeLine = (!isTeacherSignedIn() && stuCode)
+    ? `<p class="muted" style="margin:14px 0 0; font-size:.82rem">선생님 코드 <b>${esc(stuCode)}</b> ·
+        <button class="back" style="font-size:.82rem" onclick="studentChangeCode()">다른 선생님 코드 넣기</button></p>` : '';
   app.innerHTML = `
     <button class="back" onclick="renderHome()">← 처음으로</button>
     <div class="card center">
@@ -1129,7 +1239,7 @@ function studentMenu(){
         <div class="tile" id="goSpeak"><span class="emoji">🗣️</span><div class="t">또박또박 영어 말하기</div><div class="s">듣고 따라 말하기</div></div>
         <div class="tile" id="goTalk"><span class="emoji">💬</span><div class="t">또박또박 영어로 대화하기</div><div class="s">짝과 역할 맡아 주고받기</div></div>
         <div class="tile" id="goMission"><span class="emoji">🎯</span><div class="t">미션 활동</div><div class="s">빙고 · 카드 · 보드게임 · 땅따먹기 · 밸런스 · 사다리</div></div>
-      </div>
+      </div>${codeLine}
     </div>`;
   $('goWrite').onclick = ()=>{ studentMode='write'; studentPickClass(); };
   $('goFill').onclick = ()=>{ studentMode='fill'; studentPickClass(); };
@@ -1443,7 +1553,7 @@ async function diagnosticsScreen(){
       const r=await sGet('v1:diag:self', null);
       const ok=r && r.code===code;
       body.innerHTML = ok
-        ? '<div style="background:#E3F3ED; border:2px solid var(--green); border-radius:12px; padding:12px">✅ <b>백엔드(Firebase) 연결 OK!</b><br>같은 링크로 들어온 모든 기기가 데이터를 공유해요.<br>아래 <b>동기화 테스트</b>로 다른 기기에서도 한 번 확인해 보세요.</div>'
+        ? '<div style="background:#E3F3ED; border:2px solid var(--green); border-radius:12px; padding:12px">✅ <b>백엔드(Firebase) 연결 OK!</b><br>같은 선생님 코드로 들어온 기기끼리 데이터를 공유해요.<br>아래 <b>동기화 테스트</b>로 다른 기기에서도 한 번 확인해 보세요.</div>'
         : '<div style="background:#FCE6DF; border:2px solid var(--coral); border-radius:12px; padding:12px">⚠️ 저장은 됐는데 바로 읽기 확인이 안 됐어요. 동기화 테스트로 다시 확인해 주세요.</div>';
     }catch(e){ body.innerHTML='⚠️ 저장 시도 중 오류: '+esc(e.message); }
   }
@@ -1472,7 +1582,7 @@ async function diagnosticsScreen(){
 /* ============================ TEACHER LOGIN ============================ */
 async function teacherLogin(){
   // 이미 선생님으로 로그인돼 있으면 바로 통과
-  if(window.__auth && window.__auth.isTeacher()){ session.role='teacher'; teacherHome(); return; }
+  if(window.__auth && window.__auth.isTeacher()){ await syncOwner(); session.role='teacher'; teacherHome(); return; }
   if(!(window.__auth)){ toast('백엔드 준비 중이에요. 잠시 후 다시 시도하세요'); return; }
   let mode='in'; // 'in' 로그인 / 'up' 계정만들기
   const draw=()=>{
@@ -1510,6 +1620,7 @@ async function teacherLogin(){
     try{
       if(mode==='up') await window.__auth.signUp(email, pw);
       else await window.__auth.signIn(email, pw);
+      await syncOwner();       /* 이 선생님의 자료만 불러온다 */
       session.role='teacher'; toast('환영합니다, 선생님! 👩‍🏫'); teacherHome();
     }catch(e){
       const m=(e&&e.code)||'';
@@ -1539,13 +1650,67 @@ function teacherHome(){
         <div class="tile" id="mMission"><span class="emoji">🎯</span><div class="t">미션 활동</div><div class="s">듣기 빙고 · 카드 미션 · 보드게임 · 땅따먹기 · 밸런스 · 사다리</div></div>
         <div class="tile" id="mVoice"><span class="emoji">🔊</span><div class="t">소리 설정</div><div class="s">${esc(voiceInfo().label)} · ${esc(speedLabel(VOICE.rate))}</div></div>
       </div>
-    </div>`;
+    </div>
+    <div class="card" id="codeCard"><span class="muted">선생님 코드를 확인하는 중...</span></div>
+    <div id="migrateBox"></div>`;
+  teacherCodeCard();
+  offerMigration();
   $('mClass').onclick = manageClasses;
   $('mNew').onclick = ()=> createAssignment();
   $('mDash').onclick = ()=> dashboardOpen(null);
   $('mText').onclick = textbookRoomTeacher;
   $('mMission').onclick = missionRoomTeacher;
   $('mVoice').onclick = voiceSettings;
+}
+
+/* 학생에게 알려 줄 선생님 코드와 링크 — 학생 기기는 이 코드로 이 선생님의 학급만 본다 */
+async function teacherCodeCard(){
+  const code=myCode || await ensureMyCode();
+  const box=$('codeCard'); if(!box) return;
+  if(!code){ box.innerHTML='<span class="muted">⚠️ 선생님 코드를 만들지 못했어요. 인터넷 연결과 보안 규칙을 확인해 주세요.</span>'; return; }
+  const link=studentLink(code);
+  box.innerHTML=`<h3 style="margin:0 0 6px">🔑 우리 반 학생 입장 코드</h3>
+    <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap">
+      <b style="font-size:2rem; letter-spacing:.25em; color:var(--green-d)">${esc(code)}</b>
+      <button class="btn ghost sm" id="copyLink">🔗 학생용 링크 복사</button>
+    </div>
+    <p class="muted" style="margin:6px 0 0; font-size:.83rem; word-break:break-all">학생은 이 링크로 들어오거나, 「학생」에서 코드를 한 번 넣으면 돼요.
+      다른 선생님께는 이 코드가 아니라 <b>사이트 주소</b>만 알려 주세요 — 각자 계정을 만들면 자료가 따로 저장돼요.<br>${esc(link)}</p>`;
+  $('copyLink').onclick=async ()=>{
+    try{ await navigator.clipboard.writeText(link); toast('링크를 복사했어요 📋'); }
+    catch(e){ prompt('아래 링크를 복사하세요', link); }
+  };
+}
+/* 예전(선생님 공간을 나누기 전)에 한 곳에 모여 있던 자료를 내 공간으로 한 번 옮겨 온다.
+   옛 자료는 보안 규칙에서 원래 주인 이메일만 읽을 수 있으므로 다른 선생님에게는 이 버튼이 뜨지 않는다. */
+async function offerMigration(){
+  const box=$('migrateBox'); if(!box || !OWNER || !(window.__store && window.__store.copyAll)) return;
+  if(DB.classes.length || DB.lists.length || DB.assignments.length) return;   /* 이미 내 자료가 있다 */
+  if(await sGet('v1:migrated', null)) return;
+  let old=null;
+  try{ old=await window.__store.get(colName('app'), 'classes'); }catch(e){ return; }   /* 읽을 권한 없음 = 내 자료 아님 */
+  if(!Array.isArray(old) || !old.length || !$('migrateBox')) return;
+  box.innerHTML=`<div class="card" style="background:#FBF3E0; border:2px solid var(--gold)">
+    <h3 style="margin:0 0 6px">📦 예전 자료 가져오기</h3>
+    <p class="muted" style="margin:0 0 10px">선생님별 저장으로 바뀌기 전에 만든 학급 ${old.length}개(${esc(old.map(c=>c.name).join(', '))})와
+      낱말·과제·활동·학생 기록이 있어요. 내 계정으로 옮겨 올까요? (한 번만 하면 돼요)</p>
+    <button class="btn" id="doMigrate">내 계정으로 가져오기</button></div>`;
+  $('doMigrate').onclick=async ()=>{
+    const b=$('doMigrate'); b.disabled=true; b.textContent='옮기는 중... 창을 닫지 마세요';
+    try{
+      const skip=id=> id==='code' || id==='migrated' || id.indexOf('diag')===0;
+      const n1=await window.__store.copyAll(colName('app'), ownerCol('app'), skip);
+      const n2=await window.__store.copyAll(colName('progress'), ownerCol('progress'), ()=>false);
+      await sSet('v1:migrated', { at:Date.now(), app:n1, progress:n2 });
+      const me=OWNER; OWNER=''; await useOwner(me);                /* 옮겨 온 자료로 다시 불러오기 */
+      toast(`가져왔어요! (자료 ${n1}개 · 학생 기록 ${n2}개)`);
+      teacherHome();
+    }catch(e){
+      console.warn('migrate', e);
+      b.disabled=false; b.textContent='다시 시도';
+      toast('옮기다가 멈췄어요: '+String((e&&(e.code||e.message))||'').slice(0,60));
+    }
+  };
 }
 
 /* 교과서 활동 방 — 학생 메뉴의 ✏️ 쓰기 · 🧩 문장 완성 · 🗣️ 말하기 · 💬 대화하기와 같은 네 가지.
@@ -5466,7 +5631,7 @@ async function talkStudent(){
     }
   };
   if(fbReady && window.__store){
-    TK.unsubs.push(window.__store.watch(colName('app'), keyRef(talkKey(session.classId)).id, (v)=>{ apply(v); }));
+    TK.unsubs.push(window.__store.watch(keyRef(talkKey(session.classId)).col, keyRef(talkKey(session.classId)).id, (v)=>{ apply(v); }));
   } else {
     await apply(await sGet(talkKey(session.classId), null));
   }
@@ -6844,7 +7009,7 @@ function bingoRun(sess){
   if(sess.listId) pixMap(sess.listId).then(m=>{
     if(BG && BG.role==='teacher' && BG.sess && BG.sess.id===sess.id){ BG.pix=m; bingoRunDraw(); } });
   if(fbReady && window.__store){
-    BG.unsubs.push(window.__store.watchWhere(colName('progress'), 'value.sess', sess.id, (rows)=>{
+    BG.unsubs.push(window.__store.watchWhere(ownerCol('progress'), 'value.sess', sess.id, (rows)=>{
       BG.players=rows; bingoRunDraw();
     }));
   }
@@ -7082,7 +7247,7 @@ async function bingoStudent(){
   if(!BG) return;                       /* 기다리는 사이에 화면을 떠났으면 중단 */
   BG.me=saved;
   if(fbReady && window.__store){
-    BG.unsubs.push(window.__store.watch(colName('app'), keyRef(bingoKey(session.classId)).id, (v)=>{
+    BG.unsubs.push(window.__store.watch(keyRef(bingoKey(session.classId)).col, keyRef(bingoKey(session.classId)).id, (v)=>{
       if(!BG || BG.role!=='student') return;
       BG.sess=v||null; bingoStudentSync();
     }));
@@ -7831,7 +7996,7 @@ function mgDashWatch(){
   MG.rows=[]; mgDashDraw();
   if(!MG.cid) return;
   if(!(fbReady && window.__store && window.__store.watchWhere)) return;
-  mgUnsub = window.__store.watchWhere(colName('progress'), 'value.mgKey', MG.setId+'|'+MG.cid,
+  mgUnsub = window.__store.watchWhere(ownerCol('progress'), 'value.mgKey', MG.setId+'|'+MG.cid,
     (rows)=>{ if(!MG || MG.role!=='teacher') return; MG.rows=rows||[]; mgDashDraw(); });
 }
 function mgDashDraw(){
@@ -8592,13 +8757,13 @@ async function balanceRun(setId, cid){
 function blRunWatch(){
   if(!BL || !(fbReady && window.__store)) return;
   (BL.unsubs||[]).forEach(u=>{ try{ u(); }catch(e){} }); BL.unsubs=[];
-  BL.unsubs.push(window.__store.watch(colName('app'), keyRef(blSKey(BL.setId,BL.cid)).id, (v)=>{
+  BL.unsubs.push(window.__store.watch(keyRef(blSKey(BL.setId,BL.cid)).col, keyRef(blSKey(BL.setId,BL.cid)).id, (v)=>{
     if(!BL || BL.role!=='teacher') return;
     BL.sess = v || null;
     blRunDraw();
   }));
   if(window.__store.watchWhere){
-    BL.unsubs.push(window.__store.watchWhere(colName('progress'), 'value.blKey', BL.setId+'|'+BL.cid, (rows)=>{
+    BL.unsubs.push(window.__store.watchWhere(ownerCol('progress'), 'value.blKey', BL.setId+'|'+BL.cid, (rows)=>{
       if(!BL || BL.role!=='teacher') return;
       BL.rows=rows||[];
       blRunDraw();                       /* 누가 들어왔는지·몇 명이 답했는지 바로 보인다 */
@@ -8820,7 +8985,7 @@ function blDashWatch(){
   BL.rows=[]; blDashDraw();
   if(!BL.cid) return;
   if(!(fbReady && window.__store && window.__store.watchWhere)) return;
-  BL.unsubs.push(window.__store.watchWhere(colName('progress'), 'value.blKey', BL.setId+'|'+BL.cid,
+  BL.unsubs.push(window.__store.watchWhere(ownerCol('progress'), 'value.blKey', BL.setId+'|'+BL.cid,
     (rows)=>{ if(!BL || BL.role!=='dash') return; BL.rows=rows||[]; blDashDraw(); }));
 }
 function blDashDraw(){
@@ -8907,7 +9072,7 @@ async function blJoin(setId){
   if(!BL || BL.role!=='student') return;
   BL.me=saved;
   if(fbReady && window.__store){
-    BL.unsubs.push(window.__store.watch(colName('app'), keyRef(blSKey(setId, session.classId)).id, (v)=>{
+    BL.unsubs.push(window.__store.watch(keyRef(blSKey(setId, session.classId)).col, keyRef(blSKey(setId, session.classId)).id, (v)=>{
       if(!BL || BL.role!=='student') return;
       BL.sess=v||null; blStuSync();
     }));
@@ -9916,12 +10081,12 @@ async function ladderRun(setId, cid){
 function sdRunWatch(){
   if(!SD || !(fbReady && window.__store)) return;
   (SD.unsubs||[]).forEach(u=>{ try{ u(); }catch(e){} }); SD.unsubs=[];
-  SD.unsubs.push(window.__store.watch(colName('app'), keyRef(sdSKey(SD.setId,SD.cid)).id, (v)=>{
+  SD.unsubs.push(window.__store.watch(keyRef(sdSKey(SD.setId,SD.cid)).col, keyRef(sdSKey(SD.setId,SD.cid)).id, (v)=>{
     if(!SD || SD.role!=='teacher') return;
     SD.sess=v||null; sdRunDraw();
   }));
   if(window.__store.watchWhere){
-    SD.unsubs.push(window.__store.watchWhere(colName('progress'), 'value.sdKey', SD.setId+'|'+SD.cid, (rows)=>{
+    SD.unsubs.push(window.__store.watchWhere(ownerCol('progress'), 'value.sdKey', SD.setId+'|'+SD.cid, (rows)=>{
       if(!SD || SD.role!=='teacher') return;
       SD.rows=rows||[];
       sdRunDraw();                       /* 누가 들어왔는지·몇 명이 골랐는지 바로 보인다 */
@@ -10194,7 +10359,7 @@ function sdDashWatch(){
   SD.rows=[]; sdDashDraw();
   if(!SD.cid) return;
   if(!(fbReady && window.__store && window.__store.watchWhere)) return;
-  SD.unsubs.push(window.__store.watchWhere(colName('progress'), 'value.sdKey', SD.setId+'|'+SD.cid,
+  SD.unsubs.push(window.__store.watchWhere(ownerCol('progress'), 'value.sdKey', SD.setId+'|'+SD.cid,
     (rows)=>{ if(!SD || SD.role!=='dash') return; SD.rows=rows||[]; sdDashDraw(); }));
 }
 function sdDashDraw(){
@@ -10277,7 +10442,7 @@ async function sdJoin(setId){
   if(!SD || SD.role!=='student') return;
   SD.me=saved;
   if(fbReady && window.__store){
-    SD.unsubs.push(window.__store.watch(colName('app'), keyRef(sdSKey(setId, session.classId)).id, (v)=>{
+    SD.unsubs.push(window.__store.watch(keyRef(sdSKey(setId, session.classId)).col, keyRef(sdSKey(setId, session.classId)).id, (v)=>{
       if(!SD || SD.role!=='student') return;
       SD.sess=v||null; sdStuSync();
     }));
@@ -10839,8 +11004,8 @@ setTimeout(()=>{ if(!window.__booted) boot(); }, 10000);
     const fsMod  = await imp([`https://cdn.jsdelivr.net/npm/firebase@${V}/firestore/+esm`, `https://www.gstatic.com/firebasejs/${V}/firebase-firestore.js`]);
     const auMod  = await imp([`https://cdn.jsdelivr.net/npm/firebase@${V}/auth/+esm`, `https://www.gstatic.com/firebasejs/${V}/firebase-auth.js`]);
     const { initializeApp } = appMod;
-    const { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where,
-            runTransaction, arrayUnion } = fsMod;
+    const { getFirestore, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where,
+            runTransaction, arrayUnion, writeBatch } = fsMod;
     const { getAuth, onAuthStateChanged, signInAnonymously, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail } = auMod;
     const appFb = initializeApp(cfg.config);
     const db = cfg.dbId ? getFirestore(appFb, cfg.dbId) : getFirestore(appFb);
@@ -10876,6 +11041,17 @@ setTimeout(()=>{ if(!window.__booted) boot(); }, 10000);
       // 배열에 한 칸만 덧붙인다 — 문서를 통째로 다시 쓰지 않는다 (도장 1개 = 1 write)
       async push(col, id, field, item){
         await updateDoc(doc(db, col, id), { ['value.'+field]: arrayUnion(item) });
+      },
+      // 컬렉션 하나를 통째로 다른 곳에 복사한다 (예전 공용 자료 → 선생님 공간, 한 번만)
+      async copyAll(fromCol, toCol, skip){
+        const snap = await getDocs(collection(db, fromCol));
+        const docs = snap.docs.filter(d=> !(skip && skip(d.id)));
+        for(let i=0; i<docs.length; i+=400){
+          const b = writeBatch(db);
+          docs.slice(i, i+400).forEach(d=> b.set(doc(db, toCol, d.id), d.data()));
+          await b.commit();
+        }
+        return docs.length;
       },
       // 같은 필드값을 가진 문서들을 통째로 구독 (빙고 교사 대시보드용)
       watchWhere(col, field, val, cb){
