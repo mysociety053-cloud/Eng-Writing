@@ -1697,10 +1697,14 @@ async function offerMigration(){
     <button class="btn" id="doMigrate">내 계정으로 가져오기</button></div>`;
   $('doMigrate').onclick=async ()=>{
     const b=$('doMigrate'); b.disabled=true; b.textContent='옮기는 중... 창을 닫지 마세요';
+    let err=$('migrateErr'); if(err) err.remove();
+    let stage='자료(학급·목록·과제·활동)';
+    const step=(d,t)=>{ if($('doMigrate')) $('doMigrate').textContent=`${stage} 옮기는 중 ${d}/${t}...`; };
     try{
       const skip=id=> id==='code' || id==='migrated' || id.indexOf('diag')===0;
-      const n1=await window.__store.copyAll(colName('app'), ownerCol('app'), skip);
-      const n2=await window.__store.copyAll(colName('progress'), ownerCol('progress'), ()=>false);
+      const n1=await window.__store.copyAll(colName('app'), ownerCol('app'), skip, step);
+      stage='학생 기록';
+      const n2=await window.__store.copyAll(colName('progress'), ownerCol('progress'), ()=>false, step);
       await sSet('v1:migrated', { at:Date.now(), app:n1, progress:n2 });
       const me=OWNER; OWNER=''; await useOwner(me);                /* 옮겨 온 자료로 다시 불러오기 */
       toast(`가져왔어요! (자료 ${n1}개 · 학생 기록 ${n2}개)`);
@@ -1708,7 +1712,18 @@ async function offerMigration(){
     }catch(e){
       console.warn('migrate', e);
       b.disabled=false; b.textContent='다시 시도';
-      toast('옮기다가 멈췄어요: '+String((e&&(e.code||e.message))||'').slice(0,60));
+      /* 알림은 금방 사라지니 이유를 상자 안에 남겨 둔다 (다시 시도해도 이미 옮긴 것은 그대로 덮어써서 괜찮다) */
+      const code=String((e&&e.code)||''), what=e&&e.step==='read'?'읽기':'쓰기';
+      const hint = /permission/.test(code)
+        ? (e.step==='read'
+            ? '예전 자료를 읽을 권한이 없어요. 보안 규칙의 eng_app · eng_progress 두 곳 이메일이 지금 로그인한 이메일과 똑같은지 확인해 주세요.'
+            : '내 공간에 쓸 권한이 없어요. 보안 규칙에 eng_t 부분이 게시됐는지 확인해 주세요.')
+        : /invalid-argument|too large|exceeds/i.test(code+' '+(e&&e.message))
+          ? '한 번에 보내는 양이 너무 커요.'
+          : '인터넷 연결을 확인하고 다시 시도해 주세요.';
+      b.insertAdjacentHTML('afterend', `<p id="migrateErr" style="margin:10px 0 0; color:var(--coral-d); font-size:.88rem">
+        ⚠️ ${esc(stage)} ${what} 중에 멈췄어요. ${esc(hint)}<br>
+        <span class="muted" style="font-size:.8rem">오류: ${esc(code)} ${esc(String((e&&e.message)||'').slice(0,160))}</span></p>`);
     }
   };
 }
@@ -11043,14 +11058,25 @@ setTimeout(()=>{ if(!window.__booted) boot(); }, 10000);
         await updateDoc(doc(db, col, id), { ['value.'+field]: arrayUnion(item) });
       },
       // 컬렉션 하나를 통째로 다른 곳에 복사한다 (예전 공용 자료 → 선생님 공간, 한 번만)
-      async copyAll(fromCol, toCol, skip){
-        const snap = await getDocs(collection(db, fromCol));
+      // 한 번에 보내는 양은 Firestore 한도(500개 · 10MB)보다 넉넉히 작게 — 사진이 든 문서는 하나가 1MB 가까이 된다
+      async copyAll(fromCol, toCol, skip, onStep){
+        let snap;
+        try{ snap = await getDocs(collection(db, fromCol)); }
+        catch(e){ e.step='read'; throw e; }
         const docs = snap.docs.filter(d=> !(skip && skip(d.id)));
-        for(let i=0; i<docs.length; i+=400){
-          const b = writeBatch(db);
-          docs.slice(i, i+400).forEach(d=> b.set(doc(db, toCol, d.id), d.data()));
-          await b.commit();
+        const MAX_N=200, MAX_B=3*1024*1024;
+        let b=writeBatch(db), n=0, bytes=0, done=0;
+        const flush=async ()=>{ if(!n) return;
+          try{ await b.commit(); }catch(e){ e.step='write'; throw e; }
+          done+=n; if(onStep) onStep(done, docs.length);
+          b=writeBatch(db); n=0; bytes=0; };
+        for(const d of docs){
+          const data=d.data();
+          let size=0; try{ size=JSON.stringify(data).length*2; }catch(e){}
+          if(n && (n>=MAX_N || bytes+size>MAX_B)) await flush();
+          b.set(doc(db, toCol, d.id), data); n++; bytes+=size;
         }
+        await flush();
         return docs.length;
       },
       // 같은 필드값을 가진 문서들을 통째로 구독 (빙고 교사 대시보드용)
